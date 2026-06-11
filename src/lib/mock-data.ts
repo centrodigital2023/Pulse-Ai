@@ -134,10 +134,10 @@ export interface Metric {
 }
 
 export const metrics: Metric[] = [
-  { label: "NET REVENUE", value: "$412,840.50", delta: "+18.4% from last month", positive: true },
-  { label: "CURRENT MRR", value: "$38,400.00", delta: "24 new subscribers today", positive: true },
-  { label: "CONVERSION", value: "5.62%", delta: "+0.8% from last month", positive: true },
-  { label: "CHURN", value: "1.4%", delta: "-0.5% from last month", positive: true },
+  { label: "INGRESOS NETOS", value: "$412,840.50", delta: "+18.4% vs mes anterior", positive: true },
+  { label: "MRR ACTUAL", value: "$38,400.00", delta: "24 nuevos suscriptores hoy", positive: true },
+  { label: "CONVERSIÓN", value: "5.62%", delta: "+0.8% vs mes anterior", positive: true },
+  { label: "CHURN", value: "1.4%", delta: "-0.5% vs mes anterior", positive: true },
 ];
 
 export const revenueSeries = [
@@ -150,10 +150,10 @@ export const revenueSeries = [
 ];
 
 export const funnel = [
-  { stage: "Viewed product", count: 142100, pct: 100 },
-  { stage: "Started checkout", count: 18420, pct: 13.0 },
-  { stage: "Completed payment", count: 7988, pct: 5.6 },
-  { stage: "Downloaded files", count: 7640, pct: 5.4 },
+  { stage: "Vio el producto", count: 142100, pct: 100 },
+  { stage: "Inició el checkout", count: 18420, pct: 13.0 },
+  { stage: "Completó el pago", count: 7988, pct: 5.6 },
+  { stage: "Descargó archivos", count: 7640, pct: 5.4 },
 ];
 
 // ─── Customers / CRM ─────────────────────────────────────────────────────────
@@ -247,12 +247,12 @@ export interface Activity {
 }
 
 export const activity: Activity[] = [
-  { id: "a1", who: "Alex Rivera", action: "purchased", target: "AI Engineering Masterclass", meta: "2 mins ago · San Francisco, US · $299" },
-  { id: "a2", who: "Sarah Chen", action: "downloaded", target: "Shader Pack .zip", meta: "14 mins ago · London, UK" },
-  { id: "a3", who: "Marcus Jensen", action: "activated", target: "Enterprise License ×12", meta: "1 hour ago · Berlin, DE" },
-  { id: "a4", who: "Priya Nair", action: "subscribed to", target: "SaaS Starter Stack", meta: "3 hours ago · Bengaluru, IN · $29/mo" },
-  { id: "a5", who: "Yuki Tanaka", action: "renewed", target: "Enterprise Design System", meta: "5 hours ago · Tokyo, JP · $199/mo" },
-  { id: "a6", who: "Omar Hassan", action: "purchased", target: "Neural-Kit SDK", meta: "6 hours ago · Cairo, EG · $149" },
+  { id: "a1", who: "Alex Rivera", action: "compró", target: "AI Engineering Masterclass", meta: "hace 2 min · San Francisco, US · $299" },
+  { id: "a2", who: "Sarah Chen", action: "descargó", target: "Shader Pack .zip", meta: "hace 14 min · Londres, UK" },
+  { id: "a3", who: "Marcus Jensen", action: "activó", target: "Licencia Enterprise ×12", meta: "hace 1 hora · Berlín, DE" },
+  { id: "a4", who: "Priya Nair", action: "se suscribió a", target: "SaaS Starter Stack", meta: "hace 3 horas · Bengaluru, IN · $29/mes" },
+  { id: "a5", who: "Yuki Tanaka", action: "renovó", target: "Enterprise Design System", meta: "hace 5 horas · Tokio, JP · $199/mes" },
+  { id: "a6", who: "Omar Hassan", action: "compró", target: "Neural-Kit SDK", meta: "hace 6 horas · El Cairo, EG · $149" },
 ];
 
 // ─── Library ─────────────────────────────────────────────────────────────────

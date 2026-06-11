@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/dashboard/products/new")({
-  head: () => ({ meta: [{ title: "New product — PULSE AI" }] }),
+  head: () => ({ meta: [{ title: "Nuevo Producto — PULSE AI" }] }),
   component: NewProduct,
 });
 
@@ -22,9 +22,9 @@ interface Asset {
 }
 
 const tabs = [
-  { key: "code", label: "Source Code", icon: FileCode, hint: "ZIP, binaries, plugins up to 10 GB" },
-  { key: "docs", label: "Documentation", icon: FileText, hint: "PDF guides, opened in-browser by buyers" },
-  { key: "video", label: "Video Modules", icon: Video, hint: ".mp4 / .mkv — adaptive HLS streaming" },
+  { key: "code", label: "Código Fuente", icon: FileCode, hint: "ZIP, binarios, plugins — hasta 10 GB" },
+  { key: "docs", label: "Documentación", icon: FileText, hint: "Guías PDF, se abren en el navegador del comprador" },
+  { key: "video", label: "Módulos de Video", icon: Video, hint: ".mp4 / .mkv — streaming adaptativo HLS" },
 ] as const;
 
 function DropZone({
@@ -48,7 +48,7 @@ function DropZone({
             </div>
             <div>
               <div className="text-xs font-medium">{a.name}</div>
-              <div className="text-[10px] text-muted-foreground">{a.size} • CDN ready (Cloudflare/Fastly)</div>
+              <div className="text-[10px] text-muted-foreground">{a.size} · Listo para CDN (Cloudflare/Fastly)</div>
             </div>
           </div>
           <button onClick={() => onRemove(a.id)} className="text-muted-foreground hover:text-destructive transition-colors">
@@ -62,7 +62,7 @@ function DropZone({
       >
         <UploadCloud className="size-6 text-muted-foreground" />
         <p className="text-xs text-muted-foreground">
-          Drag files or <span className="text-primary">browse</span>
+          Arrastra archivos o <span className="text-primary">selecciona</span>
         </p>
         <p className="text-[10px] text-muted-foreground/60">{hint}</p>
       </button>
@@ -82,12 +82,12 @@ function NewProduct() {
 
   const addAsset = (tab: string) => {
     const sample: Record<string, Asset> = {
-      code: { id: crypto.randomUUID(), name: "module-source.zip", size: "640 MB" },
-      docs: { id: crypto.randomUUID(), name: "integration-guide.pdf", size: "8.2 MB" },
-      video: { id: crypto.randomUUID(), name: "01-getting-started.mp4", size: "1.1 GB" },
+      code: { id: crypto.randomUUID(), name: "modulo-fuente.zip", size: "640 MB" },
+      docs: { id: crypto.randomUUID(), name: "guia-integracion.pdf", size: "8.2 MB" },
+      video: { id: crypto.randomUUID(), name: "01-introduccion.mp4", size: "1.1 GB" },
     };
     setAssets((s) => ({ ...s, [tab]: [...s[tab], sample[tab]] }));
-    toast.success("Asset queued for CDN upload");
+    toast.success("Archivo en cola para subir al CDN");
   };
 
   const removeAsset = (tab: string, id: string) =>
@@ -95,33 +95,43 @@ function NewProduct() {
 
   return (
     <DashboardLayout
-      title="New product"
-      breadcrumb={["Dashboard", "Products", "New"]}
+      title="Nuevo Producto"
+      breadcrumb={["Dashboard", "Productos", "Nuevo"]}
       actions={
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => toast("Draft saved")}>Save draft</Button>
-          <Button variant="contrast" size="sm" onClick={() => toast.success("Product published 🚀")}>Publish</Button>
+          <Button variant="outline" size="sm" onClick={() => toast("Borrador guardado")}>Guardar borrador</Button>
+          <Button variant="contrast" size="sm" onClick={() => toast.success("Producto publicado 🚀")}>Publicar</Button>
         </div>
       }
     >
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          {/* Basics */}
+          {/* Información básica */}
           <div className="rounded-xl bg-surface border border-border p-6 space-y-4">
-            <h3 className="text-sm font-semibold">Product details</h3>
+            <h3 className="text-sm font-semibold">Detalles del Producto</h3>
             <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">Nombre</Label>
               <Input id="name" placeholder="Neural-Kit SDK" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="tagline">Tagline</Label>
-              <Textarea id="tagline" rows={2} placeholder="Production-grade ML toolkit with full source and a 6-hour course." />
+              <Label htmlFor="tagline">Descripción corta</Label>
+              <Textarea id="tagline" rows={2} placeholder="Toolkit de ML de nivel producción con código fuente completo y curso de 6 horas." />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="category">Categoría</Label>
+              <select id="category" className="w-full bg-black/20 border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-primary/50">
+                <option>Software & SaaS</option>
+                <option>Cursos & Educación</option>
+                <option>Plantillas & Recursos</option>
+                <option>eBooks & Guías</option>
+                <option>Servicios</option>
+              </select>
             </div>
           </div>
 
-          {/* Mixed content composer */}
+          {/* Compositor de contenido */}
           <div className="rounded-xl bg-surface border border-border p-6">
-            <h3 className="text-sm font-semibold mb-4">Content payload</h3>
+            <h3 className="text-sm font-semibold mb-4">Contenido del Producto</h3>
             <Tabs defaultValue="code">
               <TabsList className="bg-black/20">
                 {tabs.map((t) => (
@@ -150,66 +160,82 @@ function NewProduct() {
           </div>
         </div>
 
-        {/* Sidebar config */}
+        {/* Configuración lateral */}
         <div className="space-y-6">
-          {/* Pricing */}
+          {/* Precios */}
           <div className="rounded-xl bg-surface border border-border p-6 space-y-4">
-            <h3 className="text-sm font-semibold">Pricing</h3>
+            <h3 className="text-sm font-semibold">Precio</h3>
             <div className="space-y-2">
-              <Label htmlFor="price">Price (USD)</Label>
+              <Label htmlFor="price">Precio (USD)</Label>
               <Input id="price" type="number" defaultValue={149} />
             </div>
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm font-medium">Subscription</div>
-                <div className="text-[10px] text-muted-foreground">Charge monthly (MRR)</div>
+                <div className="text-sm font-medium">Suscripción mensual</div>
+                <div className="text-[10px] text-muted-foreground">Cobro recurrente (MRR)</div>
               </div>
               <Switch checked={recurring} onCheckedChange={setRecurring} />
             </div>
           </div>
 
-          {/* Video delivery */}
+          {/* Entrega de video */}
           <div className="rounded-xl bg-surface border border-border p-6 space-y-4">
-            <h3 className="text-sm font-semibold">Video delivery</h3>
+            <h3 className="text-sm font-semibold">Entrega de Video</h3>
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm font-medium">Adaptive streaming</div>
-                <div className="text-[10px] text-muted-foreground">HLS player, quality auto-adjusts</div>
+                <div className="text-sm font-medium">Streaming adaptativo</div>
+                <div className="text-[10px] text-muted-foreground">Reproductor HLS, calidad automática</div>
               </div>
               <Switch checked={streaming} onCheckedChange={setStreaming} />
             </div>
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm font-medium">Allow download</div>
-                <div className="text-[10px] text-muted-foreground">Let buyers save the raw file</div>
+                <div className="text-sm font-medium">Permitir descarga</div>
+                <div className="text-[10px] text-muted-foreground">El comprador puede guardar el archivo</div>
               </div>
               <Switch defaultChecked />
             </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm font-medium">Marca de agua dinámica</div>
+                <div className="text-[10px] text-muted-foreground">Protección DRM con email del comprador</div>
+              </div>
+              <Switch defaultChecked={false} />
+            </div>
           </div>
 
-          {/* Licensing */}
+          {/* Licenciamiento */}
           <div className="rounded-xl bg-surface border border-border p-6 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <KeyRound className="size-4 text-primary" />
-                <h3 className="text-sm font-semibold">Licensing engine</h3>
+                <h3 className="text-sm font-semibold">Motor de Licencias</h3>
               </div>
               <Switch checked={licensing} onCheckedChange={setLicensing} />
             </div>
             {licensing && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="limit">Activation limit</Label>
+                  <Label htmlFor="limit">Límite de activaciones</Label>
                   <Input id="limit" type="number" defaultValue={3} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Key format</Label>
+                  <Label>Tipo de licencia</Label>
+                  <select className="w-full bg-black/20 border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-primary/50">
+                    <option>Personal (1 dispositivo)</option>
+                    <option>Profesional (hasta 5)</option>
+                    <option>Empresarial (equipo)</option>
+                    <option>White Label (ilimitado)</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Formato de clave</Label>
                   <div className="w-full bg-black/30 border border-border rounded-md px-3 py-2 text-sm font-mono text-muted-foreground">
-                    PNS-XXXX-XXXX-XXXX
+                    PSE-XXXX-XXXX-XXXX
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-[10px] text-primary font-mono">
-                  <span className="size-1.5 rounded-full bg-primary animate-pulse" /> Verification API active
+                  <span className="size-1.5 rounded-full bg-primary animate-pulse" /> API de verificación activa
                 </div>
               </>
             )}
@@ -219,7 +245,7 @@ function NewProduct() {
 
       <div className="mt-6 text-center">
         <Link to="/dashboard/products" className="text-xs text-muted-foreground hover:text-foreground">
-          ← Back to products
+          ← Volver a productos
         </Link>
       </div>
     </DashboardLayout>

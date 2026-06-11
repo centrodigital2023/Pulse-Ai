@@ -19,11 +19,11 @@ function Webhooks() {
         <div className="rounded-xl bg-surface border border-border p-6 space-y-4">
           <h3 className="text-sm font-semibold">Endpoint</h3>
           <div className="space-y-2">
-            <Label htmlFor="url">Payload URL</Label>
-            <Input id="url" placeholder="https://api.yourapp.dev/pulse" defaultValue="https://api.acme.dev/pulse" />
+            <Label htmlFor="url">URL de destino</Label>
+            <Input id="url" placeholder="https://api.tuapp.dev/pulse" defaultValue="https://api.acme.dev/pulse" />
           </div>
           <div className="space-y-2">
-            <Label>Subscribed events</Label>
+            <Label>Eventos suscritos</Label>
             <div className="space-y-2">
               {webhookEvents.map((e) => (
                 <div key={e} className="flex items-center justify-between rounded-md bg-black/20 border border-border px-3 py-2">
@@ -33,11 +33,11 @@ function Webhooks() {
               ))}
             </div>
           </div>
-          <Button variant="contrast" size="sm" onClick={() => toast.success("Webhook endpoint saved")}>Save endpoint</Button>
+          <Button variant="contrast" size="sm" onClick={() => toast.success("Endpoint guardado")}>Guardar endpoint</Button>
         </div>
 
         <div className="rounded-xl bg-surface border border-border p-6">
-          <h3 className="text-sm font-semibold mb-4">Recent deliveries</h3>
+          <h3 className="text-sm font-semibold mb-4">Entregas recientes</h3>
           <div className="space-y-2">
             {webhookLog.map((w) => (
               <div key={w.id} className="flex items-center justify-between rounded-md bg-black/20 border border-border px-3 py-2.5">

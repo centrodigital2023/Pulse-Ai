@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { products, type FileKind } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/dashboard/products")({
-  head: () => ({ meta: [{ title: "Products — PULSE AI Dashboard" }] }),
+  head: () => ({ meta: [{ title: "Productos — PULSE AI Dashboard" }] }),
   component: Products,
 });
 
@@ -20,12 +20,12 @@ const kindIcon: Record<FileKind, typeof FileCode> = {
 function Products() {
   return (
     <DashboardLayout
-      title="Products"
-      breadcrumb={["Dashboard", "Products"]}
+      title="Productos"
+      breadcrumb={["Dashboard", "Productos"]}
       actions={
         <Button asChild size="sm" variant="contrast">
           <Link to="/dashboard/products/new">
-            <Plus className="size-4" /> New product
+            <Plus className="size-4" /> Nuevo producto
           </Link>
         </Button>
       }
@@ -53,7 +53,7 @@ function Products() {
                   ${p.price}
                   {p.recurring && <span className="text-xs text-muted-foreground font-normal">/mo</span>}
                 </div>
-                <div className="text-[10px] text-muted-foreground font-mono">{p.sales} sales</div>
+                <div className="text-[10px] text-muted-foreground font-mono">{p.sales} ventas</div>
               </div>
             </div>
 
@@ -71,9 +71,9 @@ function Products() {
 
             <div className="flex items-center justify-between border-t border-border pt-4">
               <div className="text-xs font-mono text-muted-foreground">
-                Net revenue: <span className="text-foreground">${p.revenue.toLocaleString()}</span>
+                Ingresos netos: <span className="text-foreground">${p.revenue.toLocaleString()}</span>
               </div>
-              <Button variant="outline" size="sm">Edit</Button>
+              <Button variant="outline" size="sm">Editar</Button>
             </div>
           </div>
         ))}

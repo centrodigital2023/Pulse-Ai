@@ -14,19 +14,19 @@ import { Button } from "@/components/ui/button";
 import { metrics, revenueSeries, funnel, activity } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/dashboard/")({
-  head: () => ({ meta: [{ title: "Overview — PULSE AI Dashboard" }] }),
+  head: () => ({ meta: [{ title: "Resumen — PULSE AI Dashboard" }] }),
   component: Overview,
 });
 
 function Overview() {
   return (
     <DashboardLayout
-      title="Overview"
-      breadcrumb={["Dashboard", "Overview"]}
-      actions={<Button variant="outline" size="sm">Last 30 days</Button>}
+      title="Resumen General"
+      breadcrumb={["Dashboard", "Resumen"]}
+      actions={<Button variant="outline" size="sm">Últimos 30 días</Button>}
     >
       <div className="space-y-6">
-        {/* Metrics */}
+        {/* Métricas principales */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {metrics.map((m) => (
             <div key={m.label} className="p-4 rounded-lg bg-surface border border-border">
@@ -38,12 +38,12 @@ function Overview() {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* Revenue chart */}
+          {/* Gráfica de ingresos */}
           <div className="lg:col-span-2 rounded-xl bg-surface border border-border p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-sm font-semibold">Revenue & MRR</h3>
+              <h3 className="text-sm font-semibold">Ingresos & MRR</h3>
               <div className="flex items-center gap-4 text-[10px] font-mono text-muted-foreground">
-                <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-primary" /> Revenue</span>
+                <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-primary" /> Ingresos</span>
                 <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-chart-2" /> MRR</span>
               </div>
             </div>
@@ -65,16 +65,17 @@ function Overview() {
                     fontSize: 12,
                   }}
                   labelStyle={{ color: "oklch(0.985 0 0)" }}
+                  formatter={(v: number) => [`$${v.toLocaleString()}`, ""]}
                 />
-                <Area type="monotone" dataKey="revenue" stroke="oklch(0.7 0.146 162.5)" strokeWidth={2} fill="url(#rev)" />
-                <Area type="monotone" dataKey="mrr" stroke="oklch(0.62 0.13 200)" strokeWidth={2} fill="transparent" />
+                <Area type="monotone" dataKey="revenue" name="Ingresos" stroke="oklch(0.7 0.146 162.5)" strokeWidth={2} fill="url(#rev)" />
+                <Area type="monotone" dataKey="mrr" name="MRR" stroke="oklch(0.62 0.13 200)" strokeWidth={2} fill="transparent" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
 
-          {/* Activity feed */}
+          {/* Actividad en tiempo real */}
           <div className="rounded-xl bg-surface border border-border p-6">
-            <h3 className="text-sm font-semibold mb-4">Real-time activity</h3>
+            <h3 className="text-sm font-semibold mb-4">Actividad en tiempo real</h3>
             <div className="space-y-4">
               {activity.map((a) => (
                 <div key={a.id} className="flex gap-3">
@@ -86,7 +87,7 @@ function Overview() {
                       <span className="font-bold">{a.who}</span> {a.action}{" "}
                       <span className="text-primary">{a.target}</span>
                     </p>
-                    <p className="text-[10px] text-muted-foreground uppercase mt-0.5">{a.meta}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{a.meta}</p>
                   </div>
                 </div>
               ))}
@@ -94,10 +95,10 @@ function Overview() {
           </div>
         </div>
 
-        {/* Funnel + downloads */}
+        {/* Funnel + descargas */}
         <div className="grid lg:grid-cols-2 gap-6">
           <div className="rounded-xl bg-surface border border-border p-6">
-            <h3 className="text-sm font-semibold mb-6">Conversion funnel</h3>
+            <h3 className="text-sm font-semibold mb-6">Embudo de conversión</h3>
             <div className="space-y-4">
               {funnel.map((f) => (
                 <div key={f.stage}>
@@ -114,7 +115,7 @@ function Overview() {
           </div>
 
           <div className="rounded-xl bg-surface border border-border p-6">
-            <h3 className="text-sm font-semibold mb-6">Downloads by month</h3>
+            <h3 className="text-sm font-semibold mb-6">Descargas por mes</h3>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={revenueSeries} margin={{ left: -20, right: 0, top: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.3 0.006 286)" vertical={false} />
@@ -127,8 +128,9 @@ function Overview() {
                     borderRadius: 8,
                     fontSize: 12,
                   }}
+                  formatter={(v: number) => [`${v.toLocaleString()}`, "Descargas"]}
                 />
-                <Bar dataKey="mrr" fill="oklch(0.7 0.146 162.5)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="mrr" name="Descargas" fill="oklch(0.7 0.146 162.5)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

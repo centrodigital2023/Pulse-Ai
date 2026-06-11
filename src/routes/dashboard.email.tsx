@@ -5,28 +5,28 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/dashboard/email")({
-  head: () => ({ meta: [{ title: "Email Flows — PULSE AI Dashboard" }] }),
+  head: () => ({ meta: [{ title: "Flujos de Email — PULSE AI Dashboard" }] }),
   component: EmailFlows,
 });
 
 const flow = [
-  { day: "Day 0", title: "Purchase receipt", desc: "Sent instantly with download links and license key." },
-  { day: "Day 1", title: "How to read the PDF guide", desc: "Walkthrough of the bundled documentation." },
-  { day: "Day 3", title: "Watch the video modules", desc: "Reminder to start the course." },
-  { day: "Day 7", title: "Need a hand?", desc: "Offer support + invite to the Discord channel." },
+  { day: "Día 0", title: "Recibo de compra", desc: "Enviado al instante con enlaces de descarga y clave de licencia." },
+  { day: "Día 1", title: "Cómo leer la guía PDF", desc: "Recorrido por la documentación incluida en el producto." },
+  { day: "Día 3", title: "Ve los módulos de video", desc: "Recordatorio para comenzar el curso." },
+  { day: "Día 7", title: "¿Necesitas ayuda?", desc: "Oferta de soporte + invitación al canal de Discord." },
 ];
 
 function EmailFlows() {
   return (
     <DashboardLayout
-      title="Email Flows"
-      breadcrumb={["Dashboard", "Email Flows"]}
-      actions={<Button variant="contrast" size="sm" onClick={() => toast.success("Flow activated")}>Activate flow</Button>}
+      title="Flujos de Email"
+      breadcrumb={["Dashboard", "Flujos de Email"]}
+      actions={<Button variant="contrast" size="sm" onClick={() => toast.success("Flujo activado")}>Activar flujo</Button>}
     >
       <div className="rounded-xl bg-surface border border-border p-6 max-w-2xl">
         <div className="flex items-center gap-2 mb-6">
           <Mail className="size-4 text-primary" />
-          <h3 className="text-sm font-semibold">Post-purchase automation</h3>
+          <h3 className="text-sm font-semibold">Automatización post-compra</h3>
         </div>
         <div className="relative pl-6 space-y-6 before:absolute before:left-[7px] before:top-2 before:bottom-2 before:w-px before:bg-border">
           {flow.map((f) => (

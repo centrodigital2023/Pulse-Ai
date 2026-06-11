@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Download, Play, Copy, FileCode, FileText, Video, Music, Image } from "lucide-react";
+import { Play, Copy, FileCode, FileText, Video, Music, Image } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { libraryItems, fileKindLabel, type FileKind } from "@/lib/mock-data";
@@ -9,7 +9,7 @@ import productBox from "@/assets/product-box.jpg";
 import videoStill from "@/assets/video-still.jpg";
 
 export const Route = createFileRoute("/library")({
-  head: () => ({ meta: [{ title: "My Library — PULSE AI" }] }),
+  head: () => ({ meta: [{ title: "Mi Biblioteca — PULSE AI" }] }),
   component: LibraryPage,
 });
 
@@ -21,7 +21,7 @@ function LibraryPage() {
 
   const copyKey = (k: string) => {
     navigator.clipboard?.writeText(k);
-    toast.success("License key copied");
+    toast.success("Clave de licencia copiada");
   };
 
   return (
@@ -29,7 +29,7 @@ function LibraryPage() {
       <header className="h-16 border-b border-border flex items-center justify-between px-6 sticky top-0 bg-background/80 backdrop-blur-md z-30">
         <Logo />
         <div className="flex items-center gap-3">
-          <Button asChild variant="ghost" size="sm"><Link to="/dashboard">Creator dashboard</Link></Button>
+          <Button asChild variant="ghost" size="sm"><Link to="/dashboard">Panel del creador</Link></Button>
           <div className="size-8 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center text-[10px] text-primary font-mono">JD</div>
         </div>
       </header>
@@ -37,7 +37,7 @@ function LibraryPage() {
       <div className="max-w-7xl mx-auto px-6 py-8 grid lg:grid-cols-[280px_1fr] gap-8">
         {/* Library list */}
         <aside className="space-y-2">
-          <div className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-3">My library</div>
+          <div className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-3">Mi biblioteca</div>
           {libraryItems.map((i) => (
             <button
               key={i.id}
@@ -59,7 +59,7 @@ function LibraryPage() {
         <main className="space-y-6">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">{item.product}</h1>
-            <p className="text-sm text-muted-foreground">Order {item.order} • {item.date}</p>
+            <p className="text-sm text-muted-foreground">Orden {item.order} • {item.date}</p>
           </div>
 
           {/* Video player */}
@@ -67,7 +67,7 @@ function LibraryPage() {
             <div className="aspect-video bg-black rounded-xl relative overflow-hidden group border border-border">
               <img src={videoStill} alt="Course preview" loading="lazy" width={896} height={512} className="w-full h-full object-cover opacity-50" />
               <div className="absolute inset-0 flex items-center justify-center">
-                <button onClick={() => toast("Streaming player (demo)")} className="size-16 rounded-full bg-primary/90 flex items-center justify-center pl-1 shadow-lg group-hover:scale-110 transition-transform">
+                <button onClick={() => toast("Reproductor de streaming (demo)")} className="size-16 rounded-full bg-primary/90 flex items-center justify-center pl-1 shadow-lg group-hover:scale-110 transition-transform">
                   <Play className="size-7 text-primary-foreground fill-current" />
                 </button>
               </div>
@@ -78,12 +78,12 @@ function LibraryPage() {
           {/* License key */}
           {item.licenseKey && (
             <div className="bg-surface border border-border rounded-xl p-6">
-              <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-4">Your license key</div>
+              <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-4">Tu clave de licencia</div>
               <div className="flex gap-4">
                 <code className="flex-1 bg-black/50 border border-border px-4 py-3 rounded text-primary font-mono text-sm">{item.licenseKey}</code>
-                <Button variant="secondary" onClick={() => copyKey(item.licenseKey!)}><Copy className="size-3.5" /> Copy</Button>
+                <Button variant="secondary" onClick={() => copyKey(item.licenseKey!)}><Copy className="size-3.5" /> Copiar</Button>
               </div>
-              <p className="text-[10px] text-muted-foreground mt-3">Valid for 3 device activations. Validated via PULSE API v2.</p>
+              <p className="text-[10px] text-muted-foreground mt-3">Válida para 3 activaciones de dispositivo. Verificada mediante PULSE API v2.</p>
             </div>
           )}
 
@@ -100,9 +100,9 @@ function LibraryPage() {
                       <div className="text-[10px] text-muted-foreground">{f.size} • {f.meta}</div>
                     </div>
                   </div>
-                  <Button variant={f.kind === "video" ? "outline" : "contrast"} size="sm" onClick={() => toast.success(`Downloading ${f.name}`)}>
+                  <Button variant={f.kind === "video" ? "outline" : "contrast"} size="sm" onClick={() => toast.success(`Descargando ${f.name}`)}>
                     <Icon className="size-3.5" />
-                    {f.kind === "doc" ? "Open" : f.kind === "video" ? "Stream" : "Download"}
+                    {f.kind === "doc" ? "Abrir" : f.kind === "video" ? "Reproducir" : "Descargar"}
                   </Button>
                 </div>
               );

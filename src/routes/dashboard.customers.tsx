@@ -13,23 +13,23 @@ import {
 import { customers } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/dashboard/customers")({
-  head: () => ({ meta: [{ title: "Customers — PULSE AI Dashboard" }] }),
+  head: () => ({ meta: [{ title: "Clientes — PULSE AI Dashboard" }] }),
   component: Customers,
 });
 
 function Customers() {
   return (
-    <DashboardLayout title="Customers" breadcrumb={["Dashboard", "Customers"]}>
+    <DashboardLayout title="Clientes" breadcrumb={["Dashboard", "Clientes"]}>
       <div className="rounded-xl bg-surface border border-border overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead>Customer</TableHead>
-              <TableHead>Spent</TableHead>
-              <TableHead>Products</TableHead>
-              <TableHead>Activations</TableHead>
-              <TableHead>Last IP</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Cliente</TableHead>
+              <TableHead>Total gastado</TableHead>
+              <TableHead>Productos</TableHead>
+              <TableHead>Activaciones</TableHead>
+              <TableHead>Última IP</TableHead>
+              <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -57,9 +57,9 @@ function Customers() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => toast.success(`Refund processed for ${c.name}`)}
+                    onClick={() => toast.success(`Reembolso procesado para ${c.name}`)}
                   >
-                    Refund
+                    Reembolsar
                   </Button>
                 </TableCell>
               </TableRow>
