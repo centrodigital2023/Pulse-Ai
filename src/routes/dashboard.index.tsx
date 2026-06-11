@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { metrics, revenueSeries, funnel, activity } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/dashboard/")({
-  head: () => ({ meta: [{ title: "Overview — Punse AI Dashboard" }] }),
+  head: () => ({ meta: [{ title: "Overview — PULSE AI Dashboard" }] }),
   component: Overview,
 });
 

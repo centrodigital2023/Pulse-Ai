@@ -13,7 +13,7 @@ import {
 import { customers } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/dashboard/customers")({
-  head: () => ({ meta: [{ title: "Customers — Punse AI Dashboard" }] }),
+  head: () => ({ meta: [{ title: "Customers — PULSE AI Dashboard" }] }),
   component: Customers,
 });
 

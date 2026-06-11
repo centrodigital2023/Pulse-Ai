@@ -10,19 +10,45 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as MarketplaceRouteImport } from './routes/marketplace'
+import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as LibraryRouteImport } from './routes/library'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardWebhooksRouteImport } from './routes/dashboard.webhooks'
+import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
 import { Route as DashboardProductsRouteImport } from './routes/dashboard.products'
+import { Route as DashboardMarketplaceRouteImport } from './routes/dashboard.marketplace'
 import { Route as DashboardLicensesRouteImport } from './routes/dashboard.licenses'
 import { Route as DashboardEmailRouteImport } from './routes/dashboard.email'
 import { Route as DashboardCustomersRouteImport } from './routes/dashboard.customers'
+import { Route as DashboardCoursesRouteImport } from './routes/dashboard.courses'
+import { Route as DashboardCheckoutRouteImport } from './routes/dashboard.checkout'
+import { Route as DashboardAutomationRouteImport } from './routes/dashboard.automation'
+import { Route as DashboardAnalyticsRouteImport } from './routes/dashboard.analytics'
+import { Route as DashboardAiRouteImport } from './routes/dashboard.ai'
+import { Route as DashboardAffiliatesRouteImport } from './routes/dashboard.affiliates'
 import { Route as DashboardProductsNewRouteImport } from './routes/dashboard.products.new'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketplaceRoute = MarketplaceRouteImport.update({
+  id: '/marketplace',
+  path: '/marketplace',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LibraryRoute = LibraryRouteImport.update({
@@ -45,9 +71,19 @@ const DashboardWebhooksRoute = DashboardWebhooksRouteImport.update({
   path: '/dashboard/webhooks',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
+  id: '/dashboard/settings',
+  path: '/dashboard/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardProductsRoute = DashboardProductsRouteImport.update({
   id: '/dashboard/products',
   path: '/dashboard/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardMarketplaceRoute = DashboardMarketplaceRouteImport.update({
+  id: '/dashboard/marketplace',
+  path: '/dashboard/marketplace',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardLicensesRoute = DashboardLicensesRouteImport.update({
@@ -65,6 +101,36 @@ const DashboardCustomersRoute = DashboardCustomersRouteImport.update({
   path: '/dashboard/customers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardCoursesRoute = DashboardCoursesRouteImport.update({
+  id: '/dashboard/courses',
+  path: '/dashboard/courses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardCheckoutRoute = DashboardCheckoutRouteImport.update({
+  id: '/dashboard/checkout',
+  path: '/dashboard/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardAutomationRoute = DashboardAutomationRouteImport.update({
+  id: '/dashboard/automation',
+  path: '/dashboard/automation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardAnalyticsRoute = DashboardAnalyticsRouteImport.update({
+  id: '/dashboard/analytics',
+  path: '/dashboard/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardAiRoute = DashboardAiRouteImport.update({
+  id: '/dashboard/ai',
+  path: '/dashboard/ai',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardAffiliatesRoute = DashboardAffiliatesRouteImport.update({
+  id: '/dashboard/affiliates',
+  path: '/dashboard/affiliates',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardProductsNewRoute = DashboardProductsNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -73,24 +139,46 @@ const DashboardProductsNewRoute = DashboardProductsNewRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/checkout': typeof CheckoutRoute
   '/library': typeof LibraryRoute
+  '/marketplace': typeof MarketplaceRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/dashboard/affiliates': typeof DashboardAffiliatesRoute
+  '/dashboard/ai': typeof DashboardAiRoute
+  '/dashboard/analytics': typeof DashboardAnalyticsRoute
+  '/dashboard/automation': typeof DashboardAutomationRoute
+  '/dashboard/checkout': typeof DashboardCheckoutRoute
+  '/dashboard/courses': typeof DashboardCoursesRoute
   '/dashboard/customers': typeof DashboardCustomersRoute
   '/dashboard/email': typeof DashboardEmailRoute
   '/dashboard/licenses': typeof DashboardLicensesRoute
+  '/dashboard/marketplace': typeof DashboardMarketplaceRoute
   '/dashboard/products': typeof DashboardProductsRouteWithChildren
+  '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/checkout': typeof CheckoutRoute
   '/library': typeof LibraryRoute
+  '/marketplace': typeof MarketplaceRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/dashboard/affiliates': typeof DashboardAffiliatesRoute
+  '/dashboard/ai': typeof DashboardAiRoute
+  '/dashboard/analytics': typeof DashboardAnalyticsRoute
+  '/dashboard/automation': typeof DashboardAutomationRoute
+  '/dashboard/checkout': typeof DashboardCheckoutRoute
+  '/dashboard/courses': typeof DashboardCoursesRoute
   '/dashboard/customers': typeof DashboardCustomersRoute
   '/dashboard/email': typeof DashboardEmailRoute
   '/dashboard/licenses': typeof DashboardLicensesRoute
+  '/dashboard/marketplace': typeof DashboardMarketplaceRoute
   '/dashboard/products': typeof DashboardProductsRouteWithChildren
+  '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
@@ -98,12 +186,23 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/checkout': typeof CheckoutRoute
   '/library': typeof LibraryRoute
+  '/marketplace': typeof MarketplaceRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/dashboard/affiliates': typeof DashboardAffiliatesRoute
+  '/dashboard/ai': typeof DashboardAiRoute
+  '/dashboard/analytics': typeof DashboardAnalyticsRoute
+  '/dashboard/automation': typeof DashboardAutomationRoute
+  '/dashboard/checkout': typeof DashboardCheckoutRoute
+  '/dashboard/courses': typeof DashboardCoursesRoute
   '/dashboard/customers': typeof DashboardCustomersRoute
   '/dashboard/email': typeof DashboardEmailRoute
   '/dashboard/licenses': typeof DashboardLicensesRoute
+  '/dashboard/marketplace': typeof DashboardMarketplaceRoute
   '/dashboard/products': typeof DashboardProductsRouteWithChildren
+  '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
@@ -112,36 +211,69 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
+    | '/checkout'
     | '/library'
+    | '/marketplace'
     | '/sitemap.xml'
+    | '/dashboard/affiliates'
+    | '/dashboard/ai'
+    | '/dashboard/analytics'
+    | '/dashboard/automation'
+    | '/dashboard/checkout'
+    | '/dashboard/courses'
     | '/dashboard/customers'
     | '/dashboard/email'
     | '/dashboard/licenses'
+    | '/dashboard/marketplace'
     | '/dashboard/products'
+    | '/dashboard/settings'
     | '/dashboard/webhooks'
     | '/dashboard/'
     | '/dashboard/products/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
+    | '/checkout'
     | '/library'
+    | '/marketplace'
     | '/sitemap.xml'
+    | '/dashboard/affiliates'
+    | '/dashboard/ai'
+    | '/dashboard/analytics'
+    | '/dashboard/automation'
+    | '/dashboard/checkout'
+    | '/dashboard/courses'
     | '/dashboard/customers'
     | '/dashboard/email'
     | '/dashboard/licenses'
+    | '/dashboard/marketplace'
     | '/dashboard/products'
+    | '/dashboard/settings'
     | '/dashboard/webhooks'
     | '/dashboard'
     | '/dashboard/products/new'
   id:
     | '__root__'
     | '/'
+    | '/admin'
+    | '/checkout'
     | '/library'
+    | '/marketplace'
     | '/sitemap.xml'
+    | '/dashboard/affiliates'
+    | '/dashboard/ai'
+    | '/dashboard/analytics'
+    | '/dashboard/automation'
+    | '/dashboard/checkout'
+    | '/dashboard/courses'
     | '/dashboard/customers'
     | '/dashboard/email'
     | '/dashboard/licenses'
+    | '/dashboard/marketplace'
     | '/dashboard/products'
+    | '/dashboard/settings'
     | '/dashboard/webhooks'
     | '/dashboard/'
     | '/dashboard/products/new'
@@ -149,12 +281,23 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
+  CheckoutRoute: typeof CheckoutRoute
   LibraryRoute: typeof LibraryRoute
+  MarketplaceRoute: typeof MarketplaceRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  DashboardAffiliatesRoute: typeof DashboardAffiliatesRoute
+  DashboardAiRoute: typeof DashboardAiRoute
+  DashboardAnalyticsRoute: typeof DashboardAnalyticsRoute
+  DashboardAutomationRoute: typeof DashboardAutomationRoute
+  DashboardCheckoutRoute: typeof DashboardCheckoutRoute
+  DashboardCoursesRoute: typeof DashboardCoursesRoute
   DashboardCustomersRoute: typeof DashboardCustomersRoute
   DashboardEmailRoute: typeof DashboardEmailRoute
   DashboardLicensesRoute: typeof DashboardLicensesRoute
+  DashboardMarketplaceRoute: typeof DashboardMarketplaceRoute
   DashboardProductsRoute: typeof DashboardProductsRouteWithChildren
+  DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardWebhooksRoute: typeof DashboardWebhooksRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
@@ -166,6 +309,27 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketplace': {
+      id: '/marketplace'
+      path: '/marketplace'
+      fullPath: '/marketplace'
+      preLoaderRoute: typeof MarketplaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/library': {
@@ -196,11 +360,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardWebhooksRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/settings': {
+      id: '/dashboard/settings'
+      path: '/dashboard/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof DashboardSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard/products': {
       id: '/dashboard/products'
       path: '/dashboard/products'
       fullPath: '/dashboard/products'
       preLoaderRoute: typeof DashboardProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/marketplace': {
+      id: '/dashboard/marketplace'
+      path: '/dashboard/marketplace'
+      fullPath: '/dashboard/marketplace'
+      preLoaderRoute: typeof DashboardMarketplaceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/licenses': {
@@ -222,6 +400,48 @@ declare module '@tanstack/react-router' {
       path: '/dashboard/customers'
       fullPath: '/dashboard/customers'
       preLoaderRoute: typeof DashboardCustomersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/courses': {
+      id: '/dashboard/courses'
+      path: '/dashboard/courses'
+      fullPath: '/dashboard/courses'
+      preLoaderRoute: typeof DashboardCoursesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/checkout': {
+      id: '/dashboard/checkout'
+      path: '/dashboard/checkout'
+      fullPath: '/dashboard/checkout'
+      preLoaderRoute: typeof DashboardCheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/automation': {
+      id: '/dashboard/automation'
+      path: '/dashboard/automation'
+      fullPath: '/dashboard/automation'
+      preLoaderRoute: typeof DashboardAutomationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/analytics': {
+      id: '/dashboard/analytics'
+      path: '/dashboard/analytics'
+      fullPath: '/dashboard/analytics'
+      preLoaderRoute: typeof DashboardAnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/ai': {
+      id: '/dashboard/ai'
+      path: '/dashboard/ai'
+      fullPath: '/dashboard/ai'
+      preLoaderRoute: typeof DashboardAiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/affiliates': {
+      id: '/dashboard/affiliates'
+      path: '/dashboard/affiliates'
+      fullPath: '/dashboard/affiliates'
+      preLoaderRoute: typeof DashboardAffiliatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/products/new': {
@@ -247,12 +467,23 @@ const DashboardProductsRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
+  CheckoutRoute: CheckoutRoute,
   LibraryRoute: LibraryRoute,
+  MarketplaceRoute: MarketplaceRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  DashboardAffiliatesRoute: DashboardAffiliatesRoute,
+  DashboardAiRoute: DashboardAiRoute,
+  DashboardAnalyticsRoute: DashboardAnalyticsRoute,
+  DashboardAutomationRoute: DashboardAutomationRoute,
+  DashboardCheckoutRoute: DashboardCheckoutRoute,
+  DashboardCoursesRoute: DashboardCoursesRoute,
   DashboardCustomersRoute: DashboardCustomersRoute,
   DashboardEmailRoute: DashboardEmailRoute,
   DashboardLicensesRoute: DashboardLicensesRoute,
+  DashboardMarketplaceRoute: DashboardMarketplaceRoute,
   DashboardProductsRoute: DashboardProductsRouteWithChildren,
+  DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardWebhooksRoute: DashboardWebhooksRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }

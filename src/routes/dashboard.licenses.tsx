@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { licenseKeys as initial } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/dashboard/licenses")({
-  head: () => ({ meta: [{ title: "License Keys — Punse AI Dashboard" }] }),
+  head: () => ({ meta: [{ title: "License Keys — PULSE AI Dashboard" }] }),
   component: Licenses,
 });
 
@@ -26,7 +26,7 @@ function Licenses() {
 
   const generate = () => {
     setKeys((k) => [
-      { id: crypto.randomUUID(), key: genKey(), product: "Neural-Kit SDK", customer: "Manual issue", activations: 0, limit: 3, status: "active" as const },
+      { id: crypto.randomUUID(), key: genKey(), product: "Neural-Kit SDK", customer: "Manual issue", activations: 0, limit: 3, status: "active" as const, type: "professional" as const, expiresAt: "Dec 31, 2025" },
       ...k,
     ]);
     toast.success("New license key generated");
@@ -69,7 +69,7 @@ function Licenses() {
         <h3 className="text-sm font-semibold mb-2">Verification API</h3>
         <p className="text-xs text-muted-foreground mb-3">Your software validates keys at startup against this endpoint.</p>
         <code className="block font-mono text-xs bg-black/40 border border-border rounded p-3 text-muted-foreground overflow-x-auto">
-          POST https://api.punse.ai/v2/license/verify {"{ key, product_id, device_id }"}
+          POST https://api.pulseai.io/v2/license/verify {"{ key, product_id, device_id }"}
         </code>
       </div>
     </DashboardLayout>

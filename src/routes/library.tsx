@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Download, Play, Copy, FileCode, FileText, Video } from "lucide-react";
+import { Download, Play, Copy, FileCode, FileText, Video, Music, Image } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { libraryItems, fileKindLabel, type FileKind } from "@/lib/mock-data";
@@ -9,11 +9,11 @@ import productBox from "@/assets/product-box.jpg";
 import videoStill from "@/assets/video-still.jpg";
 
 export const Route = createFileRoute("/library")({
-  head: () => ({ meta: [{ title: "My Library — Punse AI" }] }),
+  head: () => ({ meta: [{ title: "My Library — PULSE AI" }] }),
   component: LibraryPage,
 });
 
-const kindIcon: Record<FileKind, typeof FileCode> = { code: FileCode, doc: FileText, video: Video };
+const kindIcon: Record<FileKind, typeof FileCode> = { code: FileCode, doc: FileText, video: Video, audio: Music, image: Image };
 
 function LibraryPage() {
   const [active, setActive] = useState(libraryItems[0].id);
@@ -83,7 +83,7 @@ function LibraryPage() {
                 <code className="flex-1 bg-black/50 border border-border px-4 py-3 rounded text-primary font-mono text-sm">{item.licenseKey}</code>
                 <Button variant="secondary" onClick={() => copyKey(item.licenseKey!)}><Copy className="size-3.5" /> Copy</Button>
               </div>
-              <p className="text-[10px] text-muted-foreground mt-3">Valid for 3 device activations. Validated via Punse API v2.</p>
+              <p className="text-[10px] text-muted-foreground mt-3">Valid for 3 device activations. Validated via PULSE API v2.</p>
             </div>
           )}
 

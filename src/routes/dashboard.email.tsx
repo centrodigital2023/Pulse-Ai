@@ -5,7 +5,7 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/dashboard/email")({
-  head: () => ({ meta: [{ title: "Email Flows — Punse AI Dashboard" }] }),
+  head: () => ({ meta: [{ title: "Email Flows — PULSE AI Dashboard" }] }),
   component: EmailFlows,
 });
 

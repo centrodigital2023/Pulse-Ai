@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Plus, FileCode, FileText, Video } from "lucide-react";
+import { Plus, FileCode, FileText, Video, Music, Image } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { products, type FileKind } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/dashboard/products")({
-  head: () => ({ meta: [{ title: "Products — Punse AI Dashboard" }] }),
+  head: () => ({ meta: [{ title: "Products — PULSE AI Dashboard" }] }),
   component: Products,
 });
 
@@ -13,6 +13,8 @@ const kindIcon: Record<FileKind, typeof FileCode> = {
   code: FileCode,
   doc: FileText,
   video: Video,
+  audio: Music,
+  image: Image,
 };
 
 function Products() {

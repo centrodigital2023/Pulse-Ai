@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { webhookEvents, webhookLog } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/dashboard/webhooks")({
-  head: () => ({ meta: [{ title: "Webhooks — Punse AI Dashboard" }] }),
+  head: () => ({ meta: [{ title: "Webhooks — PULSE AI Dashboard" }] }),
   component: Webhooks,
 });
 
@@ -20,7 +20,7 @@ function Webhooks() {
           <h3 className="text-sm font-semibold">Endpoint</h3>
           <div className="space-y-2">
             <Label htmlFor="url">Payload URL</Label>
-            <Input id="url" placeholder="https://api.yourapp.dev/punse" defaultValue="https://api.acme.dev/punse" />
+            <Input id="url" placeholder="https://api.yourapp.dev/pulse" defaultValue="https://api.acme.dev/pulse" />
           </div>
           <div className="space-y-2">
             <Label>Subscribed events</Label>

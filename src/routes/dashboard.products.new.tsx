@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/dashboard/products/new")({
-  head: () => ({ meta: [{ title: "New product — Punse AI" }] }),
+  head: () => ({ meta: [{ title: "New product — PULSE AI" }] }),
   component: NewProduct,
 });
 

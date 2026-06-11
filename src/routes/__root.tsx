@@ -78,14 +78,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Punse AI — The engine for technical creators" },
+      { title: "PULSE AI — The engine for technical creators" },
       {
         name: "description",
         content:
           "Sell software, documentation, and HD video courses in a single cohesive package. Developer-grade infrastructure, licensing, analytics, and a buyer library.",
       },
-      { name: "author", content: "Punse AI" },
-      { property: "og:title", content: "Punse AI — The engine for technical creators" },
+      { name: "author", content: "PULSE AI" },
+      { property: "og:title", content: "PULSE AI — The engine for technical creators" },
       {
         property: "og:description",
         content:
@@ -93,7 +93,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@PunseAI" },
+      { name: "twitter:site", content: "@PulseAI" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
