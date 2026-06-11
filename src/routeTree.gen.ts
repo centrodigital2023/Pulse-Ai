@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as DashboardWebhooksRouteImport } from './routes/dashboard.webhooks'
 import { Route as DashboardProductsRouteImport } from './routes/dashboard.products'
 import { Route as DashboardLicensesRouteImport } from './routes/dashboard.licenses'
 import { Route as DashboardCustomersRouteImport } from './routes/dashboard.customers'
@@ -24,6 +25,11 @@ const IndexRoute = IndexRouteImport.update({
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/dashboard/',
   path: '/dashboard/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardWebhooksRoute = DashboardWebhooksRouteImport.update({
+  id: '/dashboard/webhooks',
+  path: '/dashboard/webhooks',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardProductsRoute = DashboardProductsRouteImport.update({
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/customers': typeof DashboardCustomersRoute
   '/dashboard/licenses': typeof DashboardLicensesRoute
   '/dashboard/products': typeof DashboardProductsRouteWithChildren
+  '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/dashboard/customers': typeof DashboardCustomersRoute
   '/dashboard/licenses': typeof DashboardLicensesRoute
   '/dashboard/products': typeof DashboardProductsRouteWithChildren
+  '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
 }
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   '/dashboard/customers': typeof DashboardCustomersRoute
   '/dashboard/licenses': typeof DashboardLicensesRoute
   '/dashboard/products': typeof DashboardProductsRouteWithChildren
+  '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
 }
@@ -79,6 +88,7 @@ export interface FileRouteTypes {
     | '/dashboard/customers'
     | '/dashboard/licenses'
     | '/dashboard/products'
+    | '/dashboard/webhooks'
     | '/dashboard/'
     | '/dashboard/products/new'
   fileRoutesByTo: FileRoutesByTo
@@ -87,6 +97,7 @@ export interface FileRouteTypes {
     | '/dashboard/customers'
     | '/dashboard/licenses'
     | '/dashboard/products'
+    | '/dashboard/webhooks'
     | '/dashboard'
     | '/dashboard/products/new'
   id:
@@ -95,6 +106,7 @@ export interface FileRouteTypes {
     | '/dashboard/customers'
     | '/dashboard/licenses'
     | '/dashboard/products'
+    | '/dashboard/webhooks'
     | '/dashboard/'
     | '/dashboard/products/new'
   fileRoutesById: FileRoutesById
@@ -104,6 +116,7 @@ export interface RootRouteChildren {
   DashboardCustomersRoute: typeof DashboardCustomersRoute
   DashboardLicensesRoute: typeof DashboardLicensesRoute
   DashboardProductsRoute: typeof DashboardProductsRouteWithChildren
+  DashboardWebhooksRoute: typeof DashboardWebhooksRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
@@ -121,6 +134,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard/'
       preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/webhooks': {
+      id: '/dashboard/webhooks'
+      path: '/dashboard/webhooks'
+      fullPath: '/dashboard/webhooks'
+      preLoaderRoute: typeof DashboardWebhooksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/products': {
@@ -170,6 +190,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardCustomersRoute: DashboardCustomersRoute,
   DashboardLicensesRoute: DashboardLicensesRoute,
   DashboardProductsRoute: DashboardProductsRouteWithChildren,
+  DashboardWebhooksRoute: DashboardWebhooksRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
 export const routeTree = rootRouteImport
