@@ -14,6 +14,7 @@ import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardWebhooksRouteImport } from './routes/dashboard.webhooks'
 import { Route as DashboardProductsRouteImport } from './routes/dashboard.products'
 import { Route as DashboardLicensesRouteImport } from './routes/dashboard.licenses'
+import { Route as DashboardEmailRouteImport } from './routes/dashboard.email'
 import { Route as DashboardCustomersRouteImport } from './routes/dashboard.customers'
 import { Route as DashboardProductsNewRouteImport } from './routes/dashboard.products.new'
 
@@ -42,6 +43,11 @@ const DashboardLicensesRoute = DashboardLicensesRouteImport.update({
   path: '/dashboard/licenses',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardEmailRoute = DashboardEmailRouteImport.update({
+  id: '/dashboard/email',
+  path: '/dashboard/email',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardCustomersRoute = DashboardCustomersRouteImport.update({
   id: '/dashboard/customers',
   path: '/dashboard/customers',
@@ -56,6 +62,7 @@ const DashboardProductsNewRoute = DashboardProductsNewRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard/customers': typeof DashboardCustomersRoute
+  '/dashboard/email': typeof DashboardEmailRoute
   '/dashboard/licenses': typeof DashboardLicensesRoute
   '/dashboard/products': typeof DashboardProductsRouteWithChildren
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard/customers': typeof DashboardCustomersRoute
+  '/dashboard/email': typeof DashboardEmailRoute
   '/dashboard/licenses': typeof DashboardLicensesRoute
   '/dashboard/products': typeof DashboardProductsRouteWithChildren
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard/customers': typeof DashboardCustomersRoute
+  '/dashboard/email': typeof DashboardEmailRoute
   '/dashboard/licenses': typeof DashboardLicensesRoute
   '/dashboard/products': typeof DashboardProductsRouteWithChildren
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
@@ -86,6 +95,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard/customers'
+    | '/dashboard/email'
     | '/dashboard/licenses'
     | '/dashboard/products'
     | '/dashboard/webhooks'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dashboard/customers'
+    | '/dashboard/email'
     | '/dashboard/licenses'
     | '/dashboard/products'
     | '/dashboard/webhooks'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard/customers'
+    | '/dashboard/email'
     | '/dashboard/licenses'
     | '/dashboard/products'
     | '/dashboard/webhooks'
@@ -114,6 +126,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardCustomersRoute: typeof DashboardCustomersRoute
+  DashboardEmailRoute: typeof DashboardEmailRoute
   DashboardLicensesRoute: typeof DashboardLicensesRoute
   DashboardProductsRoute: typeof DashboardProductsRouteWithChildren
   DashboardWebhooksRoute: typeof DashboardWebhooksRoute
@@ -157,6 +170,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardLicensesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/email': {
+      id: '/dashboard/email'
+      path: '/dashboard/email'
+      fullPath: '/dashboard/email'
+      preLoaderRoute: typeof DashboardEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard/customers': {
       id: '/dashboard/customers'
       path: '/dashboard/customers'
@@ -188,6 +208,7 @@ const DashboardProductsRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardCustomersRoute: DashboardCustomersRoute,
+  DashboardEmailRoute: DashboardEmailRoute,
   DashboardLicensesRoute: DashboardLicensesRoute,
   DashboardProductsRoute: DashboardProductsRouteWithChildren,
   DashboardWebhooksRoute: DashboardWebhooksRoute,
