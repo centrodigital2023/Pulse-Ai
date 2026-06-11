@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardProductsRouteImport } from './routes/dashboard.products'
+import { Route as DashboardCustomersRouteImport } from './routes/dashboard.customers'
 import { Route as DashboardProductsNewRouteImport } from './routes/dashboard.products.new'
 
 const IndexRoute = IndexRouteImport.update({
@@ -29,6 +30,11 @@ const DashboardProductsRoute = DashboardProductsRouteImport.update({
   path: '/dashboard/products',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardCustomersRoute = DashboardCustomersRouteImport.update({
+  id: '/dashboard/customers',
+  path: '/dashboard/customers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardProductsNewRoute = DashboardProductsNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -37,12 +43,14 @@ const DashboardProductsNewRoute = DashboardProductsNewRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard/customers': typeof DashboardCustomersRoute
   '/dashboard/products': typeof DashboardProductsRouteWithChildren
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard/customers': typeof DashboardCustomersRoute
   '/dashboard/products': typeof DashboardProductsRouteWithChildren
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
@@ -50,6 +58,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard/customers': typeof DashboardCustomersRoute
   '/dashboard/products': typeof DashboardProductsRouteWithChildren
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
@@ -58,14 +67,21 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/dashboard/customers'
     | '/dashboard/products'
     | '/dashboard/'
     | '/dashboard/products/new'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard/products' | '/dashboard' | '/dashboard/products/new'
+  to:
+    | '/'
+    | '/dashboard/customers'
+    | '/dashboard/products'
+    | '/dashboard'
+    | '/dashboard/products/new'
   id:
     | '__root__'
     | '/'
+    | '/dashboard/customers'
     | '/dashboard/products'
     | '/dashboard/'
     | '/dashboard/products/new'
@@ -73,6 +89,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardCustomersRoute: typeof DashboardCustomersRoute
   DashboardProductsRoute: typeof DashboardProductsRouteWithChildren
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
@@ -100,6 +117,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/customers': {
+      id: '/dashboard/customers'
+      path: '/dashboard/customers'
+      fullPath: '/dashboard/customers'
+      preLoaderRoute: typeof DashboardCustomersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard/products/new': {
       id: '/dashboard/products/new'
       path: '/new'
@@ -123,6 +147,7 @@ const DashboardProductsRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardCustomersRoute: DashboardCustomersRoute,
   DashboardProductsRoute: DashboardProductsRouteWithChildren,
   DashboardIndexRoute: DashboardIndexRoute,
 }
