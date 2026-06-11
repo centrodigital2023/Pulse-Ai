@@ -9,38 +9,172 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as LibraryRouteImport } from './routes/library'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as DashboardWebhooksRouteImport } from './routes/dashboard.webhooks'
+import { Route as DashboardProductsRouteImport } from './routes/dashboard.products'
+import { Route as DashboardLicensesRouteImport } from './routes/dashboard.licenses'
+import { Route as DashboardEmailRouteImport } from './routes/dashboard.email'
+import { Route as DashboardCustomersRouteImport } from './routes/dashboard.customers'
+import { Route as DashboardProductsNewRouteImport } from './routes/dashboard.products.new'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LibraryRoute = LibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardWebhooksRoute = DashboardWebhooksRouteImport.update({
+  id: '/dashboard/webhooks',
+  path: '/dashboard/webhooks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardProductsRoute = DashboardProductsRouteImport.update({
+  id: '/dashboard/products',
+  path: '/dashboard/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardLicensesRoute = DashboardLicensesRouteImport.update({
+  id: '/dashboard/licenses',
+  path: '/dashboard/licenses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardEmailRoute = DashboardEmailRouteImport.update({
+  id: '/dashboard/email',
+  path: '/dashboard/email',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardCustomersRoute = DashboardCustomersRouteImport.update({
+  id: '/dashboard/customers',
+  path: '/dashboard/customers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardProductsNewRoute = DashboardProductsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => DashboardProductsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/library': typeof LibraryRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/dashboard/customers': typeof DashboardCustomersRoute
+  '/dashboard/email': typeof DashboardEmailRoute
+  '/dashboard/licenses': typeof DashboardLicensesRoute
+  '/dashboard/products': typeof DashboardProductsRouteWithChildren
+  '/dashboard/webhooks': typeof DashboardWebhooksRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/products/new': typeof DashboardProductsNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/library': typeof LibraryRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/dashboard/customers': typeof DashboardCustomersRoute
+  '/dashboard/email': typeof DashboardEmailRoute
+  '/dashboard/licenses': typeof DashboardLicensesRoute
+  '/dashboard/products': typeof DashboardProductsRouteWithChildren
+  '/dashboard/webhooks': typeof DashboardWebhooksRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/dashboard/products/new': typeof DashboardProductsNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/library': typeof LibraryRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/dashboard/customers': typeof DashboardCustomersRoute
+  '/dashboard/email': typeof DashboardEmailRoute
+  '/dashboard/licenses': typeof DashboardLicensesRoute
+  '/dashboard/products': typeof DashboardProductsRouteWithChildren
+  '/dashboard/webhooks': typeof DashboardWebhooksRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/products/new': typeof DashboardProductsNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/library'
+    | '/sitemap.xml'
+    | '/dashboard/customers'
+    | '/dashboard/email'
+    | '/dashboard/licenses'
+    | '/dashboard/products'
+    | '/dashboard/webhooks'
+    | '/dashboard/'
+    | '/dashboard/products/new'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/library'
+    | '/sitemap.xml'
+    | '/dashboard/customers'
+    | '/dashboard/email'
+    | '/dashboard/licenses'
+    | '/dashboard/products'
+    | '/dashboard/webhooks'
+    | '/dashboard'
+    | '/dashboard/products/new'
+  id:
+    | '__root__'
+    | '/'
+    | '/library'
+    | '/sitemap.xml'
+    | '/dashboard/customers'
+    | '/dashboard/email'
+    | '/dashboard/licenses'
+    | '/dashboard/products'
+    | '/dashboard/webhooks'
+    | '/dashboard/'
+    | '/dashboard/products/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LibraryRoute: typeof LibraryRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  DashboardCustomersRoute: typeof DashboardCustomersRoute
+  DashboardEmailRoute: typeof DashboardEmailRoute
+  DashboardLicensesRoute: typeof DashboardLicensesRoute
+  DashboardProductsRoute: typeof DashboardProductsRouteWithChildren
+  DashboardWebhooksRoute: typeof DashboardWebhooksRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/library': {
+      id: '/library'
+      path: '/library'
+      fullPath: '/library'
+      preLoaderRoute: typeof LibraryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +182,80 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/webhooks': {
+      id: '/dashboard/webhooks'
+      path: '/dashboard/webhooks'
+      fullPath: '/dashboard/webhooks'
+      preLoaderRoute: typeof DashboardWebhooksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/products': {
+      id: '/dashboard/products'
+      path: '/dashboard/products'
+      fullPath: '/dashboard/products'
+      preLoaderRoute: typeof DashboardProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/licenses': {
+      id: '/dashboard/licenses'
+      path: '/dashboard/licenses'
+      fullPath: '/dashboard/licenses'
+      preLoaderRoute: typeof DashboardLicensesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/email': {
+      id: '/dashboard/email'
+      path: '/dashboard/email'
+      fullPath: '/dashboard/email'
+      preLoaderRoute: typeof DashboardEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/customers': {
+      id: '/dashboard/customers'
+      path: '/dashboard/customers'
+      fullPath: '/dashboard/customers'
+      preLoaderRoute: typeof DashboardCustomersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/products/new': {
+      id: '/dashboard/products/new'
+      path: '/new'
+      fullPath: '/dashboard/products/new'
+      preLoaderRoute: typeof DashboardProductsNewRouteImport
+      parentRoute: typeof DashboardProductsRoute
+    }
   }
 }
 
+interface DashboardProductsRouteChildren {
+  DashboardProductsNewRoute: typeof DashboardProductsNewRoute
+}
+
+const DashboardProductsRouteChildren: DashboardProductsRouteChildren = {
+  DashboardProductsNewRoute: DashboardProductsNewRoute,
+}
+
+const DashboardProductsRouteWithChildren =
+  DashboardProductsRoute._addFileChildren(DashboardProductsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LibraryRoute: LibraryRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  DashboardCustomersRoute: DashboardCustomersRoute,
+  DashboardEmailRoute: DashboardEmailRoute,
+  DashboardLicensesRoute: DashboardLicensesRoute,
+  DashboardProductsRoute: DashboardProductsRouteWithChildren,
+  DashboardWebhooksRoute: DashboardWebhooksRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
