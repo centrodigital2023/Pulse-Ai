@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LibraryRouteImport } from './routes/library'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardWebhooksRouteImport } from './routes/dashboard.webhooks'
@@ -18,6 +19,11 @@ import { Route as DashboardEmailRouteImport } from './routes/dashboard.email'
 import { Route as DashboardCustomersRouteImport } from './routes/dashboard.customers'
 import { Route as DashboardProductsNewRouteImport } from './routes/dashboard.products.new'
 
+const LibraryRoute = LibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -61,6 +67,7 @@ const DashboardProductsNewRoute = DashboardProductsNewRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/library': typeof LibraryRoute
   '/dashboard/customers': typeof DashboardCustomersRoute
   '/dashboard/email': typeof DashboardEmailRoute
   '/dashboard/licenses': typeof DashboardLicensesRoute
@@ -71,6 +78,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/library': typeof LibraryRoute
   '/dashboard/customers': typeof DashboardCustomersRoute
   '/dashboard/email': typeof DashboardEmailRoute
   '/dashboard/licenses': typeof DashboardLicensesRoute
@@ -82,6 +90,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/library': typeof LibraryRoute
   '/dashboard/customers': typeof DashboardCustomersRoute
   '/dashboard/email': typeof DashboardEmailRoute
   '/dashboard/licenses': typeof DashboardLicensesRoute
@@ -94,6 +103,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/library'
     | '/dashboard/customers'
     | '/dashboard/email'
     | '/dashboard/licenses'
@@ -104,6 +114,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/library'
     | '/dashboard/customers'
     | '/dashboard/email'
     | '/dashboard/licenses'
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/library'
     | '/dashboard/customers'
     | '/dashboard/email'
     | '/dashboard/licenses'
@@ -125,6 +137,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LibraryRoute: typeof LibraryRoute
   DashboardCustomersRoute: typeof DashboardCustomersRoute
   DashboardEmailRoute: typeof DashboardEmailRoute
   DashboardLicensesRoute: typeof DashboardLicensesRoute
@@ -135,6 +148,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/library': {
+      id: '/library'
+      path: '/library'
+      fullPath: '/library'
+      preLoaderRoute: typeof LibraryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -207,6 +227,7 @@ const DashboardProductsRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LibraryRoute: LibraryRoute,
   DashboardCustomersRoute: DashboardCustomersRoute,
   DashboardEmailRoute: DashboardEmailRoute,
   DashboardLicensesRoute: DashboardLicensesRoute,
