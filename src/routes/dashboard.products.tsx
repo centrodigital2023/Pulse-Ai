@@ -1,105 +1,227 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Plus, FileCode, FileText, Video, Music, Image, Loader2 } from "lucide-react";
+import { Plus, Eye, Edit, Trash2, Rocket, FileText, UploadCloud, Link2, Globe, ExternalLink, BarChart3 } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { type FileKind } from "@/lib/mock-data";
-import { useMyProducts } from "@/lib/db";
-import { useAuth } from "@/lib/auth-context";
+import { useProducts, fmtCOPStore, type VendorProduct } from "@/lib/products-store";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/dashboard/products")({
-  head: () => ({ meta: [{ title: "Productos — PULSE AI Dashboard" }] }),
+  head: () => ({ meta: [{ title: "Mis Productos — PULSE AI Dashboard" }] }),
   component: Products,
 });
 
-const kindIcon: Record<FileKind, typeof FileCode> = {
-  code: FileCode,
-  doc: FileText,
-  video: Video,
-  audio: Music,
-  image: Image,
+const categoryEmoji: Record<string, string> = {
+  software: "💻", education: "🎓", resources: "🎨", books: "📚", services: "⚡",
 };
 
+function ProductRow({ product, onDelete, onToggle }: {
+  product: VendorProduct;
+  onDelete: (id: string) => void;
+  onToggle: (id: string) => void;
+}) {
+  return (
+    <div className="rounded-2xl bg-surface border border-border p-5 hover:border-primary/20 transition-colors">
+      <div className="flex items-start gap-4">
+        {/* Thumbnail */}
+        <div className="size-16 rounded-xl border border-border overflow-hidden shrink-0 bg-primary/5">
+          {product.coverImage ? (
+            <img src={product.coverImage} alt={product.name} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-xl">
+              {categoryEmoji[product.category] || "📦"}
+            </div>
+          )}
+        </div>
+
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap mb-1">
+            <h3 className="font-bold text-sm truncate">{product.name}</h3>
+            <span className={`px-2 py-0.5 rounded text-[10px] font-mono ${
+              product.status === "live" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-secondary text-muted-foreground"
+            }`}>
+              {product.status === "live" ? "● EN VIVO" : "○ BORRADOR"}
+            </span>
+            {product.badge && (
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 font-medium">
+                {product.badge}
+              </span>
+            )}
+          </div>
+          <p className="text-[11px] text-muted-foreground mb-2 line-clamp-1">{product.tagline}</p>
+
+          {/* Delivery type */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+              {product.deliveryType === "file" ? (
+                <><UploadCloud className="size-3 text-primary" /> {product.fileName || "Archivo"} · {product.fileSize}</>
+              ) : (
+                <><Link2 className="size-3 text-primary" /> Link externo</>
+              )}
+            </div>
+            {product.generateKey && (
+              <div className="text-[10px] text-primary font-mono flex items-center gap-1">
+                <div className="size-1.5 rounded-full bg-emerald-500" />
+                Licencias activas
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="text-right shrink-0 hidden sm:block">
+          <div className="text-xl font-extrabold text-primary">{fmtCOPStore(product.price)}</div>
+          {product.recurring && <div className="text-[10px] text-muted-foreground">/mes</div>}
+          <div className="text-[10px] text-muted-foreground mt-1">{product.sales} ventas</div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between mt-4 pt-4 border-t border-border flex-wrap gap-3">
+        <div className="flex items-center gap-3 text-[10px] text-muted-foreground flex-wrap">
+          <span className="flex items-center gap-1">
+            {categoryEmoji[product.category]} {product.category}
+          </span>
+          {product.publishedAt && (
+            <span>Publicado {new Date(product.publishedAt).toLocaleDateString("es-CO", { day: "2-digit", month: "short" })}</span>
+          )}
+          <span className="flex items-center gap-1">
+            <Eye className="size-3" /> {product.viewers} visitas
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          {product.status === "live" && (
+            <a
+              href="/marketplace"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-[11px] text-primary hover:underline"
+            >
+              <ExternalLink className="size-3" /> Ver en marketplace
+            </a>
+          )}
+          <button
+            onClick={() => onToggle(product.id)}
+            className={`text-[11px] px-2.5 py-1 rounded-lg border transition-colors ${
+              product.status === "live"
+                ? "border-yellow-500/20 text-yellow-400 hover:bg-yellow-500/5"
+                : "border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/5"
+            }`}
+          >
+            {product.status === "live" ? "Despublicar" : "Publicar"}
+          </button>
+          <button
+            onClick={() => onDelete(product.id)}
+            className="size-7 flex items-center justify-center rounded-lg border border-destructive/20 text-destructive hover:bg-destructive/5 transition-colors"
+          >
+            <Trash2 className="size-3.5" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="text-center py-20">
+      <div className="size-20 rounded-2xl bg-primary/5 border border-primary/10 flex items-center justify-center mx-auto mb-6">
+        <UploadCloud className="size-9 text-primary/60" />
+      </div>
+      <h3 className="text-lg font-bold mb-2">Aún no tienes productos</h3>
+      <p className="text-sm text-muted-foreground mb-6 max-w-xs mx-auto">
+        Publica tu primer producto y empieza a vender a miles de compradores en PULSE AI.
+      </p>
+      <Button asChild variant="contrast" className="gap-2">
+        <Link to="/dashboard/products/new">
+          <Rocket className="size-4" /> Publicar mi primer producto
+        </Link>
+      </Button>
+    </div>
+  );
+}
+
 function Products() {
-  const { user } = useAuth();
-  const { data: products, isLoading } = useMyProducts();
+  const { products, updateProduct, deleteProduct } = useProducts();
+
+  const liveProducts = products.filter(p => p.status === "live");
+  const draftProducts = products.filter(p => p.status === "draft");
+
+  const totalRevenue = products.reduce((a, p) => a + p.price * p.sales, 0);
+
+  const handleDelete = (id: string) => {
+    deleteProduct(id);
+    toast.success("Producto eliminado");
+  };
+
+  const handleToggle = (id: string) => {
+    const p = products.find(x => x.id === id);
+    if (!p) return;
+    const newStatus = p.status === "live" ? "draft" : "live";
+    updateProduct(id, {
+      status: newStatus,
+      publishedAt: newStatus === "live" ? new Date().toISOString() : p.publishedAt,
+    });
+    toast(newStatus === "live" ? `"${p.name}" publicado ✅` : `"${p.name}" despublicado`);
+  };
 
   return (
     <DashboardLayout
-      title="Productos"
+      title="Mis Productos"
       breadcrumb={["Dashboard", "Productos"]}
       actions={
-        <Button asChild size="sm" variant="contrast">
+        <Button asChild size="sm" variant="contrast" className="gap-1.5">
           <Link to="/dashboard/products/new">
             <Plus className="size-4" /> Nuevo producto
           </Link>
         </Button>
       }
     >
-      {!user ? (
-        <div className="rounded-xl bg-surface border border-border p-12 text-center text-sm text-muted-foreground">
-          Inicia sesión para gestionar tus productos.
-        </div>
-      ) : isLoading ? (
-        <div className="flex items-center justify-center py-16 text-muted-foreground">
-          <Loader2 className="size-5 animate-spin" />
-        </div>
-      ) : !products || products.length === 0 ? (
-        <div className="rounded-xl bg-surface border border-border p-12 text-center">
-          <p className="text-sm text-muted-foreground mb-4">Aún no tienes productos. Crea el primero.</p>
-          <Button asChild size="sm" variant="contrast">
-            <Link to="/dashboard/products/new"><Plus className="size-4" /> Nuevo producto</Link>
-          </Button>
-        </div>
+      {products.length === 0 ? (
+        <EmptyState />
       ) : (
-        <div className="grid gap-4">
-          {products.map((p) => (
-            <div key={p.id} className="rounded-xl bg-surface border border-border p-6">
-              <div className="flex items-start justify-between gap-4 mb-4">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold truncate">{p.name}</h3>
-                    <span className="text-[10px] font-mono text-muted-foreground">{p.version}</span>
-                    <span
-                      className={`px-2 py-0.5 rounded text-[10px] font-mono ${
-                        p.status === "live" ? "bg-primary/20 text-primary" : "bg-secondary text-muted-foreground"
-                      }`}
-                    >
-                      {p.status.toUpperCase()}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{p.tagline}</p>
-                </div>
-                <div className="text-right shrink-0">
-                  <div className="font-bold tracking-tight">
-                    ${p.price}
-                    {p.recurring && <span className="text-xs text-muted-foreground font-normal">/mo</span>}
-                  </div>
-                  <div className="text-[10px] text-muted-foreground font-mono">{p.category}</div>
-                </div>
+        <div className="space-y-6">
+          {/* Stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { label: "Publicados", value: liveProducts.length, icon: Rocket, color: "text-emerald-400" },
+              { label: "Borradores", value: draftProducts.length, icon: FileText, color: "text-yellow-400" },
+              { label: "Ventas totales", value: products.reduce((a, p) => a + p.sales, 0), icon: BarChart3, color: "text-primary" },
+              { label: "Ingresos", value: fmtCOPStore(totalRevenue), icon: Globe, color: "text-primary" },
+            ].map(s => (
+              <div key={s.label} className="rounded-xl bg-surface border border-border p-4 text-center">
+                <s.icon className={`size-5 mx-auto mb-1.5 ${s.color}`} />
+                <div className="text-xl font-extrabold">{s.value}</div>
+                <div className="text-[10px] text-muted-foreground">{s.label}</div>
               </div>
+            ))}
+          </div>
 
-              {p.product_files.length > 0 && (
-                <div className="flex flex-wrap items-center gap-2 mb-4">
-                  {p.product_files.map((f) => {
-                    const Icon = kindIcon[f.kind];
-                    return (
-                      <span key={f.id} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-black/20 border border-border text-xs text-muted-foreground">
-                        <Icon className="size-3.5 text-primary" />
-                        {f.name}
-                      </span>
-                    );
-                  })}
-                </div>
-              )}
-
-              <div className="flex items-center justify-between border-t border-border pt-4">
-                <div className="text-xs font-mono text-muted-foreground">
-                  Licencias: <span className="text-foreground">{p.licensing_enabled ? "Activadas" : "Desactivadas"}</span>
-                </div>
-                <Button variant="outline" size="sm">Editar</Button>
+          {/* Live products */}
+          {liveProducts.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="size-2 rounded-full bg-emerald-500" />
+                <h2 className="text-sm font-bold">En Marketplace ({liveProducts.length})</h2>
               </div>
+              {liveProducts.map(p => (
+                <ProductRow key={p.id} product={p} onDelete={handleDelete} onToggle={handleToggle} />
+              ))}
             </div>
-          ))}
+          )}
+
+          {/* Draft products */}
+          {draftProducts.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="size-2 rounded-full bg-yellow-500" />
+                <h2 className="text-sm font-bold">Borradores ({draftProducts.length})</h2>
+              </div>
+              {draftProducts.map(p => (
+                <ProductRow key={p.id} product={p} onDelete={handleDelete} onToggle={handleToggle} />
+              ))}
+            </div>
+          )}
         </div>
       )}
     </DashboardLayout>

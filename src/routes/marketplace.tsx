@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { AIAssistant } from "@/components/ai/AIAssistant";
-import { marketplaceListings, marketplaceCategories, type MarketplaceListing } from "@/lib/mock-data";
+import { marketplaceCategories, type MarketplaceListing } from "@/lib/mock-data";
+import { useAllListings } from "@/lib/products-store";
 import {
   Search, Star, ShoppingCart, ChevronLeft, ChevronRight,
   Flame, Clock, Eye, Zap, Shield, Download, Bell,
@@ -37,12 +38,13 @@ const socialProofMessages = [
 
 // ─── AI Search Suggestions ────────────────────────────────────────────────────
 
-function SearchSuggestions({ query, onSelect, onClose }: {
+function SearchSuggestions({ query, onSelect, onClose, listings }: {
   query: string;
   onSelect: (q: string) => void;
   onClose: () => void;
+  listings: MarketplaceListing[];
 }) {
-  const matches = marketplaceListings.filter(l =>
+  const matches = listings.filter(l =>
     l.name.toLowerCase().includes(query.toLowerCase()) ||
     l.tags.some(t => t.toLowerCase().includes(query.toLowerCase()))
   ).slice(0, 5);
@@ -297,6 +299,7 @@ function useCountdown(initial: number) {
 function MarketplacePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const allListings = useAllListings();
   const [activeCategory, setActiveCategory] = useState("all");
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
@@ -360,7 +363,7 @@ function MarketplacePage() {
     }
   };
 
-  const filtered = marketplaceListings.filter(l => {
+  const filtered = allListings.filter(l => {
     const matchesCat = activeCategory === "all" || l.category === activeCategory;
     const q = search.toLowerCase();
     const matchesSearch = !search || l.name.toLowerCase().includes(q) || l.vendor.toLowerCase().includes(q) || l.tags.some(t => t.toLowerCase().includes(q));
@@ -376,10 +379,10 @@ function MarketplacePage() {
     return 0;
   });
 
-  const featured = marketplaceListings.filter(l => l.badge === "featured" || l.badge === "bestseller");
-  const trending = marketplaceListings.filter(l => l.soldToday > 10);
-  const education = marketplaceListings.filter(l => l.category === "education");
-  const aiPicks = marketplaceListings.filter(l => AI_PICKS.includes(l.id));
+  const featured = allListings.filter(l => l.badge === "featured" || l.badge === "bestseller");
+  const trending = allListings.filter(l => l.soldToday > 10);
+  const education = allListings.filter(l => l.category === "education");
+  const aiPicks = allListings.filter(l => AI_PICKS.includes(l.id) || l.id.startsWith("vp-"));
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -477,6 +480,7 @@ function MarketplacePage() {
                   query={search}
                   onSelect={q => { setSearch(q); setShowSearch(false); }}
                   onClose={() => setShowSearch(false)}
+                  listings={allListings}
                 />
               )}
             </div>

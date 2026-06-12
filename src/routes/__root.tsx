@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/auth-context";
 import { WhatsAppFloat } from "@/components/ui/WhatsAppFloat";
+import { ProductsProvider } from "@/lib/products-store";
 
 function NotFoundComponent() {
   return (
@@ -154,9 +155,11 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Outlet />
-        <WhatsAppFloat />
-        <Toaster />
+        <ProductsProvider>
+          <Outlet />
+          <WhatsAppFloat />
+          <Toaster />
+        </ProductsProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
