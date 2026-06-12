@@ -334,13 +334,14 @@ function VenderPage() {
         <p className="text-sm text-muted-foreground mt-1">Configura el perfil de tu negocio en el marketplace.</p>
       </div>
       <div className="space-y-2">
-        <Label>Nombre de la tienda <span className="text-destructive">*</span></Label>
-        <Input placeholder="Mi Estudio Digital" value={form.storeName} onChange={e => set("storeName", e.target.value)} className="bg-black/20" />
+        <Label htmlFor="store-name">Nombre de la tienda <span className="text-destructive">*</span></Label>
+        <Input id="store-name" placeholder="Mi Estudio Digital" value={form.storeName} onChange={e => set("storeName", e.target.value)} className="bg-black/20" />
         <p className="text-[10px] text-muted-foreground">Este nombre aparecerá en el marketplace como el creador de tus productos.</p>
       </div>
       <div className="space-y-2">
-        <Label>Descripción de tu tienda <span className="text-destructive">*</span></Label>
+        <Label htmlFor="store-desc">Descripción de tu tienda <span className="text-destructive">*</span></Label>
         <Textarea
+          id="store-desc"
           rows={3}
           placeholder="Creamos herramientas y recursos digitales para desarrolladores y diseñadores…"
           value={form.storeDesc}
@@ -349,8 +350,9 @@ function VenderPage() {
         />
       </div>
       <div className="space-y-2">
-        <Label>Categoría principal</Label>
+        <Label htmlFor="store-category">Categoría principal</Label>
         <select
+          id="store-category"
           value={form.category}
           onChange={e => set("category", e.target.value)}
           className="w-full bg-black/20 border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-primary/50"
@@ -359,8 +361,8 @@ function VenderPage() {
         </select>
       </div>
       <div className="space-y-2">
-        <Label>Sitio web o red social (opcional)</Label>
-        <Input placeholder="https://tuweb.com o @tuhandle" value={form.website} onChange={e => set("website", e.target.value)} className="bg-black/20" />
+        <Label htmlFor="store-website">Sitio web o red social (opcional)</Label>
+        <Input id="store-website" placeholder="https://tuweb.com o @tuhandle" value={form.website} onChange={e => set("website", e.target.value)} className="bg-black/20" />
       </div>
     </div>
   );
