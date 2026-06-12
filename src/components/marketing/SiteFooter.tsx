@@ -1,16 +1,15 @@
 import { Link } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
-import { Camera, Globe, AtSign, Music, Play, Share2 } from "lucide-react";
+import { Camera, Globe, AtSign, Music, Play, Share2, MessageCircle } from "lucide-react";
 
-// Social icons: Camera=Instagram, Globe=LinkedIn, AtSign=Twitter/X,
-// Music=TikTok, Play=YouTube, Share2=Facebook
 const socialLinks = [
-  { label: "Instagram", href: "https://www.instagram.com/pulseai.co", icon: Camera },
-  { label: "Facebook", href: "https://www.facebook.com/pulseai", icon: Share2 },
-  { label: "Twitter / X", href: "https://twitter.com/pulseai", icon: AtSign },
-  { label: "LinkedIn", href: "https://www.linkedin.com/company/pulseai-co", icon: Globe },
-  { label: "TikTok", href: "https://www.tiktok.com/@pulseai.co", icon: Music },
-  { label: "YouTube", href: "https://www.youtube.com/@pulseai", icon: Play },
+  { label: "WhatsApp", href: "https://wa.me/573147444715", icon: MessageCircle, color: "#25D366" },
+  { label: "Instagram", href: "https://www.instagram.com/profeia_oficial/", icon: Camera, color: "#E1306C" },
+  { label: "Facebook", href: "https://www.facebook.com/feskawsay", icon: Share2, color: "#1877F2" },
+  { label: "Twitter / X", href: "https://x.com/profeia2050", icon: AtSign, color: "#1DA1F2" },
+  { label: "TikTok", href: "https://www.tiktok.com/@feskawsay", icon: Music, color: "#ffffff" },
+  { label: "YouTube", href: "https://www.youtube.com/@CentroinformacionDigital", icon: Play, color: "#FF0000" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/jos%C3%A9-fabian-carrera-su%C3%A1rez-508948406", icon: Globe, color: "#0A66C2" },
 ];
 
 const paymentBadges = ["Mercado Pago", "PSE", "Nequi", "SSL 256-bit", "PCI DSS"];
@@ -46,14 +45,17 @@ export function SiteFooter() {
 
             {/* Social media */}
             <div className="flex flex-wrap gap-2">
-              {socialLinks.map(({ label, href, icon: Icon }) => (
+              {socialLinks.map(({ label, href, icon: Icon, color }) => (
                 <a
                   key={label}
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="size-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
+                  className="size-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:border-primary/30 transition-all hover:scale-110"
+                  style={{ "--icon-color": color } as React.CSSProperties}
+                  onMouseEnter={e => (e.currentTarget.style.color = color)}
+                  onMouseLeave={e => (e.currentTarget.style.color = "")}
                 >
                   <Icon className="size-3.5" />
                 </a>
@@ -88,10 +90,18 @@ export function SiteFooter() {
                 Estado del sistema
               </a>
               <a
-                href="mailto:soporte@pulseai.co"
+                href="mailto:centrodigital2023@gmail.com"
                 className="block text-sm text-muted-foreground hover:text-primary transition-colors"
               >
                 Contacto
+              </a>
+              <a
+                href="https://wa.me/573147444715"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                WhatsApp
               </a>
               <a href="#comunidad" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
                 Comunidad

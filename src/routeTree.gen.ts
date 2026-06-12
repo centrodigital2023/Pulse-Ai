@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PagoFallidoRouteImport } from './routes/pago-fallido'
+import { Route as PagoExitosoRouteImport } from './routes/pago-exitoso'
 import { Route as TerminosRouteImport } from './routes/terminos'
 import { Route as PrivacidadRouteImport } from './routes/privacidad'
 import { Route as HabeasDataRouteImport } from './routes/habeas-data'
@@ -37,6 +39,16 @@ import { Route as DashboardAiRouteImport } from './routes/dashboard.ai'
 import { Route as DashboardAffiliatesRouteImport } from './routes/dashboard.affiliates'
 import { Route as DashboardProductsNewRouteImport } from './routes/dashboard.products.new'
 
+const PagoFallidoRoute = PagoFallidoRouteImport.update({
+  id: '/pago-fallido',
+  path: '/pago-fallido',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PagoExitosoRoute = PagoExitosoRouteImport.update({
+  id: '/pago-exitoso',
+  path: '/pago-exitoso',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VenderRoute = VenderRouteImport.update({
   id: '/vender',
   path: '/vender',
@@ -157,6 +169,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/checkout': typeof CheckoutRoute
+  '/pago-exitoso': typeof PagoExitosoRoute
+  '/pago-fallido': typeof PagoFallidoRoute
   '/library': typeof LibraryRoute
   '/marketplace': typeof MarketplaceRoute
   '/mis-compras': typeof MisComprasRoute
@@ -182,6 +196,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/checkout': typeof CheckoutRoute
+  '/pago-exitoso': typeof PagoExitosoRoute
+  '/pago-fallido': typeof PagoFallidoRoute
   '/library': typeof LibraryRoute
   '/marketplace': typeof MarketplaceRoute
   '/mis-compras': typeof MisComprasRoute
@@ -208,6 +224,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/checkout': typeof CheckoutRoute
+  '/pago-exitoso': typeof PagoExitosoRoute
+  '/pago-fallido': typeof PagoFallidoRoute
   '/library': typeof LibraryRoute
   '/marketplace': typeof MarketplaceRoute
   '/mis-compras': typeof MisComprasRoute
@@ -235,6 +253,8 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/checkout'
+    | '/pago-exitoso'
+    | '/pago-fallido'
     | '/library'
     | '/marketplace'
     | '/mis-compras'
@@ -264,6 +284,8 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/checkout'
+    | '/pago-exitoso'
+    | '/pago-fallido'
     | '/library'
     | '/marketplace'
     | '/mis-compras'
@@ -293,6 +315,8 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/checkout'
+    | '/pago-exitoso'
+    | '/pago-fallido'
     | '/library'
     | '/marketplace'
     | '/mis-compras'
@@ -323,6 +347,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   CheckoutRoute: typeof CheckoutRoute
+  PagoExitosoRoute: typeof PagoExitosoRoute
+  PagoFallidoRoute: typeof PagoFallidoRoute
   LibraryRoute: typeof LibraryRoute
   MarketplaceRoute: typeof MarketplaceRoute
   MisComprasRoute: typeof MisComprasRoute
@@ -535,6 +561,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CumplimientoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pago-exitoso': {
+      id: '/pago-exitoso'
+      path: '/pago-exitoso'
+      fullPath: '/pago-exitoso'
+      preLoaderRoute: typeof PagoExitosoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pago-fallido': {
+      id: '/pago-fallido'
+      path: '/pago-fallido'
+      fullPath: '/pago-fallido'
+      preLoaderRoute: typeof PagoFallidoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -553,6 +593,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   CheckoutRoute: CheckoutRoute,
+  PagoExitosoRoute: PagoExitosoRoute,
+  PagoFallidoRoute: PagoFallidoRoute,
   LibraryRoute: LibraryRoute,
   MarketplaceRoute: MarketplaceRoute,
   MisComprasRoute: MisComprasRoute,

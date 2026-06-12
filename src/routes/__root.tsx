@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/auth-context";
+import { WhatsAppFloat } from "@/components/ui/WhatsAppFloat";
 
 function NotFoundComponent() {
   return (
@@ -154,6 +155,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Outlet />
+        <WhatsAppFloat />
         <Toaster />
       </AuthProvider>
     </QueryClientProvider>
