@@ -37,7 +37,6 @@ import { Route as DashboardAutomationRouteImport } from './routes/dashboard.auto
 import { Route as DashboardAnalyticsRouteImport } from './routes/dashboard.analytics'
 import { Route as DashboardAiRouteImport } from './routes/dashboard.ai'
 import { Route as DashboardAffiliatesRouteImport } from './routes/dashboard.affiliates'
-import { Route as ApiMpWebhookRouteImport } from './routes/api.mp-webhook'
 import { Route as ApiMpCheckoutRouteImport } from './routes/api.mp-checkout'
 import { Route as DashboardProductsNewRouteImport } from './routes/dashboard.products.new'
 import { Route as ApiPublicMpWebhookRouteImport } from './routes/api.public.mp-webhook'
@@ -182,11 +181,6 @@ const DashboardAffiliatesRoute = DashboardAffiliatesRouteImport.update({
   path: '/dashboard/affiliates',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiMpWebhookRoute = ApiMpWebhookRouteImport.update({
-  id: '/api/mp-webhook',
-  path: '/api/mp-webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiMpCheckoutRoute = ApiMpCheckoutRouteImport.update({
   id: '/api/mp-checkout',
   path: '/api/mp-checkout',
@@ -219,7 +213,6 @@ export interface FileRoutesByFullPath {
   '/terminos': typeof TerminosRoute
   '/vender': typeof VenderRoute
   '/api/mp-checkout': typeof ApiMpCheckoutRoute
-  '/api/mp-webhook': typeof ApiMpWebhookRoute
   '/dashboard/affiliates': typeof DashboardAffiliatesRoute
   '/dashboard/ai': typeof DashboardAiRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
@@ -253,7 +246,6 @@ export interface FileRoutesByTo {
   '/terminos': typeof TerminosRoute
   '/vender': typeof VenderRoute
   '/api/mp-checkout': typeof ApiMpCheckoutRoute
-  '/api/mp-webhook': typeof ApiMpWebhookRoute
   '/dashboard/affiliates': typeof DashboardAffiliatesRoute
   '/dashboard/ai': typeof DashboardAiRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
@@ -288,7 +280,6 @@ export interface FileRoutesById {
   '/terminos': typeof TerminosRoute
   '/vender': typeof VenderRoute
   '/api/mp-checkout': typeof ApiMpCheckoutRoute
-  '/api/mp-webhook': typeof ApiMpWebhookRoute
   '/dashboard/affiliates': typeof DashboardAffiliatesRoute
   '/dashboard/ai': typeof DashboardAiRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
@@ -324,7 +315,6 @@ export interface FileRouteTypes {
     | '/terminos'
     | '/vender'
     | '/api/mp-checkout'
-    | '/api/mp-webhook'
     | '/dashboard/affiliates'
     | '/dashboard/ai'
     | '/dashboard/analytics'
@@ -358,7 +348,6 @@ export interface FileRouteTypes {
     | '/terminos'
     | '/vender'
     | '/api/mp-checkout'
-    | '/api/mp-webhook'
     | '/dashboard/affiliates'
     | '/dashboard/ai'
     | '/dashboard/analytics'
@@ -392,7 +381,6 @@ export interface FileRouteTypes {
     | '/terminos'
     | '/vender'
     | '/api/mp-checkout'
-    | '/api/mp-webhook'
     | '/dashboard/affiliates'
     | '/dashboard/ai'
     | '/dashboard/analytics'
@@ -427,7 +415,6 @@ export interface RootRouteChildren {
   TerminosRoute: typeof TerminosRoute
   VenderRoute: typeof VenderRoute
   ApiMpCheckoutRoute: typeof ApiMpCheckoutRoute
-  ApiMpWebhookRoute: typeof ApiMpWebhookRoute
   DashboardAffiliatesRoute: typeof DashboardAffiliatesRoute
   DashboardAiRoute: typeof DashboardAiRoute
   DashboardAnalyticsRoute: typeof DashboardAnalyticsRoute
@@ -643,13 +630,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardAffiliatesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/mp-webhook': {
-      id: '/api/mp-webhook'
-      path: '/api/mp-webhook'
-      fullPath: '/api/mp-webhook'
-      preLoaderRoute: typeof ApiMpWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/mp-checkout': {
       id: '/api/mp-checkout'
       path: '/api/mp-checkout'
@@ -701,7 +681,6 @@ const rootRouteChildren: RootRouteChildren = {
   TerminosRoute: TerminosRoute,
   VenderRoute: VenderRoute,
   ApiMpCheckoutRoute: ApiMpCheckoutRoute,
-  ApiMpWebhookRoute: ApiMpWebhookRoute,
   DashboardAffiliatesRoute: DashboardAffiliatesRoute,
   DashboardAiRoute: DashboardAiRoute,
   DashboardAnalyticsRoute: DashboardAnalyticsRoute,
