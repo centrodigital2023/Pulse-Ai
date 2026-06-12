@@ -14,16 +14,257 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      customers: {
+        Row: {
+          activations: number
+          created_at: string
+          email: string
+          id: string
+          last_ip: string | null
+          location: string | null
+          ltv: number
+          name: string
+          owner_id: string
+          products: number
+          segment: string
+          spent: number
+        }
+        Insert: {
+          activations?: number
+          created_at?: string
+          email: string
+          id?: string
+          last_ip?: string | null
+          location?: string | null
+          ltv?: number
+          name: string
+          owner_id: string
+          products?: number
+          segment?: string
+          spent?: number
+        }
+        Update: {
+          activations?: number
+          created_at?: string
+          email?: string
+          id?: string
+          last_ip?: string | null
+          location?: string | null
+          ltv?: number
+          name?: string
+          owner_id?: string
+          products?: number
+          segment?: string
+          spent?: number
+        }
+        Relationships: []
+      }
+      license_keys: {
+        Row: {
+          activation_limit: number
+          activations: number
+          created_at: string
+          customer_name: string | null
+          expires_at: string | null
+          id: string
+          key: string
+          owner_id: string
+          product_id: string | null
+          product_name: string | null
+          status: Database["public"]["Enums"]["license_status"]
+          type: Database["public"]["Enums"]["license_type"]
+        }
+        Insert: {
+          activation_limit?: number
+          activations?: number
+          created_at?: string
+          customer_name?: string | null
+          expires_at?: string | null
+          id?: string
+          key: string
+          owner_id: string
+          product_id?: string | null
+          product_name?: string | null
+          status?: Database["public"]["Enums"]["license_status"]
+          type?: Database["public"]["Enums"]["license_type"]
+        }
+        Update: {
+          activation_limit?: number
+          activations?: number
+          created_at?: string
+          customer_name?: string | null
+          expires_at?: string | null
+          id?: string
+          key?: string
+          owner_id?: string
+          product_id?: string | null
+          product_name?: string | null
+          status?: Database["public"]["Enums"]["license_status"]
+          type?: Database["public"]["Enums"]["license_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "license_keys_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_files: {
+        Row: {
+          created_at: string
+          downloads: number
+          id: string
+          kind: Database["public"]["Enums"]["file_kind"]
+          meta: string | null
+          name: string
+          product_id: string
+          size: string | null
+          storage_path: string | null
+        }
+        Insert: {
+          created_at?: string
+          downloads?: number
+          id?: string
+          kind?: Database["public"]["Enums"]["file_kind"]
+          meta?: string | null
+          name: string
+          product_id: string
+          size?: string | null
+          storage_path?: string | null
+        }
+        Update: {
+          created_at?: string
+          downloads?: number
+          id?: string
+          kind?: Database["public"]["Enums"]["file_kind"]
+          meta?: string | null
+          name?: string
+          product_id?: string
+          size?: string | null
+          storage_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_files_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          licensing_enabled: boolean
+          name: string
+          owner_id: string
+          price: number
+          recurring: boolean
+          status: Database["public"]["Enums"]["product_status"]
+          tagline: string | null
+          updated_at: string
+          version: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          licensing_enabled?: boolean
+          name: string
+          owner_id: string
+          price?: number
+          recurring?: boolean
+          status?: Database["public"]["Enums"]["product_status"]
+          tagline?: string | null
+          updated_at?: string
+          version?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          licensing_enabled?: boolean
+          name?: string
+          owner_id?: string
+          price?: number
+          recurring?: boolean
+          status?: Database["public"]["Enums"]["product_status"]
+          tagline?: string | null
+          updated_at?: string
+          version?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          id: string
+          name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "creator" | "user"
+      file_kind: "code" | "doc" | "video" | "audio" | "image"
+      license_status: "active" | "expired" | "revoked"
+      license_type: "personal" | "professional" | "enterprise" | "white_label"
+      product_status: "live" | "draft"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +391,12 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "creator", "user"],
+      file_kind: ["code", "doc", "video", "audio", "image"],
+      license_status: ["active", "expired", "revoked"],
+      license_type: ["personal", "professional", "enterprise", "white_label"],
+      product_status: ["live", "draft"],
+    },
   },
 } as const
