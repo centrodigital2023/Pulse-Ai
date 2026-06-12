@@ -66,7 +66,7 @@ export const Route = createFileRoute("/api/mp-checkout")({
               payment_methods: {
                 installments: order.installments ?? 12,
               },
-              notification_url: `${origin}/api/mp-webhook`,
+              notification_url: `${origin}/api/public/mp-webhook`,
             },
           });
 
