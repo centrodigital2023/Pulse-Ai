@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { FileCode, FileText, Video, UploadCloud, KeyRound, X } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useCreateProduct } from "@/lib/db";
+import type { FileKind } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/dashboard/products/new")({
   head: () => ({ meta: [{ title: "Nuevo Producto — PULSE AI" }] }),
@@ -71,11 +73,14 @@ function DropZone({
 }
 
 function NewProduct() {
+  const navigate = useNavigate();
+  const createProduct = useCreateProduct();
   const [streaming, setStreaming] = useState(true);
   const [licensing, setLicensing] = useState(true);
   const [recurring, setRecurring] = useState(false);
+  const [form, setForm] = useState({ name: "", tagline: "", category: "Software & SaaS", price: 149 });
   const [assets, setAssets] = useState<Record<string, Asset[]>>({
-    code: [{ id: "a1", name: "neural-kit-main-latest.zip", size: "2.4 GB" }],
+    code: [],
     docs: [],
     video: [],
   });
@@ -93,14 +98,38 @@ function NewProduct() {
   const removeAsset = (tab: string, id: string) =>
     setAssets((s) => ({ ...s, [tab]: s[tab].filter((a) => a.id !== id) }));
 
+  const save = async (status: "live" | "draft") => {
+    if (!form.name.trim()) { toast.error("Ingresa el nombre del producto"); return; }
+    const kindMap: Record<string, FileKind> = { code: "code", docs: "doc", video: "video" };
+    const files = Object.entries(assets).flatMap(([tab, list]) =>
+      list.map((a) => ({ name: a.name, kind: kindMap[tab], size: a.size })),
+    );
+    try {
+      await createProduct.mutateAsync({
+        name: form.name.trim(),
+        tagline: form.tagline.trim(),
+        category: form.category,
+        price: Number(form.price) || 0,
+        recurring,
+        status,
+        licensing_enabled: licensing,
+        files,
+      });
+      toast.success(status === "live" ? "Producto publicado 🚀" : "Borrador guardado");
+      navigate({ to: "/dashboard/products" });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo guardar el producto");
+    }
+  };
+
   return (
     <DashboardLayout
       title="Nuevo Producto"
       breadcrumb={["Dashboard", "Productos", "Nuevo"]}
       actions={
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => toast("Borrador guardado")}>Guardar borrador</Button>
-          <Button variant="contrast" size="sm" onClick={() => toast.success("Producto publicado 🚀")}>Publicar</Button>
+          <Button variant="outline" size="sm" disabled={createProduct.isPending} onClick={() => save("draft")}>Guardar borrador</Button>
+          <Button variant="contrast" size="sm" disabled={createProduct.isPending} onClick={() => save("live")}>Publicar</Button>
         </div>
       }
     >
@@ -111,15 +140,15 @@ function NewProduct() {
             <h3 className="text-sm font-semibold">Detalles del Producto</h3>
             <div className="space-y-2">
               <Label htmlFor="name">Nombre</Label>
-              <Input id="name" placeholder="Neural-Kit SDK" />
+              <Input id="name" placeholder="Neural-Kit SDK" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="tagline">Descripción corta</Label>
-              <Textarea id="tagline" rows={2} placeholder="Toolkit de ML de nivel producción con código fuente completo y curso de 6 horas." />
+              <Textarea id="tagline" rows={2} placeholder="Toolkit de ML de nivel producción con código fuente completo y curso de 6 horas." value={form.tagline} onChange={(e) => setForm((f) => ({ ...f, tagline: e.target.value }))} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="category">Categoría</Label>
-              <select id="category" className="w-full bg-black/20 border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-primary/50">
+              <select id="category" value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))} className="w-full bg-black/20 border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-primary/50">
                 <option>Software & SaaS</option>
                 <option>Cursos & Educación</option>
                 <option>Plantillas & Recursos</option>
@@ -128,6 +157,7 @@ function NewProduct() {
               </select>
             </div>
           </div>
+
 
           {/* Compositor de contenido */}
           <div className="rounded-xl bg-surface border border-border p-6">
@@ -167,7 +197,7 @@ function NewProduct() {
             <h3 className="text-sm font-semibold">Precio</h3>
             <div className="space-y-2">
               <Label htmlFor="price">Precio (USD)</Label>
-              <Input id="price" type="number" defaultValue={149} />
+              <Input id="price" type="number" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: Number(e.target.value) }))} />
             </div>
             <div className="flex items-center justify-between">
               <div>

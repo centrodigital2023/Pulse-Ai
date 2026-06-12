@@ -29,33 +29,36 @@ export function AuthModal({ onClose, defaultTab = "register", onSuccess }: Props
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", password: "" });
-  const { login } = useAuth();
+  const { signUp, signIn, signInWithGoogle } = useAuth();
 
-  const getInitials = (name: string) =>
-    name.trim().split(/\s+/).map(n => n[0]).join("").toUpperCase().slice(0, 2) || "US";
-
-  const finishLogin = (name: string, email: string, provider: "email" | "google" | "facebook") => {
-    login({ name, email, initials: getInitials(name), provider });
+  const finishLogin = () => {
     setDone(true);
     toast.success(tab === "register" ? "¡Cuenta creada! Bienvenido a PULSE AI" : "¡Bienvenido de nuevo!");
     setTimeout(() => { onSuccess?.(); onClose(); }, 1400);
   };
 
-  const handleGoogle = () => {
+  const handleGoogle = async () => {
     setLoading(true);
-    // Simulates Google OAuth popup → callback
-    setTimeout(() => {
+    const { error } = await signInWithGoogle();
+    if (error) {
       setLoading(false);
-      finishLogin("Usuario Google", "usuario@gmail.com", "google");
-    }, 1300);
+      toast.error(error);
+    }
+    // On success the browser redirects to Google.
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (tab === "register" && !form.name.trim()) { toast.error("Ingresa tu nombre completo"); return; }
     if (!form.email.trim()) { toast.error("Ingresa tu email"); return; }
     if (form.password.length < 6) { toast.error("La contraseña debe tener al menos 6 caracteres"); return; }
-    const name = tab === "register" ? form.name : (form.email.split("@")[0] || "Usuario");
-    finishLogin(name, form.email, "email");
+    setLoading(true);
+    const { error } =
+      tab === "register"
+        ? await signUp(form.name.trim(), form.email.trim(), form.password)
+        : await signIn(form.email.trim(), form.password);
+    setLoading(false);
+    if (error) { toast.error(error); return; }
+    finishLogin();
   };
 
   if (done) {
