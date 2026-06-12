@@ -416,8 +416,8 @@ function EfectyForm({ email }: { email: string }) {
         </div>
       </div>
       <div className="space-y-1.5">
-        <Label className="text-xs font-medium">Email para recibir confirmación</Label>
-        <Input type="email" defaultValue={email} className="bg-black/20 h-12" />
+        <Label htmlFor="efecty-email" className="text-xs font-medium">Email para recibir confirmación</Label>
+        <Input id="efecty-email" type="email" defaultValue={email} className="bg-black/20 h-12" />
       </div>
       <div className="text-[11px] text-muted-foreground space-y-1">
         <div className="flex items-start gap-1.5"><Check className="size-3 text-yellow-400 shrink-0 mt-0.5" /> Presenta el código en cualquier punto Efecty, Baloto o Apostar</div>
