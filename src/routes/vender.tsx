@@ -375,12 +375,13 @@ function VenderPage() {
         <p className="text-sm text-muted-foreground mt-1">Agrega tu primer producto al marketplace. Puedes editarlo después.</p>
       </div>
       <div className="space-y-2">
-        <Label>Nombre del producto <span className="text-destructive">*</span></Label>
-        <Input placeholder="Mi Increíble Curso de React" value={form.productName} onChange={e => set("productName", e.target.value)} className="bg-black/20" />
+        <Label htmlFor="product-name">Nombre del producto <span className="text-destructive">*</span></Label>
+        <Input id="product-name" placeholder="Mi Increíble Curso de React" value={form.productName} onChange={e => set("productName", e.target.value)} className="bg-black/20" />
       </div>
       <div className="space-y-2">
-        <Label>Descripción</Label>
+        <Label htmlFor="product-desc">Descripción</Label>
         <Textarea
+          id="product-desc"
           rows={3}
           placeholder="Describe lo que incluye tu producto, para quién es y qué aprenderán o recibirán..."
           value={form.productDesc}
@@ -390,10 +391,11 @@ function VenderPage() {
       </div>
       <div className="grid md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Precio (USD) <span className="text-destructive">*</span></Label>
+          <Label htmlFor="product-price">Precio (USD) <span className="text-destructive">*</span></Label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
             <Input
+              id="product-price"
               type="number"
               placeholder="49"
               min="1"
@@ -404,8 +406,9 @@ function VenderPage() {
           </div>
         </div>
         <div className="space-y-2">
-          <Label>Categoría</Label>
+          <Label htmlFor="product-category">Categoría</Label>
           <select
+            id="product-category"
             value={form.productCategory}
             onChange={e => set("productCategory", e.target.value)}
             className="w-full bg-black/20 border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-primary/50"
