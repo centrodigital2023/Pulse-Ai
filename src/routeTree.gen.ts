@@ -37,9 +37,9 @@ import { Route as DashboardAutomationRouteImport } from './routes/dashboard.auto
 import { Route as DashboardAnalyticsRouteImport } from './routes/dashboard.analytics'
 import { Route as DashboardAiRouteImport } from './routes/dashboard.ai'
 import { Route as DashboardAffiliatesRouteImport } from './routes/dashboard.affiliates'
-import { Route as ApiMpWebhookRouteImport } from './routes/api.mp-webhook'
 import { Route as ApiMpCheckoutRouteImport } from './routes/api.mp-checkout'
 import { Route as DashboardProductsNewRouteImport } from './routes/dashboard.products.new'
+import { Route as ApiPublicMpWebhookRouteImport } from './routes/api.public.mp-webhook'
 
 const VenderRoute = VenderRouteImport.update({
   id: '/vender',
@@ -181,11 +181,6 @@ const DashboardAffiliatesRoute = DashboardAffiliatesRouteImport.update({
   path: '/dashboard/affiliates',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiMpWebhookRoute = ApiMpWebhookRouteImport.update({
-  id: '/api/mp-webhook',
-  path: '/api/mp-webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiMpCheckoutRoute = ApiMpCheckoutRouteImport.update({
   id: '/api/mp-checkout',
   path: '/api/mp-checkout',
@@ -195,6 +190,11 @@ const DashboardProductsNewRoute = DashboardProductsNewRouteImport.update({
   id: '/new',
   path: '/new',
   getParentRoute: () => DashboardProductsRoute,
+} as any)
+const ApiPublicMpWebhookRoute = ApiPublicMpWebhookRouteImport.update({
+  id: '/api/public/mp-webhook',
+  path: '/api/public/mp-webhook',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -213,7 +213,6 @@ export interface FileRoutesByFullPath {
   '/terminos': typeof TerminosRoute
   '/vender': typeof VenderRoute
   '/api/mp-checkout': typeof ApiMpCheckoutRoute
-  '/api/mp-webhook': typeof ApiMpWebhookRoute
   '/dashboard/affiliates': typeof DashboardAffiliatesRoute
   '/dashboard/ai': typeof DashboardAiRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
@@ -228,6 +227,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
 }
 export interface FileRoutesByTo {
@@ -246,7 +246,6 @@ export interface FileRoutesByTo {
   '/terminos': typeof TerminosRoute
   '/vender': typeof VenderRoute
   '/api/mp-checkout': typeof ApiMpCheckoutRoute
-  '/api/mp-webhook': typeof ApiMpWebhookRoute
   '/dashboard/affiliates': typeof DashboardAffiliatesRoute
   '/dashboard/ai': typeof DashboardAiRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
@@ -261,6 +260,7 @@ export interface FileRoutesByTo {
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
 }
 export interface FileRoutesById {
@@ -280,7 +280,6 @@ export interface FileRoutesById {
   '/terminos': typeof TerminosRoute
   '/vender': typeof VenderRoute
   '/api/mp-checkout': typeof ApiMpCheckoutRoute
-  '/api/mp-webhook': typeof ApiMpWebhookRoute
   '/dashboard/affiliates': typeof DashboardAffiliatesRoute
   '/dashboard/ai': typeof DashboardAiRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
@@ -295,6 +294,7 @@ export interface FileRoutesById {
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
 }
 export interface FileRouteTypes {
@@ -315,7 +315,6 @@ export interface FileRouteTypes {
     | '/terminos'
     | '/vender'
     | '/api/mp-checkout'
-    | '/api/mp-webhook'
     | '/dashboard/affiliates'
     | '/dashboard/ai'
     | '/dashboard/analytics'
@@ -330,6 +329,7 @@ export interface FileRouteTypes {
     | '/dashboard/settings'
     | '/dashboard/webhooks'
     | '/dashboard/'
+    | '/api/public/mp-webhook'
     | '/dashboard/products/new'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -348,7 +348,6 @@ export interface FileRouteTypes {
     | '/terminos'
     | '/vender'
     | '/api/mp-checkout'
-    | '/api/mp-webhook'
     | '/dashboard/affiliates'
     | '/dashboard/ai'
     | '/dashboard/analytics'
@@ -363,6 +362,7 @@ export interface FileRouteTypes {
     | '/dashboard/settings'
     | '/dashboard/webhooks'
     | '/dashboard'
+    | '/api/public/mp-webhook'
     | '/dashboard/products/new'
   id:
     | '__root__'
@@ -381,7 +381,6 @@ export interface FileRouteTypes {
     | '/terminos'
     | '/vender'
     | '/api/mp-checkout'
-    | '/api/mp-webhook'
     | '/dashboard/affiliates'
     | '/dashboard/ai'
     | '/dashboard/analytics'
@@ -396,6 +395,7 @@ export interface FileRouteTypes {
     | '/dashboard/settings'
     | '/dashboard/webhooks'
     | '/dashboard/'
+    | '/api/public/mp-webhook'
     | '/dashboard/products/new'
   fileRoutesById: FileRoutesById
 }
@@ -415,7 +415,6 @@ export interface RootRouteChildren {
   TerminosRoute: typeof TerminosRoute
   VenderRoute: typeof VenderRoute
   ApiMpCheckoutRoute: typeof ApiMpCheckoutRoute
-  ApiMpWebhookRoute: typeof ApiMpWebhookRoute
   DashboardAffiliatesRoute: typeof DashboardAffiliatesRoute
   DashboardAiRoute: typeof DashboardAiRoute
   DashboardAnalyticsRoute: typeof DashboardAnalyticsRoute
@@ -430,6 +429,7 @@ export interface RootRouteChildren {
   DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardWebhooksRoute: typeof DashboardWebhooksRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
+  ApiPublicMpWebhookRoute: typeof ApiPublicMpWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -630,13 +630,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardAffiliatesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/mp-webhook': {
-      id: '/api/mp-webhook'
-      path: '/api/mp-webhook'
-      fullPath: '/api/mp-webhook'
-      preLoaderRoute: typeof ApiMpWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/mp-checkout': {
       id: '/api/mp-checkout'
       path: '/api/mp-checkout'
@@ -650,6 +643,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/products/new'
       preLoaderRoute: typeof DashboardProductsNewRouteImport
       parentRoute: typeof DashboardProductsRoute
+    }
+    '/api/public/mp-webhook': {
+      id: '/api/public/mp-webhook'
+      path: '/api/public/mp-webhook'
+      fullPath: '/api/public/mp-webhook'
+      preLoaderRoute: typeof ApiPublicMpWebhookRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -681,7 +681,6 @@ const rootRouteChildren: RootRouteChildren = {
   TerminosRoute: TerminosRoute,
   VenderRoute: VenderRoute,
   ApiMpCheckoutRoute: ApiMpCheckoutRoute,
-  ApiMpWebhookRoute: ApiMpWebhookRoute,
   DashboardAffiliatesRoute: DashboardAffiliatesRoute,
   DashboardAiRoute: DashboardAiRoute,
   DashboardAnalyticsRoute: DashboardAnalyticsRoute,
@@ -696,6 +695,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardWebhooksRoute: DashboardWebhooksRoute,
   DashboardIndexRoute: DashboardIndexRoute,
+  ApiPublicMpWebhookRoute: ApiPublicMpWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

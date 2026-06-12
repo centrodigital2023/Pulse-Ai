@@ -3,11 +3,13 @@ import { Link } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
+import { useCanAccessDashboard } from "@/lib/db";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { ShoppingBag, Library, LogOut, ChevronDown, User } from "lucide-react";
 
 export function SiteNav() {
   const { user, logout } = useAuth();
+  const { canAccess: canAccessDashboard } = useCanAccessDashboard();
   const [showAuth, setShowAuth] = useState(false);
   const [dropOpen, setDropOpen] = useState(false);
   const dropRef = useRef<HTMLDivElement>(null);
@@ -32,9 +34,11 @@ export function SiteNav() {
               <Link to="/marketplace" className="hover:text-foreground transition-colors [&.active]:text-foreground">
                 Marketplace
               </Link>
-              <Link to="/dashboard" className="hover:text-foreground transition-colors [&.active]:text-foreground">
-                Dashboard
-              </Link>
+              {canAccessDashboard && (
+                <Link to="/dashboard" className="hover:text-foreground transition-colors [&.active]:text-foreground">
+                  Dashboard
+                </Link>
+              )}
             </div>
           </div>
 

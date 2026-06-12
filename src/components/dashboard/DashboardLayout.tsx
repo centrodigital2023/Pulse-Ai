@@ -1,12 +1,15 @@
 import type { ReactNode } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, Package, Users, KeyRound, Webhook, Mail,
   Library, BarChart3, TrendingUp, Zap, BookOpen, Store, Bot,
-  Settings, ChevronRight, Bell, Search,
+  Settings, ChevronRight, Bell, Search, Lock,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth-context";
+import { useCanAccessDashboard } from "@/lib/db";
 
 const navGroups = [
   {
@@ -62,6 +65,35 @@ export function DashboardLayout({
   children: ReactNode;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
+  const { user, isLoading: authLoading } = useAuth();
+  const { canAccess, isLoading: roleLoading } = useCanAccessDashboard();
+
+  const checking = authLoading || roleLoading;
+
+  useEffect(() => {
+    if (!checking && !canAccess) {
+      navigate({ to: "/marketplace" });
+    }
+  }, [checking, canAccess, navigate]);
+
+  if (checking || !canAccess) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background text-foreground">
+        <Lock className="size-8 text-muted-foreground" />
+        <div className="text-sm text-muted-foreground">
+          {checking
+            ? "Verificando acceso…"
+            : !user
+              ? "Necesitas iniciar sesión como vendedor para acceder al panel."
+              : "Esta sección es solo para vendedores y administradores."}
+        </div>
+        <Button variant="contrast" size="sm" onClick={() => navigate({ to: "/marketplace" })}>
+          Volver al Marketplace
+        </Button>
+      </div>
+    );
+  }
 
   const isActive = (url: string) =>
     url === "/dashboard" ? pathname === url || pathname === "/dashboard/" : pathname.startsWith(url);
