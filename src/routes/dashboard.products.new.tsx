@@ -128,8 +128,8 @@ function NewProduct() {
       breadcrumb={["Dashboard", "Productos", "Nuevo"]}
       actions={
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => toast("Borrador guardado")}>Guardar borrador</Button>
-          <Button variant="contrast" size="sm" onClick={() => toast.success("Producto publicado 🚀")}>Publicar</Button>
+          <Button variant="outline" size="sm" disabled={createProduct.isPending} onClick={() => save("draft")}>Guardar borrador</Button>
+          <Button variant="contrast" size="sm" disabled={createProduct.isPending} onClick={() => save("live")}>Publicar</Button>
         </div>
       }
     >
@@ -140,15 +140,15 @@ function NewProduct() {
             <h3 className="text-sm font-semibold">Detalles del Producto</h3>
             <div className="space-y-2">
               <Label htmlFor="name">Nombre</Label>
-              <Input id="name" placeholder="Neural-Kit SDK" />
+              <Input id="name" placeholder="Neural-Kit SDK" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="tagline">Descripción corta</Label>
-              <Textarea id="tagline" rows={2} placeholder="Toolkit de ML de nivel producción con código fuente completo y curso de 6 horas." />
+              <Textarea id="tagline" rows={2} placeholder="Toolkit de ML de nivel producción con código fuente completo y curso de 6 horas." value={form.tagline} onChange={(e) => setForm((f) => ({ ...f, tagline: e.target.value }))} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="category">Categoría</Label>
-              <select id="category" className="w-full bg-black/20 border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-primary/50">
+              <select id="category" value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))} className="w-full bg-black/20 border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-primary/50">
                 <option>Software & SaaS</option>
                 <option>Cursos & Educación</option>
                 <option>Plantillas & Recursos</option>
@@ -157,6 +157,7 @@ function NewProduct() {
               </select>
             </div>
           </div>
+
 
           {/* Compositor de contenido */}
           <div className="rounded-xl bg-surface border border-border p-6">
