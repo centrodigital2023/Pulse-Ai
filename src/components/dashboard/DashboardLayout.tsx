@@ -1,12 +1,15 @@
 import type { ReactNode } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, Package, Users, KeyRound, Webhook, Mail,
   Library, BarChart3, TrendingUp, Zap, BookOpen, Store, Bot,
-  Settings, ChevronRight, Bell, Search,
+  Settings, ChevronRight, Bell, Search, Lock,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth-context";
+import { useCanAccessDashboard } from "@/lib/db";
 
 const navGroups = [
   {
