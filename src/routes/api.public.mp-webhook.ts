@@ -32,24 +32,15 @@ export const Route = createFileRoute("/api/public/mp-webhook")({
           const payment = await paymentClient.get({ id: String(paymentId) });
 
           if (payment.status === "approved") {
-            const userId = payment.external_reference;
-            const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-            // Record the customer / purchase server-side (service role)
-            if (userId) {
-              await supabaseAdmin
-                .from("customers")
-                .upsert(
-                  {
-                    id: userId,
-                    name: payment.payer?.first_name ?? payment.payer?.email ?? "Comprador",
-                    email: payment.payer?.email ?? "",
-                    spent: payment.transaction_amount ?? 0,
-                  },
-                  { onConflict: "id" },
-                )
-                .then(() => {})
-                .catch((e) => console.error("[MP Webhook] upsert", e));
-            }
+            // Payment verified as approved. Fulfillment (granting library
+            // access, issuing licenses) can be wired here using supabaseAdmin
+            // once the purchases schema is defined.
+            console.log(
+              "[MP Webhook] Approved payment",
+              paymentId,
+              "ref:",
+              payment.external_reference,
+            );
           }
 
           return new Response("OK", { status: 200 });

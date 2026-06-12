@@ -40,6 +40,7 @@ import { Route as DashboardAffiliatesRouteImport } from './routes/dashboard.affi
 import { Route as ApiMpWebhookRouteImport } from './routes/api.mp-webhook'
 import { Route as ApiMpCheckoutRouteImport } from './routes/api.mp-checkout'
 import { Route as DashboardProductsNewRouteImport } from './routes/dashboard.products.new'
+import { Route as ApiPublicMpWebhookRouteImport } from './routes/api.public.mp-webhook'
 
 const VenderRoute = VenderRouteImport.update({
   id: '/vender',
@@ -196,6 +197,11 @@ const DashboardProductsNewRoute = DashboardProductsNewRouteImport.update({
   path: '/new',
   getParentRoute: () => DashboardProductsRoute,
 } as any)
+const ApiPublicMpWebhookRoute = ApiPublicMpWebhookRouteImport.update({
+  id: '/api/public/mp-webhook',
+  path: '/api/public/mp-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -228,6 +234,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
 }
 export interface FileRoutesByTo {
@@ -261,6 +268,7 @@ export interface FileRoutesByTo {
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
 }
 export interface FileRoutesById {
@@ -295,6 +303,7 @@ export interface FileRoutesById {
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
 }
 export interface FileRouteTypes {
@@ -330,6 +339,7 @@ export interface FileRouteTypes {
     | '/dashboard/settings'
     | '/dashboard/webhooks'
     | '/dashboard/'
+    | '/api/public/mp-webhook'
     | '/dashboard/products/new'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -363,6 +373,7 @@ export interface FileRouteTypes {
     | '/dashboard/settings'
     | '/dashboard/webhooks'
     | '/dashboard'
+    | '/api/public/mp-webhook'
     | '/dashboard/products/new'
   id:
     | '__root__'
@@ -396,6 +407,7 @@ export interface FileRouteTypes {
     | '/dashboard/settings'
     | '/dashboard/webhooks'
     | '/dashboard/'
+    | '/api/public/mp-webhook'
     | '/dashboard/products/new'
   fileRoutesById: FileRoutesById
 }
@@ -430,6 +442,7 @@ export interface RootRouteChildren {
   DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardWebhooksRoute: typeof DashboardWebhooksRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
+  ApiPublicMpWebhookRoute: typeof ApiPublicMpWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -651,6 +664,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardProductsNewRouteImport
       parentRoute: typeof DashboardProductsRoute
     }
+    '/api/public/mp-webhook': {
+      id: '/api/public/mp-webhook'
+      path: '/api/public/mp-webhook'
+      fullPath: '/api/public/mp-webhook'
+      preLoaderRoute: typeof ApiPublicMpWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -696,6 +716,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardWebhooksRoute: DashboardWebhooksRoute,
   DashboardIndexRoute: DashboardIndexRoute,
+  ApiPublicMpWebhookRoute: ApiPublicMpWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
