@@ -1,69 +1,79 @@
-import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Copy, Plus } from "lucide-react";
+import { Copy, Plus, Loader2 } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { licenseKeys as initial } from "@/lib/mock-data";
+import { useMyLicenses, useCreateLicense } from "@/lib/db";
+import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/dashboard/licenses")({
   head: () => ({ meta: [{ title: "Claves de Licencia — PULSE AI Dashboard" }] }),
   component: Licenses,
 });
 
-function genKey() {
-  const block = () => Math.random().toString(36).toUpperCase().slice(2, 6);
-  return `PNS-${block()}-${block()}-${block()}-NEW`;
-}
-
 function Licenses() {
-  const [keys, setKeys] = useState(initial);
+  const { user } = useAuth();
+  const { data: keys, isLoading } = useMyLicenses();
+  const createLicense = useCreateLicense();
 
   const copy = (k: string) => {
     navigator.clipboard?.writeText(k);
     toast.success("Clave copiada al portapapeles");
   };
 
-  const generate = () => {
-    setKeys((k) => [
-      { id: crypto.randomUUID(), key: genKey(), product: "Neural-Kit SDK", customer: "Emisión manual", activations: 0, limit: 3, status: "active" as const, type: "professional" as const, expiresAt: "Dec 31, 2025" },
-      ...k,
-    ]);
-    toast.success("Nueva clave de licencia generada");
+  const generate = async () => {
+    try {
+      await createLicense.mutateAsync({ product_name: "Emisión manual" });
+      toast.success("Nueva clave de licencia generada");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo generar la clave");
+    }
   };
 
   return (
     <DashboardLayout
       title="Claves de Licencia"
       breadcrumb={["Dashboard", "Claves de Licencia"]}
-      actions={<Button variant="contrast" size="sm" onClick={generate}><Plus className="size-4" /> Generar clave</Button>}
+      actions={<Button variant="contrast" size="sm" disabled={createLicense.isPending} onClick={generate}><Plus className="size-4" /> Generar clave</Button>}
     >
-      <div className="grid gap-3">
-        {keys.map((l) => (
-          <div key={l.id} className="rounded-xl bg-surface border border-border p-4 flex flex-wrap items-center gap-4">
-            <code className="font-mono text-sm text-primary bg-black/40 border border-border px-3 py-2 rounded flex-1 min-w-[240px]">
-              {l.key}
-            </code>
-            <div className="text-xs text-muted-foreground">
-              <div className="text-foreground">{l.product}</div>
-              {l.customer}
+      {!user ? (
+        <div className="rounded-xl bg-surface border border-border p-12 text-center text-sm text-muted-foreground">
+          Inicia sesión para gestionar tus claves de licencia.
+        </div>
+      ) : isLoading ? (
+        <div className="flex items-center justify-center py-16 text-muted-foreground"><Loader2 className="size-5 animate-spin" /></div>
+      ) : !keys || keys.length === 0 ? (
+        <div className="rounded-xl bg-surface border border-border p-12 text-center text-sm text-muted-foreground">
+          Aún no has generado claves de licencia.
+        </div>
+      ) : (
+        <div className="grid gap-3">
+          {keys.map((l) => (
+            <div key={l.id} className="rounded-xl bg-surface border border-border p-4 flex flex-wrap items-center gap-4">
+              <code className="font-mono text-sm text-primary bg-black/40 border border-border px-3 py-2 rounded flex-1 min-w-[240px]">
+                {l.key}
+              </code>
+              <div className="text-xs text-muted-foreground">
+                <div className="text-foreground">{l.product_name}</div>
+                {l.customer_name}
+              </div>
+              <div className="text-xs font-mono">
+                {l.activations}/{l.activation_limit} <span className="text-muted-foreground">activaciones</span>
+              </div>
+              <span
+                className={`px-2 py-0.5 rounded text-[10px] font-mono ${
+                  l.status === "active" ? "bg-primary/20 text-primary" : "bg-secondary text-muted-foreground"
+                }`}
+              >
+                {l.status.toUpperCase()}
+              </span>
+              <Button variant="outline" size="sm" onClick={() => copy(l.key)}>
+                <Copy className="size-3.5" /> Copiar
+              </Button>
             </div>
-            <div className="text-xs font-mono">
-              {l.activations}/{l.limit} <span className="text-muted-foreground">activaciones</span>
-            </div>
-            <span
-              className={`px-2 py-0.5 rounded text-[10px] font-mono ${
-                l.status === "active" ? "bg-primary/20 text-primary" : "bg-secondary text-muted-foreground"
-              }`}
-            >
-              {l.status.toUpperCase()}
-            </span>
-            <Button variant="outline" size="sm" onClick={() => copy(l.key)}>
-              <Copy className="size-3.5" /> Copiar
-            </Button>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       <div className="mt-6 rounded-xl bg-surface border border-border p-6">
         <h3 className="text-sm font-semibold mb-2">API de Verificación</h3>
