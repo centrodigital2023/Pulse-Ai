@@ -197,9 +197,10 @@ function CardForm({
   return (
     <div className="space-y-4">
       <div className="space-y-1.5">
-        <Label className="text-xs font-medium">Número de tarjeta</Label>
+        <Label htmlFor="card-number" className="text-xs font-medium">Número de tarjeta</Label>
         <div className="relative">
           <Input
+            id="card-number"
             placeholder="0000 0000 0000 0000"
             value={card.number}
             onChange={e => setCard(c => ({ ...c, number: formatCardNumber(e.target.value) }))}
@@ -213,8 +214,9 @@ function CardForm({
       </div>
 
       <div className="space-y-1.5">
-        <Label className="text-xs font-medium">Nombre en la tarjeta</Label>
+        <Label htmlFor="card-name" className="text-xs font-medium">Nombre en la tarjeta</Label>
         <Input
+          id="card-name"
           placeholder="NOMBRE APELLIDO"
           value={card.name}
           onChange={e => setCard(c => ({ ...c, name: e.target.value.toUpperCase() }))}
@@ -224,8 +226,9 @@ function CardForm({
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
-          <Label className="text-xs font-medium">Vencimiento</Label>
+          <Label htmlFor="card-expiry" className="text-xs font-medium">Vencimiento</Label>
           <Input
+            id="card-expiry"
             placeholder="MM/AA"
             value={card.expiry}
             onChange={e => setCard(c => ({ ...c, expiry: formatExpiry(e.target.value) }))}
@@ -234,8 +237,9 @@ function CardForm({
           />
         </div>
         <div className="space-y-1.5">
-          <Label className="text-xs font-medium">CVV / CVC</Label>
+          <Label htmlFor="card-cvv" className="text-xs font-medium">CVV / CVC</Label>
           <Input
+            id="card-cvv"
             placeholder="•••"
             value={card.cvv}
             onChange={e => setCard(c => ({ ...c, cvv: e.target.value.replace(/\D/g, "").slice(0, 4) }))}
