@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { FileCode, FileText, Video, UploadCloud, KeyRound, X } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useCreateProduct } from "@/lib/db";
+import type { FileKind } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/dashboard/products/new")({
   head: () => ({ meta: [{ title: "Nuevo Producto — PULSE AI" }] }),
