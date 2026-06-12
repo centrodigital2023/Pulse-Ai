@@ -165,7 +165,7 @@ function ProductCard({ listing, onBuy, compact = false }: {
           <button onClick={shareOnFacebook} className="size-8 rounded-full bg-[#1877F2] flex items-center justify-center hover:scale-110 transition-transform shadow-lg" title="Compartir en Facebook">
             <Facebook className="size-3.5 text-white" />
           </button>
-          <button onClick={e => { e.stopPropagation(); toast.success("Agregado a favoritos ❤️"); }} className="size-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 flex items-center justify-center hover:scale-110 transition-transform shadow-lg">
+          <button aria-label="Agregar a favoritos" onClick={e => { e.stopPropagation(); toast.success("Agregado a favoritos ❤️"); }} className="size-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 flex items-center justify-center hover:scale-110 transition-transform shadow-lg">
             <Star className="size-3.5 text-yellow-400" />
           </button>
         </div>
