@@ -197,7 +197,7 @@ function NewProduct() {
             <h3 className="text-sm font-semibold">Precio</h3>
             <div className="space-y-2">
               <Label htmlFor="price">Precio (USD)</Label>
-              <Input id="price" type="number" defaultValue={149} />
+              <Input id="price" type="number" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: Number(e.target.value) }))} />
             </div>
             <div className="flex items-center justify-between">
               <div>
