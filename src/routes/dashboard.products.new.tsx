@@ -73,11 +73,14 @@ function DropZone({
 }
 
 function NewProduct() {
+  const navigate = useNavigate();
+  const createProduct = useCreateProduct();
   const [streaming, setStreaming] = useState(true);
   const [licensing, setLicensing] = useState(true);
   const [recurring, setRecurring] = useState(false);
+  const [form, setForm] = useState({ name: "", tagline: "", category: "Software & SaaS", price: 149 });
   const [assets, setAssets] = useState<Record<string, Asset[]>>({
-    code: [{ id: "a1", name: "neural-kit-main-latest.zip", size: "2.4 GB" }],
+    code: [],
     docs: [],
     video: [],
   });
@@ -94,6 +97,30 @@ function NewProduct() {
 
   const removeAsset = (tab: string, id: string) =>
     setAssets((s) => ({ ...s, [tab]: s[tab].filter((a) => a.id !== id) }));
+
+  const save = async (status: "live" | "draft") => {
+    if (!form.name.trim()) { toast.error("Ingresa el nombre del producto"); return; }
+    const kindMap: Record<string, FileKind> = { code: "code", docs: "doc", video: "video" };
+    const files = Object.entries(assets).flatMap(([tab, list]) =>
+      list.map((a) => ({ name: a.name, kind: kindMap[tab], size: a.size })),
+    );
+    try {
+      await createProduct.mutateAsync({
+        name: form.name.trim(),
+        tagline: form.tagline.trim(),
+        category: form.category,
+        price: Number(form.price) || 0,
+        recurring,
+        status,
+        licensing_enabled: licensing,
+        files,
+      });
+      toast.success(status === "live" ? "Producto publicado 🚀" : "Borrador guardado");
+      navigate({ to: "/dashboard/products" });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo guardar el producto");
+    }
+  };
 
   return (
     <DashboardLayout
