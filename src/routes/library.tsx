@@ -67,7 +67,7 @@ function LibraryPage() {
             <div className="aspect-video bg-black rounded-xl relative overflow-hidden group border border-border">
               <img src={videoStill} alt="Course preview" loading="lazy" width={896} height={512} className="w-full h-full object-cover opacity-50" />
               <div className="absolute inset-0 flex items-center justify-center">
-                <button onClick={() => toast("Reproductor de streaming (demo)")} className="size-16 rounded-full bg-primary/90 flex items-center justify-center pl-1 shadow-lg group-hover:scale-110 transition-transform">
+                <button aria-label="Reproducir video" onClick={() => toast("Reproductor de streaming (demo)")} className="size-16 rounded-full bg-primary/90 flex items-center justify-center pl-1 shadow-lg group-hover:scale-110 transition-transform">
                   <Play className="size-7 text-primary-foreground fill-current" />
                 </button>
               </div>
