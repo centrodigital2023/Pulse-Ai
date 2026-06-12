@@ -492,7 +492,7 @@ function VenderPage() {
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3">
             <Zap className="size-5 text-primary" />
-            <span className="font-semibold text-sm">Empieza a vender hoy — Gratis</span>
+            <h1 className="font-semibold text-sm">Registro de Vendedores — Empieza a vender hoy, gratis</h1>
           </div>
           <div className="flex items-center gap-6 text-xs text-muted-foreground flex-wrap">
             {["✓ 0% comisión el primer mes", "✓ Pago semanal garantizado", "✓ Soporte en español"].map(t => (
