@@ -9,6 +9,7 @@ import { AuthModal } from "@/components/auth/AuthModal";
 import { AIAssistant } from "@/components/ai/AIAssistant";
 import { marketplaceCategories, type MarketplaceListing } from "@/lib/mock-data";
 import { useAllListings } from "@/lib/products-store";
+import { useUserStore } from "@/lib/user-store";
 import {
   Search, Star, ShoppingCart, ChevronLeft, ChevronRight,
   Flame, Clock, Eye, Zap, Shield, Download, Bell,
@@ -113,8 +114,17 @@ function ProductCard({ listing, onBuy, compact = false }: {
   onBuy: (l: MarketplaceListing) => void;
   compact?: boolean;
 }) {
+  const { addToCart, cart, addToBrowseHistory } = useUserStore();
+  const inCart = cart.some(i => i.id === listing.id);
   const discount = listing.originalPrice ? Math.round((1 - listing.price / listing.originalPrice) * 100) : 0;
   const isAIPick = AI_PICKS.includes(listing.id);
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const added = addToCart(listing);
+    added ? toast.success(`"${listing.name}" agregado al carrito 🛒`, { action: { label: "Ver carrito", onClick: () => window.location.href = "/perfil" } }) : toast("Ya está en tu carrito");
+    addToBrowseHistory({ id: listing.id, name: listing.name, vendor: listing.vendor, price: listing.price, image: listing.image });
+  };
 
   const shareOnFacebook = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -216,21 +226,33 @@ function ProductCard({ listing, onBuy, compact = false }: {
         </div>
 
         {/* Price + CTA */}
-        <div className="flex items-center justify-between mt-auto pt-3 border-t border-border gap-2">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-extrabold text-primary">${listing.price}</span>
-              {listing.originalPrice && (
-                <span className="text-xs text-muted-foreground line-through">${listing.originalPrice}</span>
-              )}
+        <div className="mt-auto pt-3 border-t border-border">
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl font-extrabold text-primary">${listing.price}</span>
+                {listing.originalPrice && (
+                  <span className="text-xs text-muted-foreground line-through">${listing.originalPrice}</span>
+                )}
+              </div>
+              <div className="text-[10px] text-muted-foreground flex items-center gap-1 mt-0.5">
+                <Download className="size-2.5" /> Descarga instantánea
+              </div>
             </div>
-            <div className="text-[10px] text-muted-foreground flex items-center gap-1 mt-0.5">
-              <Download className="size-2.5" /> Descarga instantánea
-            </div>
+            <Button variant="contrast" size="sm" className="gap-1.5 font-bold text-xs shrink-0" onClick={() => { onBuy(listing); addToBrowseHistory({ id: listing.id, name: listing.name, vendor: listing.vendor, price: listing.price, image: listing.image }); }}>
+              <ShoppingCart className="size-3.5" /> Comprar
+            </Button>
           </div>
-          <Button variant="contrast" size="sm" className="gap-1.5 font-bold text-xs shrink-0" onClick={() => onBuy(listing)}>
-            <ShoppingCart className="size-3.5" /> Comprar
-          </Button>
+          <button
+            onClick={handleAddToCart}
+            className={`w-full text-xs py-1.5 rounded-xl border transition-all font-medium ${
+              inCart
+                ? "border-primary/30 text-primary bg-primary/5"
+                : "border-border text-muted-foreground hover:border-primary/30 hover:text-primary hover:bg-primary/5"
+            }`}
+          >
+            {inCart ? "✓ En tu carrito" : "+ Agregar al carrito"}
+          </button>
         </div>
       </div>
     </div>

@@ -20,6 +20,7 @@ import { Route as HabeasDataRouteImport } from './routes/habeas-data'
 import { Route as CumplimientoRouteImport } from './routes/cumplimiento'
 import { Route as VenderRouteImport } from './routes/vender'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as MisComprasRouteImport } from './routes/mis-compras'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as LibraryRouteImport } from './routes/library'
@@ -75,6 +76,11 @@ const VenderRoute = VenderRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfilRoute = PerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MisComprasRoute = MisComprasRouteImport.update({
@@ -195,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/library': typeof LibraryRoute
   '/marketplace': typeof MarketplaceRoute
   '/mis-compras': typeof MisComprasRoute
+  '/perfil': typeof PerfilRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/vender': typeof VenderRoute
   '/dashboard/affiliates': typeof DashboardAffiliatesRoute
@@ -225,6 +232,7 @@ export interface FileRoutesByTo {
   '/library': typeof LibraryRoute
   '/marketplace': typeof MarketplaceRoute
   '/mis-compras': typeof MisComprasRoute
+  '/perfil': typeof PerfilRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/vender': typeof VenderRoute
   '/dashboard/affiliates': typeof DashboardAffiliatesRoute
@@ -256,6 +264,7 @@ export interface FileRoutesById {
   '/library': typeof LibraryRoute
   '/marketplace': typeof MarketplaceRoute
   '/mis-compras': typeof MisComprasRoute
+  '/perfil': typeof PerfilRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/vender': typeof VenderRoute
   '/dashboard/affiliates': typeof DashboardAffiliatesRoute
@@ -288,6 +297,7 @@ export interface FileRouteTypes {
     | '/library'
     | '/marketplace'
     | '/mis-compras'
+    | '/perfil'
     | '/sitemap.xml'
     | '/vender'
     | '/terminos'
@@ -322,6 +332,7 @@ export interface FileRouteTypes {
     | '/library'
     | '/marketplace'
     | '/mis-compras'
+    | '/perfil'
     | '/sitemap.xml'
     | '/vender'
     | '/terminos'
@@ -356,6 +367,7 @@ export interface FileRouteTypes {
     | '/library'
     | '/marketplace'
     | '/mis-compras'
+    | '/perfil'
     | '/sitemap.xml'
     | '/vender'
     | '/terminos'
@@ -391,6 +403,7 @@ export interface RootRouteChildren {
   LibraryRoute: typeof LibraryRoute
   MarketplaceRoute: typeof MarketplaceRoute
   MisComprasRoute: typeof MisComprasRoute
+  PerfilRoute: typeof PerfilRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   VenderRoute: typeof VenderRoute
   DashboardAffiliatesRoute: typeof DashboardAffiliatesRoute
@@ -430,6 +443,13 @@ declare module '@tanstack/react-router' {
       path: '/mis-compras'
       fullPath: '/mis-compras'
       preLoaderRoute: typeof MisComprasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfil': {
+      id: '/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof PerfilRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/marketplace': {
@@ -661,6 +681,7 @@ const rootRouteChildren: RootRouteChildren = {
   LibraryRoute: LibraryRoute,
   MarketplaceRoute: MarketplaceRoute,
   MisComprasRoute: MisComprasRoute,
+  PerfilRoute: PerfilRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   VenderRoute: VenderRoute,
   DashboardAffiliatesRoute: DashboardAffiliatesRoute,

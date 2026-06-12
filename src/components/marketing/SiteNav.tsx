@@ -1,18 +1,24 @@
 import { useState, useRef, useEffect } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import { useCanAccessDashboard } from "@/lib/db";
 import { AuthModal } from "@/components/auth/AuthModal";
-import { ShoppingBag, Library, LogOut, ChevronDown, User } from "lucide-react";
+import { useUserStore } from "@/lib/user-store";
+import {
+  ShoppingBag, Library, LogOut, ChevronDown, User, ShoppingCart,
+  Star, Tag, Wallet, Store, Clock, Package,
+} from "lucide-react";
 
 export function SiteNav() {
   const { user, logout } = useAuth();
   const { canAccess: canAccessDashboard } = useCanAccessDashboard();
+  const { cartCount } = useUserStore();
   const [showAuth, setShowAuth] = useState(false);
   const [dropOpen, setDropOpen] = useState(false);
   const dropRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -23,6 +29,18 @@ export function SiteNav() {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
+
+  const menuItems: { label: string; icon: React.ElementType; to: string; badge?: number }[] = [
+    { label: "Tus pedidos", icon: ShoppingBag, to: "/perfil", badge: cartCount || undefined },
+    { label: "Tus reseñas", icon: Star, to: "/perfil" },
+    { label: "Tu perfil", icon: User, to: "/perfil" },
+    { label: "Cupones y ofertas", icon: Tag, to: "/perfil" },
+    { label: "Saldo de crédito", icon: Wallet, to: "/perfil" },
+    { label: "Tiendas que sigues", icon: Store, to: "/perfil" },
+    { label: "Historial", icon: Clock, to: "/perfil" },
+    { label: "Mis Compras", icon: Package, to: "/mis-compras" },
+    { label: "Mi Biblioteca", icon: Library, to: "/library" },
+  ];
 
   return (
     <>
@@ -52,51 +70,70 @@ export function SiteNav() {
             </Link>
 
             {user ? (
-              <div className="relative" ref={dropRef}>
-                <button
-                  onClick={() => setDropOpen(o => !o)}
-                  className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl border border-border hover:border-primary/30 transition-colors bg-surface"
+              <div className="flex items-center gap-2">
+                {/* Cart icon */}
+                <Link
+                  to="/perfil"
+                  className="relative size-9 rounded-xl border border-border hover:border-primary/30 bg-surface flex items-center justify-center transition-colors"
+                  title="Tu carrito"
                 >
-                  <div className="size-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary">
-                    {user.initials}
-                  </div>
-                  <span className="hidden sm:block text-sm font-medium max-w-[90px] truncate">{user.name.split(" ")[0]}</span>
-                  <ChevronDown className={`size-3.5 text-muted-foreground transition-transform ${dropOpen ? "rotate-180" : ""}`} />
-                </button>
+                  <ShoppingCart className="size-4 text-muted-foreground" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 size-4 rounded-full bg-primary text-[9px] font-bold text-primary-foreground flex items-center justify-center leading-none">
+                      {cartCount > 9 ? "9+" : cartCount}
+                    </span>
+                  )}
+                </Link>
 
-                {dropOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-52 bg-surface border border-border rounded-xl shadow-2xl overflow-hidden z-50">
-                    <div className="px-4 py-3 border-b border-border">
-                      <div className="text-sm font-semibold truncate">{user.name}</div>
-                      <div className="text-[11px] text-muted-foreground truncate">{user.email}</div>
+                <div className="relative" ref={dropRef}>
+                  <button
+                    onClick={() => setDropOpen(o => !o)}
+                    className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl border border-border hover:border-primary/30 transition-colors bg-surface"
+                  >
+                    <div className="size-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary">
+                      {user.initials}
                     </div>
-                    <div className="p-1.5 space-y-0.5">
-                      <Link
-                        to="/mis-compras"
-                        onClick={() => setDropOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 text-sm rounded-lg hover:bg-white/5 transition-colors w-full"
-                      >
-                        <ShoppingBag className="size-4 text-muted-foreground" />
-                        Mis Compras
-                      </Link>
-                      <Link
-                        to="/library"
-                        onClick={() => setDropOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 text-sm rounded-lg hover:bg-white/5 transition-colors w-full"
-                      >
-                        <Library className="size-4 text-muted-foreground" />
-                        Mi Biblioteca
-                      </Link>
-                      <button
-                        onClick={() => { logout(); setDropOpen(false); }}
-                        className="flex items-center gap-2.5 px-3 py-2 text-sm rounded-lg hover:bg-white/5 transition-colors w-full text-left text-red-400 hover:text-red-300"
-                      >
-                        <LogOut className="size-4" />
-                        Cerrar sesión
-                      </button>
+                    <span className="hidden sm:block text-sm font-medium max-w-[90px] truncate">{user.name.split(" ")[0]}</span>
+                    <ChevronDown className={`size-3.5 text-muted-foreground transition-transform ${dropOpen ? "rotate-180" : ""}`} />
+                  </button>
+
+                  {dropOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-60 bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden z-50">
+                      <div className="px-4 py-3 border-b border-border">
+                        <div className="text-sm font-semibold truncate">{user.name}</div>
+                        <div className="text-[11px] text-muted-foreground truncate">{user.email}</div>
+                      </div>
+
+                      <div className="p-1.5 space-y-0.5 max-h-72 overflow-y-auto">
+                        {menuItems.map(item => (
+                          <button
+                            key={item.label}
+                            onClick={() => { navigate({ to: item.to as "/perfil" }); setDropOpen(false); }}
+                            className="flex items-center gap-2.5 px-3 py-2 text-sm rounded-xl hover:bg-white/5 transition-colors w-full text-left"
+                          >
+                            <item.icon className="size-4 text-muted-foreground shrink-0" />
+                            <span className="flex-1">{item.label}</span>
+                            {item.badge != null && item.badge > 0 && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary font-bold">
+                                {item.badge}
+                              </span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="border-t border-border p-1.5">
+                        <button
+                          onClick={() => { logout(); setDropOpen(false); }}
+                          className="flex items-center gap-2.5 px-3 py-2 text-sm rounded-xl hover:bg-red-500/5 transition-colors w-full text-left text-red-400 hover:text-red-300"
+                        >
+                          <LogOut className="size-4" />
+                          Cerrar sesión
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             ) : (
               <>
