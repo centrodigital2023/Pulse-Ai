@@ -1,83 +1,69 @@
 import { Link } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
 
-const columns = [
-  {
-    title: "Producto",
-    links: [
-      { label: "Características", href: "#platform" },
-      { label: "Marketplace", href: "/marketplace" },
-      { label: "Licencias", href: "#platform" },
-      { label: "Automatización", href: "#platform" },
-      { label: "API", href: "#" },
-    ],
-  },
-  {
-    title: "Recursos",
-    links: [
-      { label: "Centro de Ayuda", href: "#" },
-      { label: "Base de Conocimiento", href: "#" },
-      { label: "Tutoriales", href: "#" },
-      { label: "Estado del Sistema", href: "#" },
-      { label: "Comunidad", href: "#" },
-    ],
-  },
-  {
-    title: "Empresa",
-    links: [
-      { label: "Nosotros", href: "#" },
-      { label: "Inversionistas", href: "#" },
-      { label: "Contacto", href: "#" },
-      { label: "Prensa", href: "#" },
-    ],
-  },
-  {
-    title: "Desarrolladores",
-    links: [
-      { label: "API Docs", href: "#" },
-      { label: "SDKs", href: "#" },
-      { label: "Integraciones", href: "#" },
-      { label: "Webhooks", href: "#" },
-    ],
-  },
-  {
-    title: "Legal",
-    links: [
-      { label: "Términos", href: "#" },
-      { label: "Privacidad", href: "#" },
-      { label: "Cookies", href: "#" },
-      { label: "Seguridad", href: "#" },
-    ],
-  },
-];
+const links = {
+  Marketplace: [
+    { label: "Explorar productos", href: "/marketplace" },
+    { label: "Cursos", href: "/marketplace" },
+    { label: "Software & SDKs", href: "/marketplace" },
+    { label: "Templates & UI", href: "/marketplace" },
+    { label: "eBooks", href: "/marketplace" },
+  ],
+  Vendedores: [
+    { label: "Registrarme como vendedor", href: "/vender" },
+    { label: "Cómo funciona", href: "/vender" },
+    { label: "Comisiones y pagos", href: "#" },
+    { label: "Verificación de cuenta", href: "/vender" },
+  ],
+  Legal: [
+    { label: "Términos de servicio", href: "#" },
+    { label: "Política de privacidad", href: "#" },
+    { label: "Política de cookies", href: "#" },
+    { label: "Garantía y devoluciones", href: "#" },
+  ],
+};
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border pt-16 pb-8 px-6">
+    <footer className="border-t border-border pt-12 pb-6 px-4 sm:px-6 bg-background">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between gap-12 mb-12">
-          <div className="max-w-xs">
-            <Logo className="mb-4 block" />
-            <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
-              El sistema operativo de la economía digital. Vende, distribuye, protege y escala productos digitales desde una sola plataforma enterprise impulsada por IA.
+        {/* Top */}
+        <div className="flex flex-col lg:flex-row gap-10 mb-10">
+          {/* Brand */}
+          <div className="max-w-xs shrink-0">
+            <Link to="/marketplace">
+              <Logo className="mb-4 block" />
+            </Link>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+              El marketplace de productos digitales premium de Latinoamérica. Compra con Mercado Pago y descarga al instante.
             </p>
-            <div className="flex gap-2">
-              <span className="px-2 py-1 rounded bg-primary/10 border border-primary/20 text-primary text-[10px] font-mono">GDPR</span>
-              <span className="px-2 py-1 rounded bg-primary/10 border border-primary/20 text-primary text-[10px] font-mono">PCI DSS</span>
-              <span className="px-2 py-1 rounded bg-primary/10 border border-primary/20 text-primary text-[10px] font-mono">SOC 2</span>
+            <div className="flex flex-wrap gap-2">
+              {["Mercado Pago", "PSE", "Nequi", "SSL 256-bit"].map(b => (
+                <span key={b} className="px-2 py-0.5 rounded bg-primary/5 border border-primary/10 text-primary text-[10px] font-mono">{b}</span>
+              ))}
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
-            {columns.map((col) => (
-              <div key={col.title} className="space-y-3">
-                <div className="text-xs font-bold uppercase tracking-widest">{col.title}</div>
-                {col.links.map((link) => (
+
+          {/* Links */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 flex-1">
+            {Object.entries(links).map(([title, items]) => (
+              <div key={title} className="space-y-3">
+                <div className="text-xs font-bold uppercase tracking-widest">{title}</div>
+                {items.map(link => (
                   link.href.startsWith("/") ? (
-                    <Link key={link.label} to={link.href as any} className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                    <Link
+                      key={link.label}
+                      to={link.href as any}
+                      className="block text-sm text-muted-foreground hover:text-primary transition-colors"
+                    >
                       {link.label}
                     </Link>
                   ) : (
-                    <a key={link.label} href={link.href} className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      className="block text-sm text-muted-foreground hover:text-primary transition-colors"
+                    >
                       {link.label}
                     </a>
                   )
@@ -86,12 +72,20 @@ export function SiteFooter() {
             ))}
           </div>
         </div>
-        <div className="border-t border-border pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-muted-foreground">© 2024 PULSE AI. Todos los derechos reservados.</p>
-          <div className="flex items-center gap-6 text-xs text-muted-foreground">
-            <span>Construido para la economía digital global</span>
-            <Link to="/admin" className="text-muted-foreground/30 hover:text-muted-foreground/60 transition-colors text-[10px]">
-              Administración
+
+        {/* Bottom bar */}
+        <div className="border-t border-border pt-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-xs text-muted-foreground">
+            © 2025 PULSE AI. Todos los derechos reservados. Hecho con ❤️ para la economía digital latinoamericana.
+          </p>
+          <div className="flex items-center gap-4">
+            <span className="text-[10px] text-muted-foreground/40">v2.0</span>
+            {/* SuperAdmin — small, unobtrusive, only for admin access */}
+            <Link
+              to="/admin"
+              className="text-[9px] font-mono text-muted-foreground/25 hover:text-muted-foreground/60 transition-colors"
+            >
+              superadmin
             </Link>
           </div>
         </div>

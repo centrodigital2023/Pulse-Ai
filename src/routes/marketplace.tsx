@@ -1,17 +1,18 @@
 import { useState, useEffect, useRef } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { SiteNav } from "@/components/marketing/SiteNav";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useAuth } from "@/lib/auth-context";
+import { AuthModal } from "@/components/auth/AuthModal";
+import { AIAssistant } from "@/components/ai/AIAssistant";
 import { marketplaceListings, marketplaceCategories, type MarketplaceListing } from "@/lib/mock-data";
 import {
   Search, Star, ShoppingCart, ChevronLeft, ChevronRight,
   Flame, Clock, Eye, Zap, Shield, Download, Bell,
   Facebook, Twitter, Share2, X, Check, TrendingUp, Users,
-  ArrowRight, Tag, Package,
+  ArrowRight, Tag, Package, Sparkles, Bot,
 } from "lucide-react";
 
 export const Route = createFileRoute("/marketplace")({
@@ -24,7 +25,7 @@ export const Route = createFileRoute("/marketplace")({
   component: MarketplacePage,
 });
 
-// ─── Social proof notifications ───────────────────────────────────────────────
+// ─── Social proof ─────────────────────────────────────────────────────────────
 
 const socialProofMessages = [
   { name: "Carlos M.", city: "Bogotá", product: "Neural-Kit SDK", time: "hace 2 min" },
@@ -34,79 +35,68 @@ const socialProofMessages = [
   { name: "Diego R.", city: "Lima", product: "Advanced Shader Pack", time: "hace 11 min" },
 ];
 
-// ─── Register Modal ───────────────────────────────────────────────────────────
+// ─── AI Search Suggestions ────────────────────────────────────────────────────
 
-function RegisterModal({ onClose }: { onClose: () => void }) {
-  const [step, setStep] = useState<"register" | "success">("register");
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+function SearchSuggestions({ query, onSelect, onClose }: {
+  query: string;
+  onSelect: (q: string) => void;
+  onClose: () => void;
+}) {
+  const matches = marketplaceListings.filter(l =>
+    l.name.toLowerCase().includes(query.toLowerCase()) ||
+    l.tags.some(t => t.toLowerCase().includes(query.toLowerCase()))
+  ).slice(0, 5);
 
-  const handleSubmit = () => {
-    if (!form.name || !form.email || !form.password) {
-      toast.error("Completa todos los campos");
-      return;
-    }
-    setStep("success");
-    toast.success("¡Cuenta creada! Revisa tu email.");
-  };
+  const categories = marketplaceCategories.filter(c =>
+    c.label.toLowerCase().includes(query.toLowerCase())
+  ).slice(0, 2);
+
+  if (!query || (matches.length === 0 && categories.length === 0)) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-surface border border-border rounded-2xl p-8 shadow-2xl">
-        <button onClick={onClose} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
-          <X className="size-5" />
+    <div className="absolute top-full left-0 right-0 mt-2 bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden z-50">
+      {categories.length > 0 && (
+        <div className="px-4 pt-3 pb-1">
+          <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2">Categorías</div>
+          {categories.map(c => (
+            <button
+              key={c.id}
+              onClick={() => { onSelect(c.label); onClose(); }}
+              className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-white/5 text-sm text-left"
+            >
+              <span>{c.emoji}</span>
+              <span>{c.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+      {matches.length > 0 && (
+        <div className="px-4 pt-2 pb-3">
+          <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2">Productos</div>
+          {matches.map(p => (
+            <button
+              key={p.id}
+              onClick={() => { onSelect(p.name); onClose(); }}
+              className="w-full flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-white/5 text-sm text-left"
+            >
+              <img src={p.image} alt="" className="size-8 rounded-lg object-cover border border-border" />
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-xs truncate">{p.name}</div>
+                <div className="text-[10px] text-muted-foreground">{p.vendor} · ${p.price}</div>
+              </div>
+              <div className="text-[10px] text-primary font-mono">⭐ {p.rating}</div>
+            </button>
+          ))}
+        </div>
+      )}
+      <div className="border-t border-border px-4 py-2.5">
+        <button
+          onClick={() => onClose()}
+          className="flex items-center gap-2 text-xs text-primary hover:text-primary/80 transition-colors"
+        >
+          <Bot className="size-3.5" />
+          Buscar "{query}" con el asistente IA
         </button>
-
-        {step === "register" ? (
-          <>
-            <div className="text-center mb-6">
-              <div className="text-xs font-mono text-primary uppercase tracking-widest mb-2">Acceso gratuito</div>
-              <h2 className="text-2xl font-bold">Crear cuenta</h2>
-              <p className="text-sm text-muted-foreground mt-1">Compra y descarga en segundos</p>
-            </div>
-
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Nombre completo</Label>
-                <Input placeholder="Carlos Rivera" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="bg-black/20" />
-              </div>
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <Input type="email" placeholder="tu@email.com" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} className="bg-black/20" />
-              </div>
-              <div className="space-y-2">
-                <Label>Contraseña</Label>
-                <Input type="password" placeholder="Mínimo 8 caracteres" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} className="bg-black/20" />
-              </div>
-
-              <Button variant="contrast" className="w-full font-bold text-base" onClick={handleSubmit}>
-                <Zap className="size-4" /> Crear cuenta gratis
-              </Button>
-
-              <div className="relative my-2">
-                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border" /></div>
-                <div className="relative text-center"><span className="bg-surface px-3 text-xs text-muted-foreground">o continúa con</span></div>
-              </div>
-
-              <button className="w-full flex items-center justify-center gap-3 p-3 rounded-lg bg-[#1877F2] hover:bg-[#1877F2]/90 text-white font-medium text-sm transition-colors" onClick={() => toast.success("Conectando con Facebook...")}>
-                <Facebook className="size-4" /> Continuar con Facebook
-              </button>
-            </div>
-
-            <p className="text-[10px] text-muted-foreground text-center mt-4">
-              Al registrarte aceptas los <a href="#" className="text-primary hover:underline">Términos</a> y la <a href="#" className="text-primary hover:underline">Política de privacidad</a>.
-            </p>
-          </>
-        ) : (
-          <div className="text-center py-8">
-            <div className="size-16 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center mx-auto mb-4">
-              <Check className="size-8 text-primary" />
-            </div>
-            <h2 className="text-2xl font-bold mb-2">¡Bienvenido a PULSE AI!</h2>
-            <p className="text-sm text-muted-foreground mb-6">Tu cuenta está lista. Ahora puedes comprar y descargar productos instantáneamente.</p>
-            <Button variant="contrast" className="w-full" onClick={onClose}>Ir al Marketplace</Button>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -114,8 +104,15 @@ function RegisterModal({ onClose }: { onClose: () => void }) {
 
 // ─── Product Card ─────────────────────────────────────────────────────────────
 
-function ProductCard({ listing, onBuy, compact = false }: { listing: MarketplaceListing; onBuy: (l: MarketplaceListing) => void; compact?: boolean }) {
+const AI_PICKS = ["1", "3", "7", "10"];
+
+function ProductCard({ listing, onBuy, compact = false }: {
+  listing: MarketplaceListing;
+  onBuy: (l: MarketplaceListing) => void;
+  compact?: boolean;
+}) {
   const discount = listing.originalPrice ? Math.round((1 - listing.price / listing.originalPrice) * 100) : 0;
+  const isAIPick = AI_PICKS.includes(listing.id);
 
   const shareOnFacebook = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -132,21 +129,25 @@ function ProductCard({ listing, onBuy, compact = false }: { listing: Marketplace
   };
 
   return (
-    <div className={`bg-surface border border-border rounded-2xl overflow-hidden hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all group flex flex-col ${compact ? "min-w-[240px]" : ""}`}>
+    <div className={`bg-surface border border-border rounded-2xl overflow-hidden hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 group flex flex-col ${compact ? "min-w-[240px]" : ""}`}>
       {/* Image */}
       <div className="relative aspect-[4/3] overflow-hidden bg-black/40">
         <img
           src={listing.image}
           alt={listing.name}
           loading="lazy"
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
           onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
         />
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1">
+          {isAIPick && (
+            <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-purple-600 text-white flex items-center gap-1">
+              <Sparkles className="size-2.5" /> IA Recomienda
+            </span>
+          )}
           {listing.badge && (
             <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide ${badgeConfig[listing.badge].cls}`}>
               {badgeConfig[listing.badge].label}
@@ -159,23 +160,22 @@ function ProductCard({ listing, onBuy, compact = false }: { listing: Marketplace
           )}
         </div>
 
-        {/* Share + wishlist */}
+        {/* Actions */}
         <div className="absolute top-3 right-3 flex flex-col gap-2">
           <button onClick={shareOnFacebook} className="size-8 rounded-full bg-[#1877F2] flex items-center justify-center hover:scale-110 transition-transform shadow-lg" title="Compartir en Facebook">
             <Facebook className="size-3.5 text-white" />
           </button>
-          <button onClick={e => { e.stopPropagation(); toast.success("Agregado a favoritos"); }} className="size-8 rounded-full bg-black/60 backdrop-blur-sm border border-border flex items-center justify-center hover:scale-110 transition-transform shadow-lg">
-            <Star className="size-3.5 text-primary" />
+          <button onClick={e => { e.stopPropagation(); toast.success("Agregado a favoritos ❤️"); }} className="size-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 flex items-center justify-center hover:scale-110 transition-transform shadow-lg">
+            <Star className="size-3.5 text-yellow-400" />
           </button>
         </div>
 
-        {/* Viewers */}
+        {/* Live viewers */}
         <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-black/60 backdrop-blur-sm rounded-full px-2 py-1">
           <Eye className="size-3 text-primary" />
-          <span className="text-[10px] text-white font-mono">{listing.viewers} viendo ahora</span>
+          <span className="text-[10px] text-white font-mono">{listing.viewers} viendo</span>
         </div>
 
-        {/* Sold today */}
         {listing.soldToday > 5 && (
           <div className="absolute bottom-3 right-3 flex items-center gap-1 bg-orange-500/90 backdrop-blur-sm rounded-full px-2 py-1">
             <Flame className="size-3 text-white" />
@@ -214,28 +214,20 @@ function ProductCard({ listing, onBuy, compact = false }: { listing: Marketplace
         </div>
 
         {/* Price + CTA */}
-        <div className="flex items-center justify-between mt-auto pt-3 border-t border-border">
+        <div className="flex items-center justify-between mt-auto pt-3 border-t border-border gap-2">
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xl font-extrabold text-primary">${listing.price}</span>
-              {listing.recurring && <span className="text-xs text-muted-foreground">/mes</span>}
               {listing.originalPrice && (
                 <span className="text-xs text-muted-foreground line-through">${listing.originalPrice}</span>
               )}
             </div>
             <div className="text-[10px] text-muted-foreground flex items-center gap-1 mt-0.5">
-              <Download className="size-2.5" />
-              Descarga instantánea
+              <Download className="size-2.5" /> Descarga instantánea
             </div>
           </div>
-          <Button
-            variant="contrast"
-            size="sm"
-            className="gap-1.5 font-bold text-xs"
-            onClick={() => onBuy(listing)}
-          >
-            <ShoppingCart className="size-3.5" />
-            Comprar
+          <Button variant="contrast" size="sm" className="gap-1.5 font-bold text-xs shrink-0" onClick={() => onBuy(listing)}>
+            <ShoppingCart className="size-3.5" /> Comprar
           </Button>
         </div>
       </div>
@@ -245,7 +237,12 @@ function ProductCard({ listing, onBuy, compact = false }: { listing: Marketplace
 
 // ─── Horizontal Carousel ──────────────────────────────────────────────────────
 
-function HorizontalCarousel({ title, icon, listings, onBuy }: { title: string; icon: React.ReactNode; listings: MarketplaceListing[]; onBuy: (l: MarketplaceListing) => void }) {
+function HorizontalCarousel({ title, icon, listings, onBuy }: {
+  title: string;
+  icon: React.ReactNode;
+  listings: MarketplaceListing[];
+  onBuy: (l: MarketplaceListing) => void;
+}) {
   const ref = useRef<HTMLDivElement>(null);
 
   const scroll = (dir: "left" | "right") => {
@@ -253,38 +250,22 @@ function HorizontalCarousel({ title, icon, listings, onBuy }: { title: string; i
     ref.current.scrollBy({ left: dir === "left" ? -280 : 280, behavior: "smooth" });
   };
 
-  const shareCarousel = () => {
-    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent("https://pulseai.io/marketplace")}&quote=${encodeURIComponent(`🔥 ${listings.length} productos digitales increíbles en PULSE AI. ¡Mira los mejores!`)}`;
-    window.open(url, "_blank", "width=600,height=400");
-    toast.success("Compartiendo colección en Facebook...");
-  };
-
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold flex items-center gap-2">
-          {icon} {title}
-        </h2>
+        <h2 className="text-lg font-bold flex items-center gap-2">{icon} {title}</h2>
         <div className="flex items-center gap-2">
-          <button
-            onClick={shareCarousel}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1877F2] text-white text-xs font-medium hover:bg-[#1877F2]/90 transition-colors"
-          >
-            <Facebook className="size-3.5" /> Compartir
-          </button>
-          <button onClick={() => scroll("left")} className="size-8 rounded-full bg-surface border border-border flex items-center justify-center hover:bg-surface/80 transition-colors">
+          <button onClick={() => scroll("left")} className="size-8 rounded-full bg-surface border border-border flex items-center justify-center hover:border-primary/30 transition-colors">
             <ChevronLeft className="size-4" />
           </button>
-          <button onClick={() => scroll("right")} className="size-8 rounded-full bg-surface border border-border flex items-center justify-center hover:bg-surface/80 transition-colors">
+          <button onClick={() => scroll("right")} className="size-8 rounded-full bg-surface border border-border flex items-center justify-center hover:border-primary/30 transition-colors">
             <ChevronRight className="size-4" />
           </button>
         </div>
       </div>
-
-      {/* Scrollable container */}
       <div
         ref={ref}
-        className="flex gap-4 overflow-x-auto pb-3 scrollbar-hide snap-x snap-mandatory"
+        className="flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory"
         style={{ scrollbarWidth: "none" }}
       >
         {listings.map(l => (
@@ -297,7 +278,7 @@ function HorizontalCarousel({ title, icon, listings, onBuy }: { title: string; i
   );
 }
 
-// ─── Countdown Timer ──────────────────────────────────────────────────────────
+// ─── Countdown ────────────────────────────────────────────────────────────────
 
 function useCountdown(initial: number) {
   const [secs, setSecs] = useState(initial);
@@ -314,23 +295,26 @@ function useCountdown(initial: number) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 function MarketplacePage() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState("all");
   const [search, setSearch] = useState("");
-  const [showRegister, setShowRegister] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
+  const [pendingProduct, setPendingProduct] = useState<MarketplaceListing | null>(null);
   const [showPushBanner, setShowPushBanner] = useState(true);
   const [sortBy, setSortBy] = useState("bestseller");
   const [spIndex, setSpIndex] = useState(0);
   const countdown = useCountdown(3 * 3600 + 42 * 60 + 17);
+  const searchRef = useRef<HTMLDivElement>(null);
 
-  // Rotate social proof every 5s
+  // Rotate social proof
   useEffect(() => {
-    const t = setInterval(() => {
-      setSpIndex(i => (i + 1) % socialProofMessages.length);
-    }, 5000);
+    const t = setInterval(() => setSpIndex(i => (i + 1) % socialProofMessages.length), 5000);
     return () => clearInterval(t);
   }, []);
 
-  // Show social proof toast on mount
+  // Social proof toast on mount
   useEffect(() => {
     const t = setTimeout(() => {
       const msg = socialProofMessages[0];
@@ -348,8 +332,32 @@ function MarketplacePage() {
     return () => clearTimeout(t);
   }, []);
 
+  // Close search suggestions on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowSearch(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
   const handleBuy = (listing: MarketplaceListing) => {
-    setShowRegister(true);
+    if (!user) {
+      setPendingProduct(listing);
+      setShowAuth(true);
+      return;
+    }
+    navigate({ to: "/checkout" });
+  };
+
+  const handleAuthSuccess = () => {
+    setShowAuth(false);
+    if (pendingProduct) {
+      setPendingProduct(null);
+      navigate({ to: "/checkout" });
+    }
   };
 
   const filtered = marketplaceListings.filter(l => {
@@ -371,15 +379,22 @@ function MarketplacePage() {
   const featured = marketplaceListings.filter(l => l.badge === "featured" || l.badge === "bestseller");
   const trending = marketplaceListings.filter(l => l.soldToday > 10);
   const education = marketplaceListings.filter(l => l.category === "education");
+  const aiPicks = marketplaceListings.filter(l => AI_PICKS.includes(l.id));
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {showRegister && <RegisterModal onClose={() => setShowRegister(false)} />}
+      {showAuth && (
+        <AuthModal
+          onClose={() => { setShowAuth(false); setPendingProduct(null); }}
+          defaultTab="register"
+          onSuccess={handleAuthSuccess}
+        />
+      )}
 
       <SiteNav />
 
       {/* Flash Sale Banner */}
-      <div className="bg-gradient-to-r from-red-600 via-orange-500 to-red-600 text-white py-2 px-6">
+      <div className="bg-gradient-to-r from-red-600 via-orange-500 to-red-600 text-white py-2.5 px-6">
         <div className="max-w-7xl mx-auto flex items-center justify-center gap-4 text-sm font-medium flex-wrap">
           <Flame className="size-4 animate-pulse shrink-0" />
           <span className="font-bold">⚡ VENTA FLASH — Hasta 70% de descuento</span>
@@ -387,21 +402,18 @@ function MarketplacePage() {
             Termina en:
             <span className="font-mono bg-black/20 rounded px-2 py-0.5 text-base font-bold tracking-wider">{countdown}</span>
           </span>
-          <button className="underline text-xs opacity-80 hover:opacity-100" onClick={() => setActiveCategory("all")}>
-            Ver todas las ofertas →
-          </button>
         </div>
       </div>
 
       {/* Push notification banner */}
       {showPushBanner && (
-        <div className="bg-surface border-b border-border px-6 py-3">
+        <div className="bg-surface border-b border-border px-4 sm:px-6 py-3">
           <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-3">
-              <Bell className="size-4 text-primary animate-bounce" />
+              <Bell className="size-4 text-primary animate-bounce shrink-0" />
               <span className="text-sm text-muted-foreground">
                 <span className="text-foreground font-medium">¿Quieres alertas de ofertas exclusivas?</span>
-                {" "}Activa las notificaciones y nunca pierdas un deal.
+                {" "}Activa las notificaciones.
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -418,14 +430,13 @@ function MarketplacePage() {
 
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-border">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-background" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-background to-background" />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/4 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
 
-        <div className="relative max-w-7xl mx-auto px-6 py-16">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-16">
           <div className="text-center max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono uppercase tracking-widest mb-6">
-              <Zap className="size-3.5" />
+              <Sparkles className="size-3.5" />
               Más de 1 millón de compradores satisfechos
             </div>
 
@@ -438,30 +449,49 @@ function MarketplacePage() {
             <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
               Software, cursos, templates y ebooks creados por los mejores del mundo.
               <br />
-              <strong className="text-foreground">Compra con Mercado Pago y descarga al instante.</strong>
+              <strong className="text-foreground">Paga con Mercado Pago y descarga al instante.</strong>
             </p>
 
-            {/* Search */}
-            <div className="max-w-2xl mx-auto relative mb-6">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-muted-foreground" />
+            {/* Smart Search */}
+            <div className="max-w-2xl mx-auto relative mb-6" ref={searchRef}>
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-muted-foreground pointer-events-none" />
               <input
                 value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Busca por nombre, tecnología, categoría..."
-                className="w-full bg-surface border-2 border-border hover:border-primary/30 focus:border-primary/60 rounded-2xl pl-12 pr-4 py-4 text-sm placeholder:text-muted-foreground/50 focus:outline-none transition-colors shadow-lg"
+                onChange={e => { setSearch(e.target.value); setShowSearch(true); }}
+                onFocus={() => search && setShowSearch(true)}
+                placeholder="Busca cursos, software, templates... o pregúntale a la IA"
+                className="w-full bg-surface border-2 border-border hover:border-primary/30 focus:border-primary/60 rounded-2xl pl-12 pr-12 py-4 text-sm placeholder:text-muted-foreground/50 focus:outline-none transition-colors shadow-lg"
               />
-              {search && (
-                <button onClick={() => setSearch("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                  <X className="size-4" />
-                </button>
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                {search ? (
+                  <button onClick={() => { setSearch(""); setShowSearch(false); }} className="text-muted-foreground hover:text-foreground">
+                    <X className="size-4" />
+                  </button>
+                ) : (
+                  <Bot className="size-5 text-primary/60" />
+                )}
+              </div>
+
+              {showSearch && (
+                <SearchSuggestions
+                  query={search}
+                  onSelect={q => { setSearch(q); setShowSearch(false); }}
+                  onClose={() => setShowSearch(false)}
+                />
               )}
             </div>
 
-            {/* CTA buttons */}
+            {/* CTA */}
             <div className="flex items-center justify-center gap-3 flex-wrap">
-              <Button variant="contrast" size="lg" className="gap-2 font-bold" onClick={() => setShowRegister(true)}>
-                <Zap className="size-4" /> Registrarse gratis
-              </Button>
+              {!user ? (
+                <Button variant="contrast" size="lg" className="gap-2 font-bold" onClick={() => setShowAuth(true)}>
+                  <Zap className="size-4" /> Registrarse gratis
+                </Button>
+              ) : (
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium">
+                  <Check className="size-4" /> Bienvenido, {user.name.split(" ")[0]}
+                </div>
+              )}
               <Button variant="outline" size="lg" className="gap-2" asChild>
                 <Link to="/vender">
                   <Package className="size-4" /> Vende tus productos
@@ -492,20 +522,20 @@ function MarketplacePage() {
       <div className="bg-primary/5 border-b border-primary/10 px-6 py-3">
         <div className="max-w-7xl mx-auto flex items-center gap-3">
           <div className="size-2 rounded-full bg-primary animate-pulse shrink-0" />
-          <p className="text-sm animate-fade-in">
+          <p className="text-sm">
             <span className="font-bold text-primary">{socialProofMessages[spIndex].name}</span>
             {" de "}{socialProofMessages[spIndex].city}{" acaba de comprar "}
             <span className="text-foreground font-medium">{socialProofMessages[spIndex].product}</span>
             {" · "}{socialProofMessages[spIndex].time}
           </p>
           <Users className="size-3.5 text-muted-foreground ml-auto shrink-0" />
-          <span className="text-xs text-muted-foreground hidden sm:block">+{Math.floor(Math.random() * 50 + 200)} activos ahora</span>
+          <span className="text-xs text-muted-foreground hidden sm:block">+{247} activos ahora</span>
         </div>
       </div>
 
       {/* Category quick links */}
-      <section className="max-w-7xl mx-auto px-6 py-8">
-        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+        <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
           {marketplaceCategories.map(cat => (
             <button
               key={cat.id}
@@ -524,9 +554,30 @@ function MarketplacePage() {
         </div>
       </section>
 
-      {/* Featured Carousel */}
+      {/* AI Picks Carousel */}
       {!search && (
-        <section className="max-w-7xl mx-auto px-6 pb-10">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-10">
+          <div className="mb-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-primary/5 border border-purple-500/20 px-4 py-3 flex items-center gap-3">
+            <div className="size-8 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
+              <Sparkles className="size-4 text-purple-400" />
+            </div>
+            <div>
+              <div className="font-bold text-sm">Selección de la IA</div>
+              <div className="text-[11px] text-muted-foreground">Productos elegidos por nuestro motor de recomendaciones inteligente basado en millones de compras</div>
+            </div>
+          </div>
+          <HorizontalCarousel
+            title="Para ti — IA Recomienda"
+            icon={<Sparkles className="size-5 text-purple-400" />}
+            listings={aiPicks}
+            onBuy={handleBuy}
+          />
+        </section>
+      )}
+
+      {/* Featured */}
+      {!search && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-10">
           <HorizontalCarousel
             title="Productos Destacados"
             icon={<Star className="size-5 text-yellow-400" />}
@@ -536,9 +587,9 @@ function MarketplacePage() {
         </section>
       )}
 
-      {/* Trending Carousel */}
+      {/* Trending */}
       {!search && (
-        <section className="max-w-7xl mx-auto px-6 pb-10">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-10">
           <HorizontalCarousel
             title="Tendencias del Día"
             icon={<Flame className="size-5 text-orange-400" />}
@@ -548,9 +599,9 @@ function MarketplacePage() {
         </section>
       )}
 
-      {/* Education Carousel */}
+      {/* Education */}
       {!search && (
-        <section className="max-w-7xl mx-auto px-6 pb-10">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-10">
           <HorizontalCarousel
             title="Cursos Más Populares"
             icon={<span>🎓</span>}
@@ -560,9 +611,9 @@ function MarketplacePage() {
         </section>
       )}
 
-      {/* Divider with Mercado Pago */}
+      {/* Mercado Pago Banner */}
       {!search && (
-        <section className="max-w-7xl mx-auto px-6 pb-8">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-8">
           <div className="rounded-2xl bg-gradient-to-r from-[#009EE3]/10 via-surface to-[#009EE3]/5 border border-[#009EE3]/20 p-6 flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-4">
               <div className="size-14 rounded-xl bg-[#009EE3] flex items-center justify-center shrink-0">
@@ -573,7 +624,7 @@ function MarketplacePage() {
                 <p className="text-sm text-muted-foreground">PSE · Nequi · Daviplata · Tarjeta · Efectivo · Cuotas sin interés</p>
               </div>
             </div>
-            <div className="flex items-center gap-6 text-xs text-muted-foreground flex-wrap justify-center">
+            <div className="flex items-center gap-5 text-xs text-muted-foreground flex-wrap justify-center">
               {["🔒 Pago seguro", "⚡ Descarga inmediata", "🔄 Garantía 30 días", "📱 App disponible"].map(t => (
                 <span key={t} className="font-medium">{t}</span>
               ))}
@@ -583,12 +634,23 @@ function MarketplacePage() {
       )}
 
       {/* Main Grid */}
-      <section className="max-w-7xl mx-auto px-6 pb-16">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar */}
           <aside className="lg:w-56 shrink-0">
             <div className="sticky top-20 space-y-1">
-              <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-3">Categorías</div>
+              {/* AI Insights */}
+              <div className="rounded-xl bg-gradient-to-br from-purple-500/10 to-primary/5 border border-purple-500/20 p-4 mb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="size-3.5 text-purple-400" />
+                  <span className="text-xs font-bold text-purple-300">Insight IA</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Esta semana los cursos de <span className="text-foreground font-medium">Python e IA</span> tienen un 34% más de demanda. ¡Es el momento de aprender!
+                </p>
+              </div>
+
+              <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2">Categorías</div>
               {marketplaceCategories.map(cat => (
                 <button
                   key={cat.id}
@@ -605,20 +667,24 @@ function MarketplacePage() {
               ))}
 
               <div className="pt-4 border-t border-border mt-4">
-                <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-3">Precio</div>
+                <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2">Precio</div>
                 {["Menos de $50", "$50 - $100", "$100 - $200", "Más de $200"].map(r => (
-                  <button key={r} className="w-full flex items-center px-3 py-2 rounded-xl text-xs text-muted-foreground hover:text-foreground hover:bg-surface transition-colors text-left gap-2">
+                  <button
+                    key={r}
+                    onClick={() => toast.info(`Filtrando: ${r}`)}
+                    className="w-full flex items-center px-3 py-2 rounded-xl text-xs text-muted-foreground hover:text-foreground hover:bg-surface transition-colors text-left gap-2"
+                  >
                     <Tag className="size-3" />{r}
                   </button>
                 ))}
               </div>
 
-              <div className="mt-6 rounded-xl bg-primary/5 border border-primary/10 p-4">
+              <div className="mt-4 rounded-xl bg-primary/5 border border-primary/10 p-4">
                 <div className="text-xs font-bold mb-2 flex items-center gap-1.5">
                   <Package className="size-3.5 text-primary" />
                   ¿Eres creador?
                 </div>
-                <p className="text-[11px] text-muted-foreground mb-3">Vende tus productos digitales y gana hasta el 90% de cada venta.</p>
+                <p className="text-[11px] text-muted-foreground mb-3">Gana hasta el 90% de cada venta con Mercado Pago.</p>
                 <Link to="/vender">
                   <Button variant="contrast" size="sm" className="w-full text-xs">
                     Empezar a vender <ArrowRight className="size-3 ml-1" />
@@ -635,7 +701,7 @@ function MarketplacePage() {
                 <span className="font-bold text-foreground text-lg">{sorted.length}</span> productos encontrados
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">Ordenar por:</span>
+                <span className="text-xs text-muted-foreground">Ordenar:</span>
                 <select
                   value={sortBy}
                   onChange={e => setSortBy(e.target.value)}
@@ -658,9 +724,9 @@ function MarketplacePage() {
 
             {sorted.length === 0 && (
               <div className="text-center py-24">
-                <Search className="size-12 text-muted-foreground/30 mx-auto mb-4" />
+                <Bot className="size-12 text-primary/30 mx-auto mb-4" />
                 <h3 className="font-semibold text-lg mb-2">No encontramos productos</h3>
-                <p className="text-sm text-muted-foreground mb-4">Intenta con otros términos: "React", "Python", "diseño"…</p>
+                <p className="text-sm text-muted-foreground mb-4">Intenta con otros términos o pídele ayuda al asistente IA.</p>
                 <Button variant="outline" onClick={() => { setSearch(""); setActiveCategory("all"); }}>
                   Ver todos los productos
                 </Button>
@@ -670,83 +736,67 @@ function MarketplacePage() {
         </div>
       </section>
 
-      {/* Social Share Section */}
-      <section className="border-t border-border bg-surface/30 px-6 py-16">
-        <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-3xl font-bold tracking-tight mb-3">Comparte con tus amigos</h2>
-          <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
-            ¿Encontraste algo increíble? Comparte el marketplace y gana comisiones por cada venta referida.
-          </p>
+      {/* Social Share */}
+      <section className="border-t border-border bg-surface/30 px-6 py-12">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-2xl font-bold tracking-tight mb-2">Comparte y gana</h2>
+          <p className="text-muted-foreground mb-6 text-sm">Recomienda PULSE AI y gana comisiones por cada venta referida.</p>
           <div className="flex items-center justify-center gap-3 flex-wrap">
             <button
-              onClick={() => {
-                const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent("https://pulseai.io/marketplace")}`;
-                window.open(url, "_blank", "width=600,height=400");
-                toast.success("¡Compartido en Facebook!");
-              }}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#1877F2] text-white font-medium hover:bg-[#1877F2]/90 transition-colors"
+              onClick={() => { window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent("https://pulseai.io/marketplace")}`, "_blank", "width=600,height=400"); toast.success("¡Compartido en Facebook!"); }}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1877F2] text-white font-medium hover:bg-[#1877F2]/90 transition-colors text-sm"
             >
-              <Facebook className="size-5" /> Compartir en Facebook
+              <Facebook className="size-4" /> Facebook
             </button>
             <button
-              onClick={() => {
-                const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent("🔥 Descubrí productos digitales increíbles en PULSE AI — software, cursos y más. ¡Compra y descarga al instante!")}&url=${encodeURIComponent("https://pulseai.io/marketplace")}`;
-                window.open(url, "_blank", "width=600,height=400");
-                toast.success("¡Compartido en Twitter!");
-              }}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-black text-white font-medium hover:bg-black/80 transition-colors"
+              onClick={() => { window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent("🔥 Productos digitales increíbles en PULSE AI — software, cursos y más!")}&url=${encodeURIComponent("https://pulseai.io/marketplace")}`, "_blank", "width=600,height=400"); toast.success("¡Compartido!"); }}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-black text-white font-medium hover:bg-black/80 transition-colors text-sm"
             >
-              <Twitter className="size-5" /> Compartir en X
+              <Twitter className="size-4" /> X / Twitter
             </button>
             <button
-              onClick={() => {
-                navigator.clipboard?.writeText("https://pulseai.io/marketplace");
-                toast.success("Enlace copiado al portapapeles");
-              }}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-surface border border-border text-foreground font-medium hover:bg-surface/80 transition-colors"
+              onClick={() => { navigator.clipboard?.writeText("https://pulseai.io/marketplace"); toast.success("Enlace copiado"); }}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-surface border border-border text-foreground font-medium hover:bg-surface/80 transition-colors text-sm"
             >
-              <Share2 className="size-5" /> Copiar enlace
+              <Share2 className="size-4" /> Copiar enlace
             </button>
           </div>
         </div>
       </section>
 
       {/* Vendor CTA */}
-      <section className="border-t border-border px-6 py-16">
-        <div className="max-w-3xl mx-auto text-center">
-          <div className="text-xs font-mono text-primary uppercase tracking-widest mb-4">Para creadores</div>
-          <h2 className="text-3xl font-bold tracking-tight mb-4">¿Quieres vender en el Marketplace?</h2>
-          <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-            Únete a más de 50 vendedores verificados. Conserva el <span className="text-primary font-bold">90% de tus ingresos</span>. Pagos con Mercado Pago, Stripe y más.
+      <section className="border-t border-border px-6 py-12">
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 className="text-2xl font-bold tracking-tight mb-3">¿Quieres vender en el Marketplace?</h2>
+          <p className="text-muted-foreground mb-6 text-sm">
+            Conserva el <span className="text-primary font-bold">90% de tus ingresos</span>. Pagos con Mercado Pago, semanales, sin comisiones ocultas.
           </p>
           <Link to="/vender">
-            <Button variant="contrast" size="lg" className="gap-2 font-bold text-base px-10">
+            <Button variant="contrast" size="lg" className="gap-2 font-bold px-8">
               <Package className="size-5" /> Registrarme como vendedor
             </Button>
           </Link>
-          <div className="flex items-center justify-center gap-6 mt-6 text-xs text-muted-foreground flex-wrap">
-            {["✓ Gratis para empezar", "✓ Sin mensualidades", "✓ Pagos semanales", "✓ Soporte 24/7"].map(t => (
-              <span key={t}>{t}</span>
-            ))}
-          </div>
         </div>
       </section>
 
       <SiteFooter />
 
-      {/* Floating social proof */}
+      {/* Social proof widget */}
       <div className="fixed bottom-6 left-6 z-40 pointer-events-none">
-        <div className="bg-surface border border-border rounded-2xl p-3 shadow-2xl shadow-black/20 flex items-center gap-3 max-w-[280px] animate-pulse">
-          <div className="size-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary shrink-0">
+        <div className="bg-surface border border-border rounded-2xl p-3 shadow-2xl shadow-black/20 flex items-center gap-3 max-w-[260px]">
+          <div className="size-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary shrink-0">
             {socialProofMessages[spIndex].name[0]}
           </div>
-          <div>
-            <p className="text-xs font-medium">{socialProofMessages[spIndex].name} de {socialProofMessages[spIndex].city}</p>
-            <p className="text-[10px] text-muted-foreground">compró <span className="text-primary font-medium">{socialProofMessages[spIndex].product}</span></p>
+          <div className="min-w-0">
+            <p className="text-[11px] font-medium truncate">{socialProofMessages[spIndex].name} · {socialProofMessages[spIndex].city}</p>
+            <p className="text-[10px] text-muted-foreground truncate">compró <span className="text-primary">{socialProofMessages[spIndex].product}</span></p>
           </div>
           <Clock className="size-3 text-muted-foreground shrink-0" />
         </div>
       </div>
+
+      {/* AI Assistant */}
+      <AIAssistant />
     </div>
   );
 }
