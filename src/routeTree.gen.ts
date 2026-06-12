@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ApiPublicMpWebhookRouteImport } from './routes/api.public.mp-webhook'
 import { Route as ApiMpWebhookRouteImport } from './routes/api.mp-webhook'
 import { Route as ApiMpCheckoutRouteImport } from './routes/api.mp-checkout'
 import { Route as PagoFallidoRouteImport } from './routes/pago-fallido'
@@ -41,6 +42,11 @@ import { Route as DashboardAiRouteImport } from './routes/dashboard.ai'
 import { Route as DashboardAffiliatesRouteImport } from './routes/dashboard.affiliates'
 import { Route as DashboardProductsNewRouteImport } from './routes/dashboard.products.new'
 
+const ApiPublicMpWebhookRoute = ApiPublicMpWebhookRouteImport.update({
+  id: '/api/public/mp-webhook',
+  path: '/api/public/mp-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiMpWebhookRoute = ApiMpWebhookRouteImport.update({
   id: '/api/mp-webhook',
   path: '/api/mp-webhook',
@@ -185,6 +191,7 @@ export interface FileRoutesByFullPath {
   '/pago-fallido': typeof PagoFallidoRoute
   '/api/mp-checkout': typeof ApiMpCheckoutRoute
   '/api/mp-webhook': typeof ApiMpWebhookRoute
+  '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
   '/library': typeof LibraryRoute
   '/marketplace': typeof MarketplaceRoute
   '/mis-compras': typeof MisComprasRoute
@@ -214,6 +221,7 @@ export interface FileRoutesByTo {
   '/pago-fallido': typeof PagoFallidoRoute
   '/api/mp-checkout': typeof ApiMpCheckoutRoute
   '/api/mp-webhook': typeof ApiMpWebhookRoute
+  '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
   '/library': typeof LibraryRoute
   '/marketplace': typeof MarketplaceRoute
   '/mis-compras': typeof MisComprasRoute
@@ -244,6 +252,7 @@ export interface FileRoutesById {
   '/pago-fallido': typeof PagoFallidoRoute
   '/api/mp-checkout': typeof ApiMpCheckoutRoute
   '/api/mp-webhook': typeof ApiMpWebhookRoute
+  '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
   '/library': typeof LibraryRoute
   '/marketplace': typeof MarketplaceRoute
   '/mis-compras': typeof MisComprasRoute
@@ -275,6 +284,7 @@ export interface FileRouteTypes {
     | '/pago-fallido'
     | '/api/mp-checkout'
     | '/api/mp-webhook'
+    | '/api/public/mp-webhook'
     | '/library'
     | '/marketplace'
     | '/mis-compras'
@@ -308,6 +318,7 @@ export interface FileRouteTypes {
     | '/pago-fallido'
     | '/api/mp-checkout'
     | '/api/mp-webhook'
+    | '/api/public/mp-webhook'
     | '/library'
     | '/marketplace'
     | '/mis-compras'
@@ -341,6 +352,7 @@ export interface FileRouteTypes {
     | '/pago-fallido'
     | '/api/mp-checkout'
     | '/api/mp-webhook'
+    | '/api/public/mp-webhook'
     | '/library'
     | '/marketplace'
     | '/mis-compras'
@@ -375,6 +387,7 @@ export interface RootRouteChildren {
   PagoFallidoRoute: typeof PagoFallidoRoute
   ApiMpCheckoutRoute: typeof ApiMpCheckoutRoute
   ApiMpWebhookRoute: typeof ApiMpWebhookRoute
+  ApiPublicMpWebhookRoute: typeof ApiPublicMpWebhookRoute
   LibraryRoute: typeof LibraryRoute
   MarketplaceRoute: typeof MarketplaceRoute
   MisComprasRoute: typeof MisComprasRoute
@@ -615,6 +628,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMpWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/mp-webhook': {
+      id: '/api/public/mp-webhook'
+      path: '/api/public/mp-webhook'
+      fullPath: '/api/public/mp-webhook'
+      preLoaderRoute: typeof ApiPublicMpWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -637,6 +657,7 @@ const rootRouteChildren: RootRouteChildren = {
   PagoFallidoRoute: PagoFallidoRoute,
   ApiMpCheckoutRoute: ApiMpCheckoutRoute,
   ApiMpWebhookRoute: ApiMpWebhookRoute,
+  ApiPublicMpWebhookRoute: ApiPublicMpWebhookRoute,
   LibraryRoute: LibraryRoute,
   MarketplaceRoute: MarketplaceRoute,
   MisComprasRoute: MisComprasRoute,
