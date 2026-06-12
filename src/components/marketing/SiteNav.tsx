@@ -34,9 +34,11 @@ export function SiteNav() {
               <Link to="/marketplace" className="hover:text-foreground transition-colors [&.active]:text-foreground">
                 Marketplace
               </Link>
-              <Link to="/dashboard" className="hover:text-foreground transition-colors [&.active]:text-foreground">
-                Dashboard
-              </Link>
+              {canAccessDashboard && (
+                <Link to="/dashboard" className="hover:text-foreground transition-colors [&.active]:text-foreground">
+                  Dashboard
+                </Link>
+              )}
             </div>
           </div>
 
