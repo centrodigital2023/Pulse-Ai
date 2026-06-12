@@ -9,6 +9,7 @@ import { ShoppingBag, Library, LogOut, ChevronDown, User } from "lucide-react";
 
 export function SiteNav() {
   const { user, logout } = useAuth();
+  const { canAccess: canAccessDashboard } = useCanAccessDashboard();
   const [showAuth, setShowAuth] = useState(false);
   const [dropOpen, setDropOpen] = useState(false);
   const dropRef = useRef<HTMLDivElement>(null);
