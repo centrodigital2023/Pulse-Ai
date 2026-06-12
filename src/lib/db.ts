@@ -54,6 +54,34 @@ export interface DBLicense {
   product_id: string | null;
 }
 
+// ─── Roles ───────────────────────────────────────────────────────────────────
+
+export type AppRole = "admin" | "creator" | "user";
+
+export function useMyRoles() {
+  return useQuery({
+    queryKey: ["my-roles"],
+    queryFn: async (): Promise<AppRole[]> => {
+      const { data: userData } = await supabase.auth.getUser();
+      const uid = userData.user?.id;
+      if (!uid) return [];
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", uid);
+      if (error) throw error;
+      return (data ?? []).map((r) => r.role as AppRole);
+    },
+  });
+}
+
+/** True for sellers (creator) and super admins — these can see the dashboard. */
+export function useCanAccessDashboard() {
+  const { data: roles = [], isLoading } = useMyRoles();
+  const canAccess = roles.includes("admin") || roles.includes("creator");
+  return { canAccess, isLoading };
+}
+
 // ─── Products ────────────────────────────────────────────────────────────────
 
 export function useMyProducts() {
