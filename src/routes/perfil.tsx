@@ -2,9 +2,11 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   ShoppingBag, Star, User, Tag, Wallet, Store, Clock, MapPin,
-  LogOut, ChevronRight, Trash2, Plus, Check, X, Copy, CreditCard,
-  Package, AlertTriangle, Shield, Bell, RotateCcw, ArrowRight,
+  LogOut, ChevronRight, Trash2, Plus, Check, Copy, CreditCard,
+  Package, AlertTriangle, Shield, RotateCcw,
   ShoppingCart, Heart, Eye, Edit2, CheckCircle2,
+  Lock, Zap, Users, Share2, Link2, Download, Gift,
+  Minus,
 } from "lucide-react";
 import { SiteNav } from "@/components/marketing/SiteNav";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
@@ -14,6 +16,7 @@ import { useAuth } from "@/lib/auth-context";
 import {
   useUserStore, fmtCOP,
   type CartItem, type UserAddress,
+  type ReferredUser,
 } from "@/lib/user-store";
 import { toast } from "sonner";
 
@@ -22,9 +25,9 @@ export const Route = createFileRoute("/perfil")({
   component: PerfilPage,
 });
 
-type Section = "pedidos" | "resenas" | "perfil" | "cupones" | "credito" | "tiendas" | "historial" | "direcciones";
+type Section = "pedidos" | "resenas" | "perfil" | "cupones" | "credito" | "tiendas" | "historial" | "direcciones" | "referidos";
 
-const NAV_ITEMS: { id: Section; label: string; icon: React.ElementType; color?: string }[] = [
+const NAV_ITEMS: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: "pedidos", label: "Tus pedidos", icon: ShoppingBag },
   { id: "resenas", label: "Tus reseñas", icon: Star },
   { id: "perfil", label: "Tu perfil", icon: User },
@@ -33,6 +36,7 @@ const NAV_ITEMS: { id: Section; label: string; icon: React.ElementType; color?: 
   { id: "tiendas", label: "Tiendas que sigues", icon: Store },
   { id: "historial", label: "Historial", icon: Clock },
   { id: "direcciones", label: "Direcciones", icon: MapPin },
+  { id: "referidos", label: "Referidos", icon: Gift },
 ];
 
 // ─── Star Rating ──────────────────────────────────────────────────────────────
@@ -60,11 +64,141 @@ function StarRating({ value, onChange, size = 6 }: { value: number; onChange?: (
 
 // ─── Section: Pedidos ─────────────────────────────────────────────────────────
 
+function CartProductCard({
+  item, selected, onToggle, onRemove, qty, onQty,
+}: {
+  item: CartItem; selected: boolean; onToggle: () => void;
+  onRemove: () => void; qty: number; onQty: (d: number) => void;
+}) {
+  const discount = item.originalPrice ? Math.round((1 - item.price / item.originalPrice) * 100) : 0;
+  const ivaAmount = Math.round(item.price * 19 / 119);
+  const basePrice = item.price - ivaAmount;
+  const total = item.price * qty;
+  // Deterministic "stock left" from product id hash (50–149)
+  const stockLeft = 149 - (parseInt(item.id.replace(/\D/g, "").slice(-2) || "0") % 50);
+  const rating = item.rating ?? 4.8;
+  const reviews = item.totalReviews ?? 2341;
+  const sales = item.totalSales ?? 17430;
+
+  const PERSUASIVE: Record<string, string> = {
+    software: "La herramienta que los profesionales top usan para triplicar su productividad. Actualización de por vida incluida.",
+    education: "El conocimiento que nadie te enseñó en la universidad. Más de 17K estudiantes ya transformaron su carrera.",
+    resources: "100+ activos digitales premium listos para usar. Ahorra cientos de horas de diseño desde el primer día.",
+    books: "La guía definitiva que condensó 10 años de experiencia en un solo recurso accionable. Descárgala en segundos.",
+    services: "Servicio digital premium con resultados garantizados. Implementación inmediata, soporte incluido.",
+  };
+  const tagline = item.tagline || PERSUASIVE[item.category] || PERSUASIVE.resources;
+
+  return (
+    <div className={`rounded-2xl border overflow-hidden transition-all ${selected ? "border-primary/50 shadow-lg shadow-primary/5" : "border-border"} bg-surface`}>
+      {/* Trust + urgency bar */}
+      <div className="flex items-center gap-3 px-4 py-2 bg-emerald-500/5 border-b border-emerald-500/10 flex-wrap">
+        <div className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-400">
+          <Zap className="size-3.5" /> DESCARGA INMEDIATA
+        </div>
+        {discount >= 20 && (
+          <div className="ml-auto flex items-center gap-1.5 text-[11px] font-black text-red-400 bg-red-500/10 border border-red-500/20 px-2.5 py-0.5 rounded-full">
+            {discount}% DE DESCUENTO
+          </div>
+        )}
+        <div className="text-[10px] text-orange-400 font-bold flex items-center gap-1">
+          ⚠️ SOLO QUEDAN {stockLeft}
+        </div>
+      </div>
+
+      <div className="p-5">
+        <div className="flex gap-4">
+          {/* Checkbox */}
+          <input type="checkbox" checked={selected} onChange={onToggle} className="size-4 mt-1 rounded accent-primary shrink-0" />
+
+          {/* Image */}
+          <img
+            src={item.image}
+            alt={item.name}
+            className="size-24 rounded-xl object-cover border border-border shrink-0"
+            onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
+          />
+
+          {/* Info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <span className="text-[10px] text-primary font-bold">Vendido por {item.vendor}</span>
+              <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-0.5"><CheckCircle2 className="size-3" /> Verificado</span>
+            </div>
+            <h3 className="font-bold text-base leading-tight mb-1">{item.name}</h3>
+            <p className="text-xs text-muted-foreground italic mb-2 line-clamp-2">"{tagline}"</p>
+
+            {/* Rating + sales */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <StarRating value={rating} size={3} />
+              <span className="text-xs font-bold">{rating}</span>
+              <span className="text-[10px] text-muted-foreground">({reviews.toLocaleString("es-CO")} reseñas)</span>
+              <span className="text-[10px] font-bold text-primary">{sales >= 1000 ? `${(sales / 1000).toFixed(0)}K+` : sales} ventas</span>
+            </div>
+          </div>
+
+          {/* Delete */}
+          <button onClick={onRemove} className="text-muted-foreground hover:text-destructive transition-colors shrink-0 self-start">
+            <Trash2 className="size-4" />
+          </button>
+        </div>
+
+        {/* Pricing block */}
+        <div className="mt-5 pt-4 border-t border-border grid sm:grid-cols-2 gap-4 items-end">
+          <div>
+            <div className="flex items-baseline gap-2 mb-1">
+              {item.originalPrice && (
+                <span className="text-sm text-muted-foreground line-through">{fmtCOP(item.originalPrice * qty)}</span>
+              )}
+              <span className="text-2xl font-extrabold text-primary">{fmtCOP(total)}</span>
+            </div>
+            <div className="text-[10px] text-muted-foreground">IVA incluido: {fmtCOP(ivaAmount * qty)}</div>
+            <div className="text-[10px] text-muted-foreground">Precio base: {fmtCOP(basePrice * qty)}</div>
+
+            {/* Quantity */}
+            <div className="flex items-center gap-2 mt-3">
+              <span className="text-xs font-medium text-muted-foreground">Cant.</span>
+              <div className="flex items-center border border-border rounded-lg overflow-hidden">
+                <button onClick={() => onQty(-1)} disabled={qty <= 1} className="px-2.5 py-1 hover:bg-white/5 disabled:opacity-40 transition-colors text-sm">
+                  <Minus className="size-3.5" />
+                </button>
+                <span className="px-3 py-1 text-sm font-bold border-x border-border min-w-[2.5rem] text-center">{qty}</span>
+                <button onClick={() => onQty(1)} className="px-2.5 py-1 hover:bg-white/5 transition-colors text-sm">
+                  <Plus className="size-3.5" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Trust badges */}
+          <div className="flex flex-col gap-1.5">
+            {[
+              { icon: Lock, label: "Pagos seguros" },
+              { icon: Shield, label: "Privacidad segura" },
+              { icon: Package, label: "Garantía de pedidos" },
+              { icon: Download, label: "Descarga instantánea" },
+            ].map(b => (
+              <div key={b.label} className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                <b.icon className="size-3 text-primary/60 shrink-0" /> {b.label}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PedidosSection() {
-  const { cart, removeFromCart, orders, addOrder, setPendingCheckoutItems } = useUserStore();
+  const { cart, removeFromCart, orders, setPendingCheckoutItems } = useUserStore(); // eslint-disable-line
   const [tab, setTab] = useState<"carrito" | "historial">("carrito");
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
   const navigate = useNavigate();
+
+  const getQty = (id: string) => quantities[id] ?? 1;
+  const setQty = (id: string, delta: number) =>
+    setQuantities(q => ({ ...q, [id]: Math.max(1, (q[id] ?? 1) + delta) }));
 
   const allSelected = selected.size === cart.length && cart.length > 0;
   const toggleAll = () => setSelected(allSelected ? new Set() : new Set(cart.map(i => i.id)));
@@ -75,7 +209,7 @@ function PedidosSection() {
   };
 
   const selectedItems = cart.filter(i => selected.has(i.id));
-  const subtotal = selectedItems.reduce((a, i) => a + i.price, 0);
+  const subtotal = selectedItems.reduce((a, i) => a + i.price * getQty(i.id), 0);
 
   const handlePagar = () => {
     if (selectedItems.length === 0) { toast.error("Selecciona al menos un producto"); return; }
@@ -89,9 +223,6 @@ function PedidosSection() {
     toast.success("Producto eliminado del carrito");
   };
 
-  // Demo: add a paid order for testing reviews
-  const hasDemoCompleted = orders.some(o => o.status === "completed");
-
   return (
     <div>
       <h2 className="text-xl font-bold mb-6">Tus Pedidos</h2>
@@ -100,19 +231,13 @@ function PedidosSection() {
       <div className="flex gap-1 bg-surface border border-border rounded-xl p-1 mb-6 w-fit">
         {[["carrito", "Carrito", cart.length], ["historial", "Historial", orders.length]].map(([id, label, count]) => (
           <button
-            key={id}
+            key={id as string}
             onClick={() => setTab(id as "carrito" | "historial")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              tab === id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-            }`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
             {label}
             {Number(count) > 0 && (
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
-                tab === id ? "bg-white/20 text-white" : "bg-border text-muted-foreground"
-              }`}>
-                {count}
-              </span>
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${tab === id ? "bg-white/20 text-white" : "bg-border text-muted-foreground"}`}>{count}</span>
             )}
           </button>
         ))}
@@ -124,71 +249,47 @@ function PedidosSection() {
             <ShoppingCart className="size-12 mx-auto mb-4 text-muted-foreground/40" />
             <p className="font-semibold mb-2">Tu carrito está vacío</p>
             <p className="text-sm text-muted-foreground mb-6">Explora el marketplace y agrega productos</p>
-            <Button asChild variant="contrast" size="sm">
-              <a href="/marketplace">Ver marketplace</a>
-            </Button>
+            <Button asChild variant="contrast" size="sm"><a href="/marketplace">Ver marketplace</a></Button>
           </div>
         ) : (
           <div className="space-y-4">
-            {/* Select all bar */}
+            {/* Select all */}
             <div className="flex items-center justify-between px-4 py-3 bg-surface border border-border rounded-xl">
               <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={allSelected}
-                  onChange={toggleAll}
-                  className="size-4 rounded accent-primary"
-                />
+                <input type="checkbox" checked={allSelected} onChange={toggleAll} className="size-4 rounded accent-primary" />
                 <span className="text-sm font-medium">Seleccionar todo ({cart.length})</span>
               </label>
-              {selected.size > 0 && (
-                <span className="text-xs text-muted-foreground">{selected.size} seleccionado{selected.size !== 1 ? "s" : ""}</span>
-              )}
+              {selected.size > 0 && <span className="text-xs text-muted-foreground">{selected.size} seleccionado{selected.size !== 1 ? "s" : ""}</span>}
             </div>
 
-            {/* Items */}
-            <div className="space-y-3">
+            {/* Rich product cards */}
+            <div className="space-y-4">
               {cart.map(item => (
-                <div key={item.id} className={`flex items-start gap-4 p-4 rounded-xl border transition-all ${
-                  selected.has(item.id) ? "border-primary/40 bg-primary/5" : "border-border bg-surface"
-                }`}>
-                  <input
-                    type="checkbox"
-                    checked={selected.has(item.id)}
-                    onChange={() => toggleItem(item.id)}
-                    className="size-4 mt-1 rounded accent-primary shrink-0"
-                  />
-                  <img src={item.image} alt={item.name} className="size-16 rounded-xl object-cover shrink-0 border border-border" onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-[10px] text-muted-foreground mb-0.5 font-mono">{item.vendor}</div>
-                    <h3 className="font-semibold text-sm line-clamp-1">{item.name}</h3>
-                    <div className="text-[10px] text-muted-foreground mt-1">
-                      Agregado {new Date(item.addedAt).toLocaleDateString("es-CO", { day: "2-digit", month: "short" })}
-                    </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <div className="font-extrabold text-primary">{fmtCOP(item.price)}</div>
-                    {item.originalPrice && (
-                      <div className="text-[10px] text-muted-foreground line-through">{fmtCOP(item.originalPrice)}</div>
-                    )}
-                    <button onClick={() => handleRemove(item.id)} className="mt-2 text-destructive hover:text-red-400 transition-colors">
-                      <Trash2 className="size-4" />
-                    </button>
-                  </div>
-                </div>
+                <CartProductCard
+                  key={item.id}
+                  item={item}
+                  selected={selected.has(item.id)}
+                  onToggle={() => toggleItem(item.id)}
+                  onRemove={() => handleRemove(item.id)}
+                  qty={getQty(item.id)}
+                  onQty={d => setQty(item.id, d)}
+                />
               ))}
             </div>
 
-            {/* Checkout bar */}
+            {/* Sticky checkout bar */}
             {selected.size > 0 && (
-              <div className="sticky bottom-4 bg-surface/95 backdrop-blur border border-border rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-4">
-                <div>
-                  <div className="text-xs text-muted-foreground">Subtotal ({selected.size} producto{selected.size !== 1 ? "s" : ""})</div>
-                  <div className="text-xl font-extrabold text-primary">{fmtCOP(subtotal)}</div>
+              <div className="sticky bottom-4 bg-surface/95 backdrop-blur border border-border rounded-2xl p-4 shadow-2xl">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <div className="text-xs text-muted-foreground">Total ({selected.size} producto{selected.size !== 1 ? "s" : ""})</div>
+                    <div className="text-2xl font-extrabold text-primary">{fmtCOP(subtotal)}</div>
+                    <div className="text-[10px] text-muted-foreground">IVA incluido · Descarga instantánea</div>
+                  </div>
+                  <Button variant="contrast" className="gap-2 font-bold" onClick={handlePagar}>
+                    <CreditCard className="size-4" /> Pagar seleccionados
+                  </Button>
                 </div>
-                <Button variant="contrast" className="gap-2 font-bold" onClick={handlePagar}>
-                  <CreditCard className="size-4" /> Pagar seleccionados
-                </Button>
               </div>
             )}
           </div>
@@ -207,15 +308,9 @@ function PedidosSection() {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <div className="text-xs text-muted-foreground font-mono">Pedido #{order.id.slice(-8).toUpperCase()}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">
-                      {new Date(order.paidAt).toLocaleDateString("es-CO", { day: "2-digit", month: "long", year: "numeric" })}
-                    </div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{new Date(order.paidAt).toLocaleDateString("es-CO", { day: "2-digit", month: "long", year: "numeric" })}</div>
                   </div>
-                  <span className={`text-xs px-3 py-1 rounded-full font-bold ${
-                    order.status === "completed" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" :
-                    order.status === "pending" ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20" :
-                    "bg-destructive/10 text-destructive border border-destructive/20"
-                  }`}>
+                  <span className={`text-xs px-3 py-1 rounded-full font-bold ${order.status === "completed" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : order.status === "pending" ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20" : "bg-destructive/10 text-destructive border border-destructive/20"}`}>
                     {order.status === "completed" ? "✓ Completado" : order.status === "pending" ? "⏳ Pendiente" : "Reembolsado"}
                   </span>
                 </div>
@@ -887,6 +982,165 @@ function DireccionesSection() {
   );
 }
 
+// ─── Section: Referidos ───────────────────────────────────────────────────────
+
+function ReferidosSection() {
+  const { referralCode, referredUsers, referralEarnings, addReferral, creditBalance } = useUserStore();
+  const referralLink = `https://pulseai.io/marketplace?ref=${referralCode}`;
+  const [copied, setCopied] = useState(false);
+  const conversions = referredUsers.filter(r => r.hasConverted).length;
+
+  const copy = () => {
+    navigator.clipboard.writeText(referralLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    toast.success("¡Enlace copiado!");
+  };
+
+  const shareWA = () => window.open(`https://wa.me/?text=${encodeURIComponent(`🚀 Descubre los mejores productos digitales en PULSE AI. Usa mi enlace y obtén $20.000 de descuento en tu primera compra: ${referralLink}`)}`, "_blank");
+  const shareFB = () => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralLink)}`, "_blank", "width=600,height=400");
+
+  return (
+    <div>
+      <h2 className="text-xl font-bold mb-2">Programa de Referidos</h2>
+      <p className="text-sm text-muted-foreground mb-6">Invita amigos y gana <strong className="text-foreground">$25.000 COP</strong> por cada uno que compre. Ellos reciben $20.000 de descuento.</p>
+
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-4 mb-8">
+        {[
+          { label: "Referidos", value: referredUsers.length, icon: Users, color: "text-blue-400" },
+          { label: "Conversiones", value: conversions, icon: CheckCircle2, color: "text-emerald-400" },
+          { label: "Ganancias", value: fmtCOP(referralEarnings), icon: Wallet, color: "text-primary" },
+        ].map(s => (
+          <div key={s.label} className="bg-surface border border-border rounded-2xl p-4 text-center">
+            <s.icon className={`size-5 mx-auto mb-2 ${s.color}`} />
+            <div className="text-xl font-extrabold">{s.value}</div>
+            <div className="text-[10px] text-muted-foreground">{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Referral link */}
+      <div className="bg-surface border border-border rounded-2xl p-5 mb-6">
+        <div className="text-sm font-bold mb-3 flex items-center gap-2">
+          <Link2 className="size-4 text-primary" /> Tu enlace de referido
+        </div>
+        <div className="flex gap-2">
+          <input
+            value={referralLink}
+            readOnly
+            className="flex-1 bg-background border border-border rounded-xl px-4 py-2.5 text-xs font-mono text-muted-foreground focus:outline-none min-w-0"
+          />
+          <button
+            onClick={copy}
+            className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold transition-all shrink-0 ${copied ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-primary text-primary-foreground hover:bg-primary/90"}`}
+          >
+            {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+            {copied ? "Copiado" : "Copiar"}
+          </button>
+        </div>
+
+        {/* Share buttons */}
+        <div className="flex gap-3 mt-4">
+          <button onClick={shareWA} className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-[#25D366]/20 bg-[#25D366]/5 text-[#25D366] text-sm font-bold hover:bg-[#25D366]/10 transition-colors">
+            <Share2 className="size-4" /> WhatsApp
+          </button>
+          <button onClick={shareFB} className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-[#1877F2]/20 bg-[#1877F2]/5 text-[#1877F2] text-sm font-bold hover:bg-[#1877F2]/10 transition-colors">
+            <Share2 className="size-4" /> Facebook
+          </button>
+          <button
+            onClick={() => {
+              const text = `Descubre miles de productos digitales premium en PULSE AI. 🚀 Usa mi código de referido ${referralCode} y obtén $20.000 de descuento. ${referralLink}`;
+              window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}`, "_blank");
+            }}
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-border text-muted-foreground text-sm font-bold hover:border-primary/20 hover:text-foreground transition-colors"
+          >
+            <Share2 className="size-4" /> X / Twitter
+          </button>
+        </div>
+      </div>
+
+      {/* How it works */}
+      <div className="bg-surface border border-border rounded-2xl p-5 mb-6">
+        <h3 className="font-bold mb-4">¿Cómo funciona?</h3>
+        <div className="space-y-3">
+          {[
+            { step: "1", title: "Comparte tu enlace", desc: "Envíalo por WhatsApp, Instagram, email o donde prefieras." },
+            { step: "2", title: "Tu amigo se registra", desc: "Usando tu enlace, tu amigo obtiene $20.000 de descuento automáticamente." },
+            { step: "3", title: "Ganas $25.000 COP", desc: "Cuando tu amigo realice su primera compra, recibes $25.000 en créditos." },
+          ].map(s => (
+            <div key={s.step} className="flex gap-4 items-start">
+              <div className="size-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-sm font-extrabold text-primary shrink-0">{s.step}</div>
+              <div>
+                <div className="font-semibold text-sm">{s.title}</div>
+                <div className="text-xs text-muted-foreground">{s.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Demo: simulate a referral (dev/test) */}
+      <div className="bg-surface border border-border rounded-2xl p-5 mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="font-bold text-sm">Simular referido (demo)</div>
+            <div className="text-xs text-muted-foreground">Prueba el flujo de referidos</div>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={() => { addReferral(false); toast.success("Referido agregado (sin conversión)"); }} className="text-xs px-3 py-1.5 rounded-lg border border-border text-muted-foreground hover:border-primary/20 hover:text-primary transition-colors">
+              Sin compra
+            </button>
+            <button onClick={() => { addReferral(true); toast.success("¡Referido convertido! +$25.000 en créditos 🎉"); }} className="text-xs px-3 py-1.5 rounded-lg border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/5 transition-colors">
+              Con compra +$25K
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Referred users list */}
+      {referredUsers.length > 0 && (
+        <div>
+          <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-3">Tus referidos</h3>
+          <div className="space-y-2">
+            {referredUsers.map(r => (
+              <div key={r.id} className="flex items-center justify-between px-4 py-3 bg-surface border border-border rounded-xl">
+                <div className="flex items-center gap-3">
+                  <div className="size-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary">
+                    {r.id.slice(-2).toUpperCase()}
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium">Usuario referido</div>
+                    <div className="text-[10px] text-muted-foreground">{new Date(r.joinedAt).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })}</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  {r.hasConverted ? (
+                    <span className="text-xs font-bold text-emerald-400 flex items-center gap-1"><CheckCircle2 className="size-3" /> +{fmtCOP(r.earned)}</span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">Sin compra aún</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* CTA to affiliate program */}
+      <div className="mt-8 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-2xl p-5 flex items-center justify-between gap-4">
+        <div>
+          <div className="font-bold mb-1">¿Quieres ganar comisiones más altas?</div>
+          <div className="text-sm text-muted-foreground">Únete al Programa de Afiliados y gana hasta 40% por cada venta.</div>
+        </div>
+        <a href="/afiliados" className="shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 transition-colors">
+          Ver afiliados <ChevronRight className="size-4" />
+        </a>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 function PerfilPage() {
@@ -1032,6 +1286,7 @@ function PerfilPage() {
             {section === "tiendas" && <TiendasSection />}
             {section === "historial" && <HistorialSection />}
             {section === "direcciones" && <DireccionesSection />}
+            {section === "referidos" && <ReferidosSection />}
 
             {/* Mobile logout */}
             <div className="md:hidden mt-10 pt-6 border-t border-border flex gap-3">
