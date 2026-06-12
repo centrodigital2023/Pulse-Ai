@@ -532,54 +532,157 @@ export interface MarketplaceVendor {
   name: string;
   handle: string;
   initials: string;
+  email: string;
+  phone: string;
+  country: string;
   products: number;
   revenue: number;
   commission: number;
   rating: number;
-  status: "active" | "pending" | "suspended";
+  status: "active" | "pending" | "suspended" | "blocked";
   joined: string;
+  verified: boolean;
+  description: string;
 }
 
 export const marketplaceVendors: MarketplaceVendor[] = [
-  { id: "v1", name: "DevCraft Studio", handle: "devcraft", initials: "DC", products: 12, revenue: 128400, commission: 12840, rating: 4.9, status: "active", joined: "Jan 2024" },
-  { id: "v2", name: "Neural Works", handle: "neuralworks", initials: "NW", products: 8, revenue: 94200, commission: 9420, rating: 4.8, status: "active", joined: "Feb 2024" },
-  { id: "v3", name: "Pixel Factory", handle: "pixelfactory", initials: "PF", products: 24, revenue: 71600, commission: 7160, rating: 4.7, status: "active", joined: "Jan 2024" },
-  { id: "v4", name: "Code Atelier", handle: "codeatelier", initials: "CA", products: 5, revenue: 42800, commission: 4280, rating: 4.9, status: "active", joined: "Mar 2024" },
-  { id: "v5", name: "Design Foundry", handle: "designfoundry", initials: "DF", products: 3, revenue: 18900, commission: 1890, rating: 4.6, status: "pending", joined: "Jun 2024" },
+  { id: "v1", name: "DevCraft Studio", handle: "devcraft", initials: "DC", email: "hola@devcraft.io", phone: "+57 310 222 3344", country: "Colombia", products: 12, revenue: 128400, commission: 12840, rating: 4.9, status: "active", joined: "Ene 2024", verified: true, description: "Herramientas de desarrollo y SDKs de alta calidad para ingenieros de software." },
+  { id: "v2", name: "Neural Works", handle: "neuralworks", initials: "NW", email: "info@neuralworks.ai", phone: "+1 415 900 1200", country: "Estados Unidos", products: 8, revenue: 94200, commission: 9420, rating: 4.8, status: "active", joined: "Feb 2024", verified: true, description: "Cursos y recursos de IA para profesionales y empresas." },
+  { id: "v3", name: "Pixel Factory", handle: "pixelfactory", initials: "PF", email: "studio@pixelfactory.co", phone: "+34 612 800 900", country: "España", products: 24, revenue: 71600, commission: 7160, rating: 4.7, status: "active", joined: "Ene 2024", verified: true, description: "Recursos de diseño gráfico, shaders y assets visuales premium." },
+  { id: "v4", name: "Code Atelier", handle: "codeatelier", initials: "CA", email: "hello@codeatelier.fr", phone: "+33 6 80 12 34 56", country: "Francia", products: 5, revenue: 42800, commission: 4280, rating: 4.9, status: "active", joined: "Mar 2024", verified: true, description: "Masterclasses de arquitectura y DevOps para equipos técnicos." },
+  { id: "v5", name: "Design Foundry", handle: "designfoundry", initials: "DF", email: "team@designfoundry.io", phone: "+44 20 7946 0958", country: "Reino Unido", products: 3, revenue: 18900, commission: 1890, rating: 4.6, status: "active", joined: "Mar 2024", verified: true, description: "Sistemas de diseño y componentes UI para equipos empresariales." },
+  { id: "v6", name: "TechForge Labs", handle: "techforge", initials: "TF", email: "carlos@techforge.co", phone: "+57 320 444 5566", country: "Colombia", products: 0, revenue: 0, commission: 0, rating: 0, status: "pending", joined: "Jun 2024", verified: false, description: "Plantillas y boilerplates para startups tecnológicas latinoamericanas." },
+  { id: "v7", name: "DataViz Pro", handle: "datavizpro", initials: "DV", email: "ana@datavizpro.mx", phone: "+52 55 1234 5678", country: "México", products: 0, revenue: 0, commission: 0, rating: 0, status: "pending", joined: "Jun 2024", verified: false, description: "Dashboards y visualizaciones de datos interactivos para negocios." },
+  { id: "v8", name: "EduTech Latam", handle: "edutechlatam", initials: "EL", email: "info@edutechlatam.com", phone: "+54 11 4444 5555", country: "Argentina", products: 0, revenue: 0, commission: 0, rating: 0, status: "pending", joined: "Jun 2024", verified: false, description: "Cursos en español de programación, diseño y negocios digitales." },
+  { id: "v9", name: "ShadowCode", handle: "shadowcode", initials: "SC", email: "admin@shadowcode.dev", phone: "+1 202 555 0000", country: "Estados Unidos", products: 2, revenue: 8400, commission: 840, rating: 2.1, status: "blocked", joined: "May 2024", verified: false, description: "Herramientas de automatización." },
 ];
 
 export const marketplaceCategories = [
-  { id: "all", label: "All Products", count: 148 },
-  { id: "software", label: "Software & SaaS", count: 38 },
-  { id: "education", label: "Courses & Education", count: 42 },
-  { id: "resources", label: "Templates & Resources", count: 31 },
-  { id: "books", label: "eBooks & Guides", count: 24 },
-  { id: "services", label: "Services", count: 13 },
+  { id: "all", label: "Todos los productos", count: 148, emoji: "🛒" },
+  { id: "software", label: "Software & SaaS", count: 38, emoji: "💻" },
+  { id: "education", label: "Cursos & Educación", count: 42, emoji: "🎓" },
+  { id: "resources", label: "Plantillas & Recursos", count: 31, emoji: "🎨" },
+  { id: "books", label: "eBooks & Guías", count: 24, emoji: "📚" },
+  { id: "services", label: "Servicios", count: 13, emoji: "⚡" },
 ];
 
 export interface MarketplaceListing {
   id: string;
   name: string;
   vendor: string;
+  vendorAvatar: string;
   category: string;
   price: number;
+  originalPrice?: number;
   recurring: boolean;
   rating: number;
   reviews: number;
   sales: number;
-  badge?: "bestseller" | "new" | "featured";
+  soldToday: number;
+  viewers: number;
+  badge?: "bestseller" | "new" | "featured" | "oferta";
   tagline: string;
+  image: string;
+  tags: string[];
 }
 
 export const marketplaceListings: MarketplaceListing[] = [
-  { id: "ml1", name: "Neural-Kit SDK", vendor: "DevCraft Studio", category: "software", price: 149, recurring: false, rating: 4.9, reviews: 142, sales: 565, badge: "bestseller", tagline: "Production-grade ML toolkit with full source" },
-  { id: "ml2", name: "Complete AI Engineering Masterclass", vendor: "Neural Works", category: "education", price: 299, recurring: false, rating: 5.0, reviews: 211, sales: 429, badge: "featured", tagline: "40 HD videos from zero to production AI systems" },
-  { id: "ml3", name: "SaaS Starter Stack", vendor: "DevCraft Studio", category: "software", price: 29, recurring: true, rating: 4.7, reviews: 64, sales: 318, badge: "new", tagline: "Full-stack boilerplate with auth, billing, and more" },
-  { id: "ml4", name: "Advanced Shader Pack Pro", vendor: "Pixel Factory", category: "resources", price: 79, recurring: false, rating: 4.8, reviews: 98, sales: 521, badge: "bestseller", tagline: "120+ production-ready GLSL shaders" },
-  { id: "ml5", name: "Enterprise Design System", vendor: "Design Foundry", category: "resources", price: 199, recurring: true, rating: 4.9, reviews: 87, sales: 320, tagline: "500+ components for Figma and React" },
-  { id: "ml6", name: "DevOps Masterclass 2024", vendor: "Code Atelier", category: "education", price: 199, recurring: false, rating: 4.8, reviews: 74, sales: 248, tagline: "CI/CD, Docker, Kubernetes — the complete guide" },
-  { id: "ml7", name: "API Architecture Playbook", vendor: "Neural Works", category: "books", price: 49, recurring: false, rating: 4.7, reviews: 156, sales: 892, badge: "bestseller", tagline: "Design APIs that scale to millions of users" },
-  { id: "ml8", name: "Startup Legal Pack", vendor: "Code Atelier", category: "resources", price: 89, recurring: false, rating: 4.6, reviews: 33, sales: 178, tagline: "40+ legal document templates for tech companies" },
+  {
+    id: "ml1", name: "Neural-Kit SDK", vendor: "DevCraft Studio", vendorAvatar: "DC",
+    category: "software", price: 149, originalPrice: 249, recurring: false,
+    rating: 4.9, reviews: 142, sales: 565, soldToday: 23, viewers: 87,
+    badge: "bestseller", tagline: "Toolkit ML de nivel producción con código fuente completo.",
+    image: "https://picsum.photos/seed/neural1/600/400",
+    tags: ["Python", "TensorFlow", "API", "SDK"],
+  },
+  {
+    id: "ml2", name: "Masterclass IA Engineering Completa", vendor: "Neural Works", vendorAvatar: "NW",
+    category: "education", price: 299, originalPrice: 499, recurring: false,
+    rating: 5.0, reviews: 211, sales: 429, soldToday: 18, viewers: 142,
+    badge: "featured", tagline: "40 videos HD · de cero a sistemas IA en producción.",
+    image: "https://picsum.photos/seed/aiclass/600/400",
+    tags: ["IA", "Machine Learning", "Python", "Certificado"],
+  },
+  {
+    id: "ml3", name: "SaaS Starter Stack Pro", vendor: "DevCraft Studio", vendorAvatar: "DC",
+    category: "software", price: 29, originalPrice: 49, recurring: true,
+    rating: 4.7, reviews: 64, sales: 318, soldToday: 11, viewers: 55,
+    badge: "new", tagline: "Boilerplate full-stack con auth, billing y dashboard incluidos.",
+    image: "https://picsum.photos/seed/saasstack/600/400",
+    tags: ["Next.js", "Stripe", "Auth", "TypeScript"],
+  },
+  {
+    id: "ml4", name: "Advanced Shader Pack Pro", vendor: "Pixel Factory", vendorAvatar: "PF",
+    category: "resources", price: 79, originalPrice: 129, recurring: false,
+    rating: 4.8, reviews: 98, sales: 521, soldToday: 14, viewers: 63,
+    badge: "bestseller", tagline: "120+ shaders GLSL listos para producción.",
+    image: "https://picsum.photos/seed/shaders/600/400",
+    tags: ["GLSL", "Unity", "WebGL", "Gráficos"],
+  },
+  {
+    id: "ml5", name: "Enterprise Design System", vendor: "Design Foundry", vendorAvatar: "DF",
+    category: "resources", price: 199, originalPrice: 349, recurring: true,
+    rating: 4.9, reviews: 87, sales: 320, soldToday: 9, viewers: 48,
+    badge: "featured", tagline: "500+ componentes para Figma y React. Actualización permanente.",
+    image: "https://picsum.photos/seed/design/600/400",
+    tags: ["Figma", "React", "UI", "Componentes"],
+  },
+  {
+    id: "ml6", name: "DevOps Masterclass 2024", vendor: "Code Atelier", vendorAvatar: "CA",
+    category: "education", price: 199, originalPrice: 299, recurring: false,
+    rating: 4.8, reviews: 74, sales: 248, soldToday: 7, viewers: 39,
+    badge: "oferta", tagline: "CI/CD, Docker, Kubernetes — la guía completa.",
+    image: "https://picsum.photos/seed/devops/600/400",
+    tags: ["Docker", "K8s", "CI/CD", "AWS"],
+  },
+  {
+    id: "ml7", name: "API Architecture Playbook", vendor: "Neural Works", vendorAvatar: "NW",
+    category: "books", price: 49, originalPrice: 79, recurring: false,
+    rating: 4.7, reviews: 156, sales: 892, soldToday: 31, viewers: 104,
+    badge: "bestseller", tagline: "Diseña APIs que escalan a millones de usuarios.",
+    image: "https://picsum.photos/seed/apibook/600/400",
+    tags: ["REST", "GraphQL", "Microservicios", "Guía"],
+  },
+  {
+    id: "ml8", name: "Startup Legal Pack", vendor: "Code Atelier", vendorAvatar: "CA",
+    category: "resources", price: 89, originalPrice: 149, recurring: false,
+    rating: 4.6, reviews: 33, sales: 178, soldToday: 5, viewers: 28,
+    tagline: "40+ plantillas legales para empresas tecnológicas.",
+    image: "https://picsum.photos/seed/legal/600/400",
+    tags: ["Legal", "Contratos", "Startups", "Templates"],
+  },
+  {
+    id: "ml9", name: "React Performance Secrets", vendor: "DevCraft Studio", vendorAvatar: "DC",
+    category: "education", price: 129, originalPrice: 199, recurring: false,
+    rating: 4.8, reviews: 88, sales: 412, soldToday: 16, viewers: 72,
+    badge: "new", tagline: "Optimización avanzada de React: bundle, render, caché.",
+    image: "https://picsum.photos/seed/reactperf/600/400",
+    tags: ["React", "Performance", "Webpack", "Hooks"],
+  },
+  {
+    id: "ml10", name: "Figma to React Workflow", vendor: "Pixel Factory", vendorAvatar: "PF",
+    category: "resources", price: 59, originalPrice: 89, recurring: false,
+    rating: 4.7, reviews: 61, sales: 287, soldToday: 8, viewers: 41,
+    tagline: "Sistema completo: de diseño Figma a código React listo para producción.",
+    image: "https://picsum.photos/seed/figma2react/600/400",
+    tags: ["Figma", "React", "Código", "Workflow"],
+  },
+  {
+    id: "ml11", name: "E-commerce Analytics Bible", vendor: "Neural Works", vendorAvatar: "NW",
+    category: "books", price: 39, originalPrice: 69, recurring: false,
+    rating: 4.9, reviews: 203, sales: 1104, soldToday: 42, viewers: 188,
+    badge: "bestseller", tagline: "Métricas, embudos y dashboards para tiendas online.",
+    image: "https://picsum.photos/seed/analytics/600/400",
+    tags: ["Analytics", "KPIs", "E-commerce", "Data"],
+  },
+  {
+    id: "ml12", name: "No-Code App Builder Course", vendor: "Code Atelier", vendorAvatar: "CA",
+    category: "education", price: 99, originalPrice: 149, recurring: false,
+    rating: 4.6, reviews: 47, sales: 193, soldToday: 6, viewers: 33,
+    badge: "new", tagline: "Crea apps web y móviles sin escribir código con Bubble y Webflow.",
+    image: "https://picsum.photos/seed/nocode/600/400",
+    tags: ["No-Code", "Bubble", "Webflow", "Apps"],
+  },
 ];
 
 // ─── AI Insights ──────────────────────────────────────────────────────────────

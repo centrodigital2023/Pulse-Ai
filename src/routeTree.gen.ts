@@ -10,10 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as VenderRouteImport } from './routes/vender'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
-import { Route as LibraryRouteImport } from './routes/library'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as LibraryRouteImport } from './routes/library'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardWebhooksRouteImport } from './routes/dashboard.webhooks'
@@ -36,14 +37,14 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VenderRoute = VenderRouteImport.update({
+  id: '/vender',
+  path: '/vender',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MarketplaceRoute = MarketplaceRouteImport.update({
   id: '/marketplace',
   path: '/marketplace',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LibraryRoute = LibraryRouteImport.update({
-  id: '/library',
-  path: '/library',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRoute = CheckoutRouteImport.update({
@@ -54,6 +55,11 @@ const CheckoutRoute = CheckoutRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LibraryRoute = LibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -143,6 +149,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/library': typeof LibraryRoute
   '/marketplace': typeof MarketplaceRoute
+  '/vender': typeof VenderRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/dashboard/affiliates': typeof DashboardAffiliatesRoute
   '/dashboard/ai': typeof DashboardAiRoute
@@ -166,6 +173,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/library': typeof LibraryRoute
   '/marketplace': typeof MarketplaceRoute
+  '/vender': typeof VenderRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/dashboard/affiliates': typeof DashboardAffiliatesRoute
   '/dashboard/ai': typeof DashboardAiRoute
@@ -190,6 +198,7 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/library': typeof LibraryRoute
   '/marketplace': typeof MarketplaceRoute
+  '/vender': typeof VenderRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/dashboard/affiliates': typeof DashboardAffiliatesRoute
   '/dashboard/ai': typeof DashboardAiRoute
@@ -215,6 +224,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/library'
     | '/marketplace'
+    | '/vender'
     | '/sitemap.xml'
     | '/dashboard/affiliates'
     | '/dashboard/ai'
@@ -238,6 +248,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/library'
     | '/marketplace'
+    | '/vender'
     | '/sitemap.xml'
     | '/dashboard/affiliates'
     | '/dashboard/ai'
@@ -261,6 +272,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/library'
     | '/marketplace'
+    | '/vender'
     | '/sitemap.xml'
     | '/dashboard/affiliates'
     | '/dashboard/ai'
@@ -285,6 +297,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   LibraryRoute: typeof LibraryRoute
   MarketplaceRoute: typeof MarketplaceRoute
+  VenderRoute: typeof VenderRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   DashboardAffiliatesRoute: typeof DashboardAffiliatesRoute
   DashboardAiRoute: typeof DashboardAiRoute
@@ -318,11 +331,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketplaceRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/library': {
-      id: '/library'
-      path: '/library'
-      fullPath: '/library'
-      preLoaderRoute: typeof LibraryRouteImport
+    '/vender': {
+      id: '/vender'
+      path: '/vender'
+      fullPath: '/vender'
+      preLoaderRoute: typeof VenderRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -337,6 +350,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/library': {
+      id: '/library'
+      path: '/library'
+      fullPath: '/library'
+      preLoaderRoute: typeof LibraryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -471,6 +491,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   LibraryRoute: LibraryRoute,
   MarketplaceRoute: MarketplaceRoute,
+  VenderRoute: VenderRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   DashboardAffiliatesRoute: DashboardAffiliatesRoute,
   DashboardAiRoute: DashboardAiRoute,

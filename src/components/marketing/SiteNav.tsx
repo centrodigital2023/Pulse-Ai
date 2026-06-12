@@ -34,6 +34,13 @@ export function SiteNav() {
           <Button asChild variant="ghost" size="sm">
             <Link to="/library">Mi Biblioteca</Link>
           </Button>
+          <Link
+            to="/vender"
+            className="text-xs font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg px-3 py-1.5 hover:border-primary/30 transition-colors hidden sm:inline-flex items-center gap-1"
+          >
+            <span className="size-1.5 rounded-full bg-primary animate-pulse" />
+            Vender
+          </Link>
           <Button asChild size="sm" variant="contrast">
             <Link to="/dashboard">Empezar Gratis</Link>
           </Button>

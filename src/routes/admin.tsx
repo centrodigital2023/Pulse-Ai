@@ -8,14 +8,681 @@ import { Label } from "@/components/ui/label";
 import {
   Shield, Eye, EyeOff, Lock, Users, DollarSign, Package,
   TrendingUp, AlertTriangle, CheckCircle, Activity, BarChart3,
-  Settings, Globe, Database, Cpu,
+  Settings, Globe, Database, Cpu, Search, Filter,
+  CheckCheck, Ban, Trash2, ChevronDown, X,
+  Mail, Phone, MapPin, Calendar, Star, ExternalLink,
+  RefreshCw, User,
 } from "lucide-react";
-import { metrics, customers, products, marketplaceVendors, automationFlows } from "@/lib/mock-data";
+import { marketplaceVendors, type MarketplaceVendor, customers, products } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Administración — PULSE AI" }] }),
   component: AdminPage,
 });
+
+type VendorStatus = "active" | "pending" | "suspended" | "blocked";
+type AdminTab = "dashboard" | "vendors" | "products" | "users" | "security";
+
+// ─── Confirm Dialog ───────────────────────────────────────────────────────────
+
+function ConfirmDialog({ title, message, onConfirm, onCancel, danger = false }: {
+  title: string; message: string; onConfirm: () => void; onCancel: () => void; danger?: boolean;
+}) {
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onCancel} />
+      <div className="relative w-full max-w-md bg-surface border border-border rounded-2xl p-6 shadow-2xl">
+        <h3 className="font-bold text-lg mb-2">{title}</h3>
+        <p className="text-sm text-muted-foreground mb-6">{message}</p>
+        <div className="flex gap-3 justify-end">
+          <Button variant="outline" onClick={onCancel}>Cancelar</Button>
+          <Button
+            onClick={onConfirm}
+            className={danger ? "bg-destructive hover:bg-destructive/90 text-white" : ""}
+            variant={danger ? "destructive" : "contrast"}
+          >
+            Confirmar
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Vendor Detail Panel ──────────────────────────────────────────────────────
+
+function VendorPanel({ vendor, onClose, onAction }: {
+  vendor: MarketplaceVendor;
+  onClose: () => void;
+  onAction: (id: string, action: "admit" | "block" | "delete" | "suspend") => void;
+}) {
+  const statusColor = {
+    active: "text-primary bg-primary/10 border-primary/20",
+    pending: "text-yellow-400 bg-yellow-400/10 border-yellow-400/20",
+    suspended: "text-orange-400 bg-orange-400/10 border-orange-400/20",
+    blocked: "text-destructive bg-destructive/10 border-destructive/20",
+  };
+
+  const statusLabel = {
+    active: "Activo", pending: "Pendiente", suspended: "Suspendido", blocked: "Bloqueado",
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex">
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative ml-auto w-full max-w-lg bg-background border-l border-border h-full overflow-y-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold">Detalle del Vendedor</h2>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+            <X className="size-5" />
+          </button>
+        </div>
+
+        {/* Header */}
+        <div className="flex items-center gap-4">
+          <div className="size-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-xl font-bold text-primary">
+            {vendor.initials}
+          </div>
+          <div>
+            <div className="font-bold text-lg">{vendor.name}</div>
+            <div className="text-sm text-muted-foreground">@{vendor.handle}</div>
+            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border mt-1 ${statusColor[vendor.status]}`}>
+              {statusLabel[vendor.status]}
+              {vendor.verified && vendor.status === "active" && <CheckCheck className="size-3" />}
+            </span>
+          </div>
+        </div>
+
+        {/* Info grid */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="p-3 rounded-xl bg-surface border border-border">
+            <div className="text-[10px] font-mono text-muted-foreground mb-1">INGRESOS TOTALES</div>
+            <div className="text-xl font-bold">${vendor.revenue.toLocaleString()}</div>
+          </div>
+          <div className="p-3 rounded-xl bg-surface border border-border">
+            <div className="text-[10px] font-mono text-muted-foreground mb-1">COMISIONES</div>
+            <div className="text-xl font-bold">${vendor.commission.toLocaleString()}</div>
+          </div>
+          <div className="p-3 rounded-xl bg-surface border border-border">
+            <div className="text-[10px] font-mono text-muted-foreground mb-1">PRODUCTOS</div>
+            <div className="text-xl font-bold">{vendor.products}</div>
+          </div>
+          <div className="p-3 rounded-xl bg-surface border border-border">
+            <div className="text-[10px] font-mono text-muted-foreground mb-1">VALORACIÓN</div>
+            <div className="text-xl font-bold flex items-center gap-1">
+              {vendor.rating > 0 ? <><Star className="size-4 fill-yellow-400 text-yellow-400" />{vendor.rating}</> : "—"}
+            </div>
+          </div>
+        </div>
+
+        {/* Contact */}
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold">Información de contacto</h3>
+          {[
+            { icon: Mail, label: vendor.email },
+            { icon: Phone, label: vendor.phone },
+            { icon: MapPin, label: vendor.country },
+            { icon: Calendar, label: `Registrado: ${vendor.joined}` },
+          ].map(i => (
+            <div key={i.label} className="flex items-center gap-3 text-sm">
+              <i.icon className="size-4 text-muted-foreground shrink-0" />
+              <span>{i.label}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Description */}
+        <div>
+          <h3 className="text-sm font-semibold mb-2">Descripción</h3>
+          <p className="text-sm text-muted-foreground">{vendor.description}</p>
+        </div>
+
+        {/* Actions */}
+        <div className="space-y-3 pt-4 border-t border-border">
+          <h3 className="text-sm font-semibold">Acciones administrativas</h3>
+
+          {vendor.status === "pending" && (
+            <Button variant="contrast" className="w-full gap-2" onClick={() => { onAction(vendor.id, "admit"); onClose(); }}>
+              <CheckCheck className="size-4" /> Aprobar vendedor
+            </Button>
+          )}
+
+          {vendor.status === "active" && (
+            <>
+              <Button variant="outline" className="w-full gap-2 text-orange-400 border-orange-400/30 hover:bg-orange-400/10" onClick={() => { onAction(vendor.id, "suspend"); onClose(); }}>
+                <RefreshCw className="size-4" /> Suspender temporalmente
+              </Button>
+              <Button variant="outline" className="w-full gap-2 text-destructive border-destructive/30 hover:bg-destructive/10" onClick={() => { onAction(vendor.id, "block"); onClose(); }}>
+                <Ban className="size-4" /> Bloquear cuenta
+              </Button>
+            </>
+          )}
+
+          {(vendor.status === "suspended" || vendor.status === "blocked") && (
+            <Button variant="contrast" className="w-full gap-2" onClick={() => { onAction(vendor.id, "admit"); onClose(); }}>
+              <CheckCheck className="size-4" /> Reactivar cuenta
+            </Button>
+          )}
+
+          <Button
+            variant="outline"
+            className="w-full gap-2 text-destructive border-destructive/30 hover:bg-destructive/10"
+            onClick={() => { onAction(vendor.id, "delete"); onClose(); }}
+          >
+            <Trash2 className="size-4" /> Eliminar vendedor permanentemente
+          </Button>
+        </div>
+
+        <div className="text-[10px] text-muted-foreground text-center">
+          Todas las acciones quedan registradas en el log de auditoría.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Vendor Row ───────────────────────────────────────────────────────────────
+
+function VendorRow({ vendor, onAction, onSelect }: {
+  vendor: MarketplaceVendor;
+  onAction: (id: string, action: "admit" | "block" | "delete" | "suspend") => void;
+  onSelect: () => void;
+}) {
+  const statusConfig: Record<VendorStatus, { cls: string; label: string }> = {
+    active: { cls: "bg-primary/10 text-primary border-primary/20", label: "Activo" },
+    pending: { cls: "bg-yellow-400/10 text-yellow-400 border-yellow-400/20", label: "Pendiente" },
+    suspended: { cls: "bg-orange-400/10 text-orange-400 border-orange-400/20", label: "Suspendido" },
+    blocked: { cls: "bg-destructive/10 text-destructive border-destructive/20", label: "Bloqueado" },
+  };
+
+  const sc = statusConfig[vendor.status];
+
+  return (
+    <div className="flex flex-wrap items-center gap-4 p-4 border-b border-border last:border-0 hover:bg-black/5 transition-colors">
+      {/* Avatar + name */}
+      <button onClick={onSelect} className="flex items-center gap-3 flex-1 min-w-[180px] text-left">
+        <div className="size-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary shrink-0">
+          {vendor.initials}
+        </div>
+        <div>
+          <div className="font-medium text-sm flex items-center gap-1.5">
+            {vendor.name}
+            {vendor.verified && <CheckCheck className="size-3.5 text-primary" />}
+            <ExternalLink className="size-3 text-muted-foreground opacity-0 group-hover:opacity-100" />
+          </div>
+          <div className="text-[11px] text-muted-foreground">{vendor.email}</div>
+        </div>
+      </button>
+
+      {/* Country */}
+      <div className="text-xs text-muted-foreground hidden md:flex items-center gap-1 min-w-[100px]">
+        <MapPin className="size-3" /> {vendor.country}
+      </div>
+
+      {/* Products */}
+      <div className="text-xs font-mono min-w-[60px] text-center hidden sm:block">
+        <div className="text-foreground font-bold">{vendor.products}</div>
+        <div className="text-muted-foreground">productos</div>
+      </div>
+
+      {/* Revenue */}
+      <div className="text-xs font-mono min-w-[80px] text-center hidden md:block">
+        <div className="text-primary font-bold">${vendor.revenue > 0 ? (vendor.revenue / 1000).toFixed(0) + "k" : "—"}</div>
+        <div className="text-muted-foreground">ingresos</div>
+      </div>
+
+      {/* Rating */}
+      <div className="text-xs min-w-[60px] text-center hidden lg:flex items-center gap-1">
+        {vendor.rating > 0 ? <><Star className="size-3 fill-yellow-400 text-yellow-400" /><span>{vendor.rating}</span></> : <span className="text-muted-foreground">—</span>}
+      </div>
+
+      {/* Status */}
+      <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border ${sc.cls}`}>{sc.label}</span>
+
+      {/* Joined */}
+      <div className="text-[10px] text-muted-foreground hidden xl:block min-w-[70px]">{vendor.joined}</div>
+
+      {/* Actions */}
+      <div className="flex items-center gap-2 ml-auto">
+        {vendor.status === "pending" && (
+          <button
+            onClick={() => onAction(vendor.id, "admit")}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-primary text-xs font-medium hover:bg-primary/20 transition-colors"
+          >
+            <CheckCheck className="size-3.5" /> Admitir
+          </button>
+        )}
+
+        {vendor.status === "active" && (
+          <button
+            onClick={() => onAction(vendor.id, "block")}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-400/10 border border-orange-400/20 text-orange-400 text-xs font-medium hover:bg-orange-400/20 transition-colors"
+          >
+            <Ban className="size-3.5" /> Bloquear
+          </button>
+        )}
+
+        {(vendor.status === "suspended" || vendor.status === "blocked") && (
+          <button
+            onClick={() => onAction(vendor.id, "admit")}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-primary text-xs font-medium hover:bg-primary/20 transition-colors"
+          >
+            <CheckCheck className="size-3.5" /> Reactivar
+          </button>
+        )}
+
+        <button
+          onClick={() => onAction(vendor.id, "delete")}
+          className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-xs font-medium hover:bg-destructive/20 transition-colors"
+        >
+          <Trash2 className="size-3.5" />
+        </button>
+
+        <button onClick={onSelect} className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-surface border border-border text-muted-foreground text-xs hover:text-foreground transition-colors">
+          <ChevronDown className="size-3.5" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Vendors Tab ──────────────────────────────────────────────────────────────
+
+function VendorsTab() {
+  const [vendors, setVendors] = useState(marketplaceVendors);
+  const [filterStatus, setFilterStatus] = useState<VendorStatus | "all">("all");
+  const [search, setSearch] = useState("");
+  const [selectedVendor, setSelectedVendor] = useState<MarketplaceVendor | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{ id: string; action: "admit" | "block" | "delete" | "suspend" } | null>(null);
+
+  const handleAction = (id: string, action: "admit" | "block" | "delete" | "suspend") => {
+    if (action === "delete") {
+      setConfirmDialog({ id, action });
+      return;
+    }
+    applyAction(id, action);
+  };
+
+  const applyAction = (id: string, action: "admit" | "block" | "delete" | "suspend") => {
+    if (action === "delete") {
+      setVendors(v => v.filter(x => x.id !== id));
+      toast.success("Vendedor eliminado permanentemente");
+      return;
+    }
+    const statusMap = { admit: "active" as const, block: "blocked" as const, suspend: "suspended" as const };
+    setVendors(v => v.map(x => x.id === id ? { ...x, status: statusMap[action], verified: action === "admit" ? true : x.verified } : x));
+    const msgs = { admit: "Vendedor aprobado ✓", block: "Vendedor bloqueado", suspend: "Vendedor suspendido" };
+    toast.success(msgs[action]);
+  };
+
+  const filtered = vendors.filter(v => {
+    const matchStatus = filterStatus === "all" || v.status === filterStatus;
+    const q = search.toLowerCase();
+    const matchSearch = !search || v.name.toLowerCase().includes(q) || v.email.toLowerCase().includes(q) || v.country.toLowerCase().includes(q);
+    return matchStatus && matchSearch;
+  });
+
+  const counts = {
+    all: vendors.length,
+    active: vendors.filter(v => v.status === "active").length,
+    pending: vendors.filter(v => v.status === "pending").length,
+    suspended: vendors.filter(v => v.status === "suspended").length,
+    blocked: vendors.filter(v => v.status === "blocked").length,
+  };
+
+  const filters: { id: VendorStatus | "all"; label: string; color: string }[] = [
+    { id: "all", label: "Todos", color: "" },
+    { id: "active", label: "Activos", color: "text-primary" },
+    { id: "pending", label: "Pendientes", color: "text-yellow-400" },
+    { id: "suspended", label: "Suspendidos", color: "text-orange-400" },
+    { id: "blocked", label: "Bloqueados", color: "text-destructive" },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {confirmDialog && (
+        <ConfirmDialog
+          title="¿Eliminar vendedor?"
+          message={`Esta acción no se puede deshacer. El vendedor y todos sus datos serán eliminados permanentemente del sistema.`}
+          onConfirm={() => { applyAction(confirmDialog.id, "delete"); setConfirmDialog(null); }}
+          onCancel={() => setConfirmDialog(null)}
+          danger
+        />
+      )}
+
+      {selectedVendor && (
+        <VendorPanel
+          vendor={selectedVendor}
+          onClose={() => setSelectedVendor(null)}
+          onAction={(id, action) => { handleAction(id, action); setSelectedVendor(null); }}
+        />
+      )}
+
+      {/* Stats row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: "Total", value: counts.all, cls: "" },
+          { label: "Activos", value: counts.active, cls: "text-primary" },
+          { label: "Pendientes", value: counts.pending, cls: "text-yellow-400" },
+          { label: "Bloqueados", value: counts.blocked + counts.suspended, cls: "text-destructive" },
+        ].map(s => (
+          <div key={s.label} className="p-4 rounded-xl bg-surface border border-border">
+            <div className="text-[10px] font-mono text-muted-foreground mb-1">{s.label.toUpperCase()}</div>
+            <div className={`text-3xl font-extrabold ${s.cls}`}>{s.value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Pending alert */}
+      {counts.pending > 0 && (
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-yellow-400/5 border border-yellow-400/20">
+          <AlertTriangle className="size-5 text-yellow-400 shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-medium"><strong>{counts.pending}</strong> vendedor{counts.pending > 1 ? "es" : ""} esperando aprobación</p>
+            <p className="text-xs text-muted-foreground">Revisa los documentos y aprueba o rechaza su solicitud.</p>
+          </div>
+          <Button size="sm" variant="outline" className="text-yellow-400 border-yellow-400/30 hover:bg-yellow-400/10" onClick={() => setFilterStatus("pending")}>
+            Ver pendientes
+          </Button>
+        </div>
+      )}
+
+      {/* Filters + Search */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Filter className="size-4 text-muted-foreground" />
+          {filters.map(f => (
+            <button
+              key={f.id}
+              onClick={() => setFilterStatus(f.id)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                filterStatus === f.id
+                  ? "bg-primary/10 border-primary/20 text-primary"
+                  : "bg-surface border-border text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {f.label}
+              <span className="font-mono opacity-60">{counts[f.id]}</span>
+            </button>
+          ))}
+        </div>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar vendedor..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="bg-surface pl-9 w-60"
+          />
+        </div>
+      </div>
+
+      {/* Vendor list */}
+      <div className="rounded-xl bg-surface border border-border overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-black/10 flex items-center gap-4 text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
+          <span className="flex-1 min-w-[180px]">Vendedor</span>
+          <span className="hidden md:block min-w-[100px]">País</span>
+          <span className="hidden sm:block min-w-[60px] text-center">Prods.</span>
+          <span className="hidden md:block min-w-[80px] text-center">Ingresos</span>
+          <span className="hidden lg:block min-w-[60px] text-center">Rating</span>
+          <span>Estado</span>
+          <span className="hidden xl:block min-w-[70px]">Registro</span>
+          <span className="ml-auto">Acciones</span>
+        </div>
+
+        {filtered.length === 0 ? (
+          <div className="text-center py-16">
+            <Users className="size-10 text-muted-foreground/20 mx-auto mb-3" />
+            <p className="text-sm text-muted-foreground">No se encontraron vendedores</p>
+          </div>
+        ) : (
+          filtered.map(v => (
+            <VendorRow
+              key={v.id}
+              vendor={v}
+              onAction={handleAction}
+              onSelect={() => setSelectedVendor(v)}
+            />
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Dashboard Tab ────────────────────────────────────────────────────────────
+
+function DashboardTab() {
+  return (
+    <div className="space-y-8">
+      {/* System health */}
+      <div>
+        <h2 className="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-widest font-mono">Estado del sistema</h2>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { icon: Activity, label: "UPTIME", value: "99.99%", note: "30 días", ok: true },
+            { icon: Cpu, label: "CPU USO", value: "24%", note: "4 núcleos", ok: true },
+            { icon: Database, label: "ALMACENAMIENTO", value: "2.4 TB", note: "38% usado", ok: true },
+            { icon: Globe, label: "NODOS CDN", value: "14 activos", note: "Cloudflare", ok: true },
+          ].map(s => (
+            <div key={s.label} className="p-4 rounded-xl bg-surface border border-border">
+              <div className="flex items-center justify-between mb-3">
+                <s.icon className="size-4 text-muted-foreground" />
+                <CheckCircle className="size-4 text-primary" />
+              </div>
+              <div className="text-[10px] font-mono text-muted-foreground mb-1">{s.label}</div>
+              <div className="font-extrabold text-lg">{s.value}</div>
+              <div className="text-[10px] text-muted-foreground mt-1">{s.note}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Platform metrics */}
+      <div>
+        <h2 className="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-widest font-mono">Métricas globales</h2>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { icon: Users, label: "USUARIOS TOTALES", value: `${customers.length * 1000}+`, delta: "+12.4% este mes" },
+            { icon: DollarSign, label: "GMV TOTAL", value: "$2.4M", delta: "+18.2% este mes" },
+            { icon: Package, label: "PRODUCTOS", value: products.length.toString(), delta: "Activos en marketplace" },
+            { icon: TrendingUp, label: "VENDORS ACTIVOS", value: marketplaceVendors.filter(v => v.status === "active").length.toString(), delta: "+2 nuevos este mes" },
+          ].map(m => (
+            <div key={m.label} className="p-4 rounded-xl bg-surface border border-border">
+              <div className="flex items-center gap-2 mb-2">
+                <m.icon className="size-3.5 text-muted-foreground" />
+                <div className="text-[10px] font-mono text-muted-foreground">{m.label}</div>
+              </div>
+              <div className="text-2xl font-extrabold tracking-tight">{m.value}</div>
+              <div className="text-[10px] mt-1 text-primary">{m.delta}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Alerts */}
+        <div className="rounded-xl bg-surface border border-border p-6">
+          <h2 className="text-sm font-semibold mb-4 flex items-center gap-2">
+            <AlertTriangle className="size-4 text-yellow-400" />
+            Alertas del Sistema
+          </h2>
+          <div className="space-y-3">
+            {[
+              { type: "warning", msg: "Webhook a hooks.zapier.com/x falló 3 veces en la última hora", time: "1h" },
+              { type: "info", msg: "Certificado SSL renovado automáticamente para cdn.pulseai.io", time: "4h" },
+              { type: "ok", msg: "Pago batch procesado: $38,400 en MRR distribuidos a 52 vendors", time: "6h" },
+              { type: "warning", msg: "3 solicitudes de vendedores llevan más de 48h sin revisión", time: "12h" },
+              { type: "info", msg: "Nuevo vendor registrado: EduTech Latam (Argentina)", time: "14h" },
+            ].map((a, i) => (
+              <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-black/20 border border-border">
+                <div className={`size-2 rounded-full mt-1.5 shrink-0 ${a.type === "warning" ? "bg-yellow-400" : a.type === "ok" ? "bg-primary" : "bg-blue-400"}`} />
+                <div className="flex-1">
+                  <p className="text-xs">{a.msg}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">hace {a.time}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Top vendors */}
+        <div className="rounded-xl bg-surface border border-border p-6">
+          <h2 className="text-sm font-semibold mb-4 flex items-center gap-2">
+            <BarChart3 className="size-4 text-primary" />
+            Top Vendors por Ingresos
+          </h2>
+          <div className="space-y-3">
+            {marketplaceVendors.filter(v => v.revenue > 0).sort((a, b) => b.revenue - a.revenue).slice(0, 5).map((v, i) => (
+              <div key={v.id} className="flex items-center gap-4">
+                <div className="text-[10px] font-mono text-muted-foreground w-4">{i + 1}</div>
+                <div className="size-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-[10px] font-mono text-primary">
+                  {v.initials}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-medium truncate">{v.name}</div>
+                  <div className="h-1.5 rounded-full bg-secondary mt-1 overflow-hidden">
+                    <div className="h-full bg-primary rounded-full" style={{ width: `${(v.revenue / 130000) * 100}%` }} />
+                  </div>
+                </div>
+                <div className="text-xs font-mono shrink-0">${(v.revenue / 1000).toFixed(0)}k</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Admin actions */}
+      <div className="rounded-xl bg-surface border border-destructive/20 p-6">
+        <h2 className="text-sm font-semibold mb-4 flex items-center gap-2 text-destructive">
+          <Settings className="size-4" /> Acciones Administrativas
+        </h2>
+        <div className="grid md:grid-cols-3 gap-3">
+          {[
+            { label: "Gestionar Usuarios", desc: "Ver, suspender, modificar cuentas", danger: false },
+            { label: "Gestionar Pagos", desc: "Reembolsos, disputas, transferencias", danger: false },
+            { label: "Configurar Plataforma", desc: "Parámetros globales del sistema", danger: false },
+            { label: "Auditoría de Seguridad", desc: "Logs de acceso, intentos fallidos", danger: false },
+            { label: "Modo Mantenimiento", desc: "Desconectar plataforma globalmente", danger: true },
+            { label: "Exportar Todos los Datos", desc: "Backup completo de la plataforma", danger: false },
+          ].map(action => (
+            <button
+              key={action.label}
+              onClick={() => toast(action.danger ? "⚠️ Acción de alto riesgo — requiere confirmación adicional" : `Abriendo: ${action.label}`)}
+              className={`p-4 rounded-xl border text-left transition-colors hover:bg-black/10 ${action.danger ? "border-destructive/20 bg-destructive/5 hover:bg-destructive/10" : "border-border bg-black/10"}`}
+            >
+              <div className={`text-sm font-medium ${action.danger ? "text-destructive" : ""}`}>{action.label}</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">{action.desc}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Users Tab ────────────────────────────────────────────────────────────────
+
+function UsersTab() {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          <Input placeholder="Buscar usuario por nombre o email..." className="bg-surface pl-9" />
+        </div>
+        <Button variant="outline" size="sm" className="gap-2">
+          <Filter className="size-4" /> Filtrar
+        </Button>
+      </div>
+      <div className="rounded-xl bg-surface border border-border divide-y divide-border overflow-hidden">
+        {customers.map(c => (
+          <div key={c.id} className="flex items-center gap-4 p-4 hover:bg-black/5 transition-colors">
+            <div className="size-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-[10px] font-bold text-primary shrink-0">
+              {c.initials}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium">{c.name}</div>
+              <div className="text-[11px] text-muted-foreground">{c.email} · {c.location}</div>
+            </div>
+            <div className="hidden md:block text-xs font-mono">
+              <span className="text-primary font-bold">${c.spent}</span>
+              <span className="text-muted-foreground"> gastado</span>
+            </div>
+            <span className={`px-2 py-0.5 rounded text-[10px] font-mono border ${
+              c.segment === "vip" ? "bg-primary/10 text-primary border-primary/20" :
+              c.segment === "at_risk" ? "bg-destructive/10 text-destructive border-destructive/20" :
+              "bg-secondary text-muted-foreground border-border"
+            }`}>
+              {c.segment.toUpperCase().replace("_", " ")}
+            </span>
+            <div className="flex items-center gap-2 ml-auto">
+              <Button variant="outline" size="sm" className="text-xs" onClick={() => toast(`Ver perfil de ${c.name}`)}>
+                Ver perfil
+              </Button>
+              <Button variant="outline" size="sm" className="text-xs text-destructive border-destructive/30 hover:bg-destructive/10" onClick={() => toast.error(`Suspendiendo ${c.name}...`)}>
+                <Ban className="size-3.5" />
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Security Tab ─────────────────────────────────────────────────────────────
+
+function SecurityTab() {
+  const logs = [
+    { user: "admin@pulseai.io", action: "Aprobó vendedor DevCraft Studio", ip: "192.168.1.1", time: "hace 2h", level: "info" },
+    { user: "admin@pulseai.io", action: "Bloqueó vendedor ShadowCode por actividad sospechosa", ip: "192.168.1.1", time: "hace 1 día", level: "warning" },
+    { user: "sistema", action: "Intento de login fallido ×5 para admin@pulseai.io", ip: "45.62.88.12", time: "hace 2 días", level: "danger" },
+    { user: "admin@pulseai.io", action: "Exportó backup completo de la plataforma", ip: "192.168.1.1", time: "hace 3 días", level: "info" },
+    { user: "sistema", action: "Renovación SSL automática cdn.pulseai.io", ip: "—", time: "hace 4 días", level: "ok" },
+    { user: "admin@pulseai.io", action: "Eliminó 2 productos de ShadowCode", ip: "192.168.1.1", time: "hace 5 días", level: "warning" },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { label: "Logins exitosos (7d)", value: "142", ok: true },
+          { label: "Intentos fallidos (7d)", value: "23", ok: false },
+          { label: "IPs bloqueadas", value: "7", ok: false },
+        ].map(s => (
+          <div key={s.label} className="p-4 rounded-xl bg-surface border border-border">
+            <div className="text-[10px] font-mono text-muted-foreground mb-1">{s.label.toUpperCase()}</div>
+            <div className={`text-2xl font-bold ${s.ok ? "text-primary" : "text-destructive"}`}>{s.value}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="rounded-xl bg-surface border border-border overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-black/10 text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
+          Log de auditoría
+        </div>
+        {logs.map((l, i) => (
+          <div key={i} className="flex items-start gap-4 px-4 py-3 border-b border-border last:border-0 hover:bg-black/5">
+            <div className={`size-2 rounded-full mt-2 shrink-0 ${
+              l.level === "ok" ? "bg-primary" :
+              l.level === "warning" ? "bg-yellow-400" :
+              l.level === "danger" ? "bg-destructive animate-pulse" :
+              "bg-blue-400"
+            }`} />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs">{l.action}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">{l.user} · IP {l.ip}</p>
+            </div>
+            <div className="text-[10px] text-muted-foreground shrink-0">{l.time}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Admin Page ──────────────────────────────────────────────────────────
 
 function AdminPage() {
   const [authed, setAuthed] = useState(false);
@@ -25,24 +692,20 @@ function AdminPage() {
   const [showPw, setShowPw] = useState(false);
   const [step, setStep] = useState<"login" | "mfa">("login");
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
+
+  const pendingCount = marketplaceVendors.filter(v => v.status === "pending").length;
 
   const handleLogin = () => {
     if (!email || !password) { toast.error("Completa todos los campos"); return; }
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setStep("mfa");
-    }, 1000);
+    setTimeout(() => { setLoading(false); setStep("mfa"); }, 1000);
   };
 
   const handleMfa = () => {
     if (!mfa) { toast.error("Ingresa el código MFA"); return; }
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setAuthed(true);
-      toast.success("Acceso administrativo concedido");
-    }, 800);
+    setTimeout(() => { setLoading(false); setAuthed(true); toast.success("Acceso administrativo concedido"); }, 800);
   };
 
   if (!authed) {
@@ -52,232 +715,135 @@ function AdminPage() {
           <div className="text-center">
             <Logo className="mx-auto mb-6 block" />
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-destructive/10 border border-destructive/20 text-destructive text-xs font-mono mb-4">
-              <Shield className="size-3.5" />
-              Acceso Administrativo Restringido
+              <Shield className="size-3.5" /> Acceso Administrativo Restringido
             </div>
             <h1 className="text-xl font-bold">Panel de Administración</h1>
-            <p className="text-xs text-muted-foreground mt-1">Acceso protegido — Solo personal autorizado</p>
+            <p className="text-xs text-muted-foreground mt-1">Solo personal autorizado</p>
           </div>
 
           {step === "login" ? (
-            <div className="rounded-xl bg-surface border border-border p-6 space-y-4">
+            <div className="rounded-2xl bg-surface border border-border p-6 space-y-4">
               <div className="space-y-2">
                 <Label>Email administrativo</Label>
-                <Input
-                  type="email"
-                  placeholder="admin@pulseai.io"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="bg-black/20"
-                  onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-                />
+                <Input type="email" placeholder="admin@pulseai.io" value={email} onChange={e => setEmail(e.target.value)} className="bg-black/20" onKeyDown={e => e.key === "Enter" && handleLogin()} />
               </div>
               <div className="space-y-2">
                 <Label>Contraseña</Label>
                 <div className="relative">
-                  <Input
-                    type={showPw ? "text" : "password"}
-                    placeholder="••••••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="bg-black/20 pr-10"
-                    onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-                  />
-                  <button
-                    onClick={() => setShowPw(!showPw)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  >
+                  <Input type={showPw ? "text" : "password"} placeholder="••••••••••••" value={password} onChange={e => setPassword(e.target.value)} className="bg-black/20 pr-10" onKeyDown={e => e.key === "Enter" && handleLogin()} />
+                  <button onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                     {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                   </button>
                 </div>
               </div>
               <Button variant="contrast" className="w-full" onClick={handleLogin} disabled={loading}>
-                <Lock className="size-4" />
-                {loading ? "Verificando..." : "Continuar"}
+                <Lock className="size-4" /> {loading ? "Verificando..." : "Continuar"}
               </Button>
             </div>
           ) : (
-            <div className="rounded-xl bg-surface border border-border p-6 space-y-4">
+            <div className="rounded-2xl bg-surface border border-border p-6 space-y-4">
               <div className="text-center py-2">
                 <div className="size-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-3">
                   <Cpu className="size-6 text-primary" />
                 </div>
                 <p className="text-sm font-medium">Verificación de Dos Factores</p>
-                <p className="text-xs text-muted-foreground mt-1">Ingresa el código de tu app autenticadora</p>
+                <p className="text-xs text-muted-foreground mt-1">Código de tu app autenticadora</p>
               </div>
-              <div className="space-y-2">
-                <Label>Código MFA (6 dígitos)</Label>
-                <Input
-                  placeholder="000000"
-                  value={mfa}
-                  onChange={(e) => setMfa(e.target.value.slice(0, 6))}
-                  className="bg-black/20 font-mono text-center text-xl tracking-widest"
-                  onKeyDown={(e) => e.key === "Enter" && handleMfa()}
-                />
-              </div>
+              <Input placeholder="000000" value={mfa} onChange={e => setMfa(e.target.value.slice(0, 6))} className="bg-black/20 font-mono text-center text-xl tracking-widest" onKeyDown={e => e.key === "Enter" && handleMfa()} />
               <Button variant="contrast" className="w-full" onClick={handleMfa} disabled={loading}>
                 {loading ? "Verificando..." : "Verificar y Acceder"}
               </Button>
-              <button onClick={() => setStep("login")} className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors">
-                ← Volver
-              </button>
+              <button onClick={() => setStep("login")} className="w-full text-xs text-muted-foreground hover:text-foreground">← Volver</button>
             </div>
           )}
 
           <div className="text-center">
-            <Link to="/" className="text-xs text-muted-foreground/40 hover:text-muted-foreground transition-colors">
-              Volver al sitio público
-            </Link>
+            <Link to="/" className="text-xs text-muted-foreground/40 hover:text-muted-foreground">Volver al sitio público</Link>
           </div>
         </div>
       </div>
     );
   }
 
-  // Admin dashboard
+  // ── Admin Panel ────────────────────────────────────────────────────────────
+  const tabs: { id: AdminTab; label: string; icon: typeof Shield; badge?: number }[] = [
+    { id: "dashboard", label: "Resumen", icon: BarChart3 },
+    { id: "vendors", label: "Vendedores", icon: Users, badge: pendingCount > 0 ? pendingCount : undefined },
+    { id: "products", label: "Productos", icon: Package },
+    { id: "users", label: "Usuarios", icon: User as unknown as typeof Shield },
+    { id: "security", label: "Seguridad", icon: Shield },
+  ];
+
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Admin header */}
       <header className="h-14 border-b border-destructive/20 bg-destructive/5 flex items-center justify-between px-6 sticky top-0 z-30 backdrop-blur-md">
         <div className="flex items-center gap-4">
           <Logo />
           <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-destructive/10 border border-destructive/20 text-destructive text-xs font-mono">
-            <Shield className="size-3" />
-            MODO ADMINISTRADOR
+            <Shield className="size-3" /> MODO ADMINISTRADOR
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-xs text-muted-foreground font-mono">admin@pulseai.io</span>
-          <Button variant="outline" size="sm" onClick={() => setAuthed(false)}>
-            Cerrar sesión
-          </Button>
+          <span className="text-xs text-muted-foreground font-mono hidden sm:block">admin@pulseai.io</span>
+          <Button variant="outline" size="sm" onClick={() => setAuthed(false)}>Cerrar sesión</Button>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
-        <div>
-          <h1 className="text-2xl font-bold">Panel de Administración Global</h1>
-          <p className="text-sm text-muted-foreground mt-1">Vista completa de la infraestructura PULSE AI</p>
-        </div>
-
-        {/* System health */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { icon: Activity, label: "UPTIME", value: "99.99%", status: "ok" },
-            { icon: Cpu, label: "CPU USAGE", value: "24%", status: "ok" },
-            { icon: Database, label: "STORAGE", value: "2.4 TB", status: "ok" },
-            { icon: Globe, label: "CDN NODES", value: "14 activos", status: "ok" },
-          ].map((s) => (
-            <div key={s.label} className="p-4 rounded-lg bg-surface border border-border">
-              <div className="flex items-center justify-between mb-2">
-                <s.icon className="size-4 text-muted-foreground" />
-                <CheckCircle className="size-4 text-primary" />
-              </div>
-              <div className="text-[10px] font-mono text-muted-foreground mb-1">{s.label}</div>
-              <div className="font-bold text-lg">{s.value}</div>
-            </div>
+      {/* Tab bar */}
+      <div className="border-b border-border px-6 bg-surface/50">
+        <div className="max-w-7xl mx-auto flex items-center gap-1 overflow-x-auto">
+          {tabs.map(t => (
+            <button
+              key={t.id}
+              onClick={() => setActiveTab(t.id)}
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap relative ${
+                activeTab === t.id
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <t.icon className="size-4" />
+              {t.label}
+              {t.badge && (
+                <span className="absolute top-2 right-2 size-4 rounded-full bg-yellow-400 text-black text-[9px] font-bold flex items-center justify-center">
+                  {t.badge}
+                </span>
+              )}
+            </button>
           ))}
         </div>
+      </div>
 
-        {/* Platform metrics */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { icon: Users, label: "USUARIOS TOTALES", value: customers.length.toString() + "k+", delta: "+12.4% this month" },
-            { icon: DollarSign, label: "GMV TOTAL", value: "$2.4M", delta: "+18.2% this month" },
-            { icon: Package, label: "PRODUCTOS", value: products.length.toString(), delta: "En todas las tiendas" },
-            { icon: TrendingUp, label: "VENDORS", value: marketplaceVendors.length.toString(), delta: "+2 este mes" },
-          ].map((m) => (
-            <div key={m.label} className="p-4 rounded-lg bg-surface border border-border">
-              <div className="flex items-center gap-2 mb-2">
-                <m.icon className="size-3.5 text-muted-foreground" />
-                <div className="text-[10px] font-mono text-muted-foreground">{m.label}</div>
-              </div>
-              <div className="text-2xl font-bold tracking-tight">{m.value}</div>
-              <div className="text-[10px] mt-1 text-primary">{m.delta}</div>
-            </div>
-          ))}
-        </div>
-
-        <div className="grid lg:grid-cols-2 gap-6">
-          {/* Recent alerts */}
-          <div className="rounded-xl bg-surface border border-border p-6">
-            <h2 className="text-sm font-semibold mb-4 flex items-center gap-2">
-              <AlertTriangle className="size-4 text-yellow-400" />
-              Alertas del Sistema
-            </h2>
-            <div className="space-y-3">
-              {[
-                { type: "warning", msg: "Webhook a hooks.zapier.com/x falló 3 veces en la última hora", time: "1h ago" },
-                { type: "info", msg: "Certificado SSL de cdn.pulseai.io renovado automáticamente", time: "4h ago" },
-                { type: "ok", msg: "Pago por batch procesado: $38,400 en MRR", time: "6h ago" },
-                { type: "info", msg: "Nueva integración: Zapier webhook registrado por DevCraft Studio", time: "8h ago" },
-              ].map((a, i) => (
-                <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-black/20 border border-border">
-                  <div className={`size-2 rounded-full mt-1.5 shrink-0 ${a.type === "warning" ? "bg-yellow-400" : a.type === "ok" ? "bg-primary" : "bg-blue-400"}`} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs">{a.msg}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{a.time}</p>
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {activeTab === "dashboard" && <DashboardTab />}
+        {activeTab === "vendors" && <VendorsTab />}
+        {activeTab === "products" && (
+          <div className="space-y-4">
+            <h2 className="font-bold">Todos los Productos del Marketplace</h2>
+            <div className="grid gap-3">
+              {products.map(p => (
+                <div key={p.id} className="flex items-center justify-between p-4 rounded-xl bg-surface border border-border">
+                  <div>
+                    <div className="font-medium text-sm">{p.name}</div>
+                    <div className="text-[11px] text-muted-foreground">{p.category} · {p.sales} ventas · ${p.revenue.toLocaleString()} ingresos</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-mono border ${p.status === "live" ? "bg-primary/10 text-primary border-primary/20" : "bg-secondary text-muted-foreground border-border"}`}>
+                      {p.status.toUpperCase()}
+                    </span>
+                    <Button variant="outline" size="sm" className="text-destructive border-destructive/30 hover:bg-destructive/10 text-xs" onClick={() => toast.error(`Desactivando ${p.name}`)}>
+                      <Ban className="size-3.5" />
+                    </Button>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-
-          {/* Top vendors */}
-          <div className="rounded-xl bg-surface border border-border p-6">
-            <h2 className="text-sm font-semibold mb-4 flex items-center gap-2">
-              <BarChart3 className="size-4 text-primary" />
-              Top Vendors por Ingresos
-            </h2>
-            <div className="space-y-3">
-              {marketplaceVendors.slice(0, 5).map((v, i) => (
-                <div key={v.id} className="flex items-center gap-4">
-                  <div className="text-[10px] font-mono text-muted-foreground w-4">{i + 1}</div>
-                  <div className="size-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-[10px] font-mono text-primary">
-                    {v.initials}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-xs font-medium truncate">{v.name}</div>
-                    <div className="h-1 rounded-full bg-secondary mt-1 overflow-hidden">
-                      <div className="h-full bg-primary rounded-full" style={{ width: `${(v.revenue / 130000) * 100}%` }} />
-                    </div>
-                  </div>
-                  <div className="text-xs font-mono text-right shrink-0">${(v.revenue / 1000).toFixed(0)}k</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Admin actions */}
-        <div className="rounded-xl bg-surface border border-destructive/20 p-6">
-          <h2 className="text-sm font-semibold mb-4 flex items-center gap-2 text-destructive">
-            <Settings className="size-4" />
-            Acciones Administrativas
-          </h2>
-          <div className="grid md:grid-cols-3 gap-3">
-            {[
-              { label: "Gestionar Usuarios", desc: "Ver, suspender, modificar cuentas", danger: false },
-              { label: "Gestionar Pagos", desc: "Rembolsos, disputas, transferencias", danger: false },
-              { label: "Configurar Plataforma", desc: "Parámetros globales del sistema", danger: false },
-              { label: "Auditoría de Seguridad", desc: "Logs de acceso, intentos fallidos", danger: false },
-              { label: "Mantenimiento", desc: "Modo mantenimiento global", danger: true },
-              { label: "Exportar Todos los Datos", desc: "Backup completo de la plataforma", danger: false },
-            ].map((action) => (
-              <button
-                key={action.label}
-                onClick={() => toast(action.danger ? "⚠️ Acción de alto riesgo — requiere confirmación adicional" : `Abriendo: ${action.label}`)}
-                className={`p-4 rounded-lg border text-left transition-colors hover:bg-black/10 ${
-                  action.danger ? "border-destructive/20 bg-destructive/5 hover:bg-destructive/10" : "border-border bg-black/10"
-                }`}
-              >
-                <div className={`text-sm font-medium ${action.danger ? "text-destructive" : ""}`}>{action.label}</div>
-                <div className="text-[10px] text-muted-foreground mt-0.5">{action.desc}</div>
-              </button>
-            ))}
-          </div>
-        </div>
+        )}
+        {activeTab === "users" && <UsersTab />}
+        {activeTab === "security" && <SecurityTab />}
       </div>
     </div>
   );
 }
+
