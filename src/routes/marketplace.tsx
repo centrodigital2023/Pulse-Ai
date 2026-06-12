@@ -464,7 +464,7 @@ function MarketplacePage() {
               />
               <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
                 {search ? (
-                  <button onClick={() => { setSearch(""); setShowSearch(false); }} className="text-muted-foreground hover:text-foreground">
+                  <button aria-label="Limpiar búsqueda" onClick={() => { setSearch(""); setShowSearch(false); }} className="text-muted-foreground hover:text-foreground">
                     <X className="size-4" />
                   </button>
                 ) : (
