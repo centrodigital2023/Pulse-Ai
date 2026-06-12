@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import {
   Zap, Globe, Video, KeyRound, BarChart3, Bot, Users, Package,
   ShoppingCart, Mail, Shield, Code, BookOpen, Award, TrendingUp,
@@ -13,14 +13,9 @@ import { pricingPlans } from "@/lib/mock-data";
 import productBox from "@/assets/product-box.jpg";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "PULSE AI — AI-Powered Digital Commerce Operating System" },
-      { name: "description", content: "Sell, automate, distribute and scale digital products — software, courses, ebooks, licenses — from a single AI-powered enterprise platform." },
-      { property: "og:title", content: "PULSE AI — The Digital Commerce Operating System" },
-      { property: "og:description", content: "One platform to replace Gumroad, Kajabi, HubSpot, Stripe, and more. AI-powered enterprise commerce for creators and companies." },
-    ],
-  }),
+  beforeLoad: () => {
+    throw redirect({ to: "/marketplace" });
+  },
   component: Landing,
 });
 

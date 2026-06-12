@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as MisComprasRouteImport } from './routes/mis-compras'
 import { Route as VenderRouteImport } from './routes/vender'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as CheckoutRouteImport } from './routes/checkout'
@@ -35,6 +36,11 @@ import { Route as DashboardProductsNewRouteImport } from './routes/dashboard.pro
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MisComprasRoute = MisComprasRouteImport.update({
+  id: '/mis-compras',
+  path: '/mis-compras',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VenderRoute = VenderRouteImport.update({
@@ -149,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/library': typeof LibraryRoute
   '/marketplace': typeof MarketplaceRoute
+  '/mis-compras': typeof MisComprasRoute
   '/vender': typeof VenderRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/dashboard/affiliates': typeof DashboardAffiliatesRoute
@@ -173,6 +180,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/library': typeof LibraryRoute
   '/marketplace': typeof MarketplaceRoute
+  '/mis-compras': typeof MisComprasRoute
   '/vender': typeof VenderRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/dashboard/affiliates': typeof DashboardAffiliatesRoute
@@ -198,6 +206,7 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/library': typeof LibraryRoute
   '/marketplace': typeof MarketplaceRoute
+  '/mis-compras': typeof MisComprasRoute
   '/vender': typeof VenderRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/dashboard/affiliates': typeof DashboardAffiliatesRoute
@@ -224,6 +233,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/library'
     | '/marketplace'
+    | '/mis-compras'
     | '/vender'
     | '/sitemap.xml'
     | '/dashboard/affiliates'
@@ -248,6 +258,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/library'
     | '/marketplace'
+    | '/mis-compras'
     | '/vender'
     | '/sitemap.xml'
     | '/dashboard/affiliates'
@@ -272,6 +283,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/library'
     | '/marketplace'
+    | '/mis-compras'
     | '/vender'
     | '/sitemap.xml'
     | '/dashboard/affiliates'
@@ -297,6 +309,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   LibraryRoute: typeof LibraryRoute
   MarketplaceRoute: typeof MarketplaceRoute
+  MisComprasRoute: typeof MisComprasRoute
   VenderRoute: typeof VenderRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   DashboardAffiliatesRoute: typeof DashboardAffiliatesRoute
@@ -329,6 +342,13 @@ declare module '@tanstack/react-router' {
       path: '/marketplace'
       fullPath: '/marketplace'
       preLoaderRoute: typeof MarketplaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mis-compras': {
+      id: '/mis-compras'
+      path: '/mis-compras'
+      fullPath: '/mis-compras'
+      preLoaderRoute: typeof MisComprasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/vender': {
@@ -491,6 +511,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   LibraryRoute: LibraryRoute,
   MarketplaceRoute: MarketplaceRoute,
+  MisComprasRoute: MisComprasRoute,
   VenderRoute: VenderRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   DashboardAffiliatesRoute: DashboardAffiliatesRoute,
