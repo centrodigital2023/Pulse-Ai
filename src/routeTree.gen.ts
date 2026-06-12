@@ -9,21 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ApiPublicMpWebhookRouteImport } from './routes/api.public.mp-webhook'
-import { Route as ApiMpWebhookRouteImport } from './routes/api.mp-webhook'
-import { Route as ApiMpCheckoutRouteImport } from './routes/api.mp-checkout'
+import { Route as VenderRouteImport } from './routes/vender'
+import { Route as TerminosRouteImport } from './routes/terminos'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as PrivacidadRouteImport } from './routes/privacidad'
+import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as PagoFallidoRouteImport } from './routes/pago-fallido'
 import { Route as PagoExitosoRouteImport } from './routes/pago-exitoso'
-import { Route as TerminosRouteImport } from './routes/terminos'
-import { Route as PrivacidadRouteImport } from './routes/privacidad'
-import { Route as HabeasDataRouteImport } from './routes/habeas-data'
-import { Route as CumplimientoRouteImport } from './routes/cumplimiento'
-import { Route as VenderRouteImport } from './routes/vender'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as MisComprasRouteImport } from './routes/mis-compras'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as LibraryRouteImport } from './routes/library'
+import { Route as HabeasDataRouteImport } from './routes/habeas-data'
+import { Route as CumplimientoRouteImport } from './routes/cumplimiento'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -41,21 +38,33 @@ import { Route as DashboardAutomationRouteImport } from './routes/dashboard.auto
 import { Route as DashboardAnalyticsRouteImport } from './routes/dashboard.analytics'
 import { Route as DashboardAiRouteImport } from './routes/dashboard.ai'
 import { Route as DashboardAffiliatesRouteImport } from './routes/dashboard.affiliates'
+import { Route as ApiMpCheckoutRouteImport } from './routes/api.mp-checkout'
 import { Route as DashboardProductsNewRouteImport } from './routes/dashboard.products.new'
+import { Route as ApiPublicMpWebhookRouteImport } from './routes/api.public.mp-webhook'
 
-const ApiPublicMpWebhookRoute = ApiPublicMpWebhookRouteImport.update({
-  id: '/api/public/mp-webhook',
-  path: '/api/public/mp-webhook',
+const VenderRoute = VenderRouteImport.update({
+  id: '/vender',
+  path: '/vender',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiMpWebhookRoute = ApiMpWebhookRouteImport.update({
-  id: '/api/mp-webhook',
-  path: '/api/mp-webhook',
+const TerminosRoute = TerminosRouteImport.update({
+  id: '/terminos',
+  path: '/terminos',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiMpCheckoutRoute = ApiMpCheckoutRouteImport.update({
-  id: '/api/mp-checkout',
-  path: '/api/mp-checkout',
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadRoute = PrivacidadRouteImport.update({
+  id: '/privacidad',
+  path: '/privacidad',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfilRoute = PerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PagoFallidoRoute = PagoFallidoRouteImport.update({
@@ -66,21 +75,6 @@ const PagoFallidoRoute = PagoFallidoRouteImport.update({
 const PagoExitosoRoute = PagoExitosoRouteImport.update({
   id: '/pago-exitoso',
   path: '/pago-exitoso',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const VenderRoute = VenderRouteImport.update({
-  id: '/vender',
-  path: '/vender',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PerfilRoute = PerfilRouteImport.update({
-  id: '/perfil',
-  path: '/perfil',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MisComprasRoute = MisComprasRouteImport.update({
@@ -96,6 +90,16 @@ const MarketplaceRoute = MarketplaceRouteImport.update({
 const LibraryRoute = LibraryRouteImport.update({
   id: '/library',
   path: '/library',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HabeasDataRoute = HabeasDataRouteImport.update({
+  id: '/habeas-data',
+  path: '/habeas-data',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CumplimientoRoute = CumplimientoRouteImport.update({
+  id: '/cumplimiento',
+  path: '/cumplimiento',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRoute = CheckoutRouteImport.update({
@@ -183,27 +187,39 @@ const DashboardAffiliatesRoute = DashboardAffiliatesRouteImport.update({
   path: '/dashboard/affiliates',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMpCheckoutRoute = ApiMpCheckoutRouteImport.update({
+  id: '/api/mp-checkout',
+  path: '/api/mp-checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardProductsNewRoute = DashboardProductsNewRouteImport.update({
   id: '/new',
   path: '/new',
   getParentRoute: () => DashboardProductsRoute,
+} as any)
+const ApiPublicMpWebhookRoute = ApiPublicMpWebhookRouteImport.update({
+  id: '/api/public/mp-webhook',
+  path: '/api/public/mp-webhook',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/checkout': typeof CheckoutRoute
-  '/pago-exitoso': typeof PagoExitosoRoute
-  '/pago-fallido': typeof PagoFallidoRoute
-  '/api/mp-checkout': typeof ApiMpCheckoutRoute
-  '/api/mp-webhook': typeof ApiMpWebhookRoute
-  '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
+  '/cumplimiento': typeof CumplimientoRoute
+  '/habeas-data': typeof HabeasDataRoute
   '/library': typeof LibraryRoute
   '/marketplace': typeof MarketplaceRoute
   '/mis-compras': typeof MisComprasRoute
+  '/pago-exitoso': typeof PagoExitosoRoute
+  '/pago-fallido': typeof PagoFallidoRoute
   '/perfil': typeof PerfilRoute
+  '/privacidad': typeof PrivacidadRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terminos': typeof TerminosRoute
   '/vender': typeof VenderRoute
+  '/api/mp-checkout': typeof ApiMpCheckoutRoute
   '/dashboard/affiliates': typeof DashboardAffiliatesRoute
   '/dashboard/ai': typeof DashboardAiRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
@@ -218,23 +234,26 @@ export interface FileRoutesByFullPath {
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/checkout': typeof CheckoutRoute
-  '/pago-exitoso': typeof PagoExitosoRoute
-  '/pago-fallido': typeof PagoFallidoRoute
-  '/api/mp-checkout': typeof ApiMpCheckoutRoute
-  '/api/mp-webhook': typeof ApiMpWebhookRoute
-  '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
+  '/cumplimiento': typeof CumplimientoRoute
+  '/habeas-data': typeof HabeasDataRoute
   '/library': typeof LibraryRoute
   '/marketplace': typeof MarketplaceRoute
   '/mis-compras': typeof MisComprasRoute
+  '/pago-exitoso': typeof PagoExitosoRoute
+  '/pago-fallido': typeof PagoFallidoRoute
   '/perfil': typeof PerfilRoute
+  '/privacidad': typeof PrivacidadRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terminos': typeof TerminosRoute
   '/vender': typeof VenderRoute
+  '/api/mp-checkout': typeof ApiMpCheckoutRoute
   '/dashboard/affiliates': typeof DashboardAffiliatesRoute
   '/dashboard/ai': typeof DashboardAiRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
@@ -249,6 +268,7 @@ export interface FileRoutesByTo {
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
 }
 export interface FileRoutesById {
@@ -256,17 +276,19 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/checkout': typeof CheckoutRoute
-  '/pago-exitoso': typeof PagoExitosoRoute
-  '/pago-fallido': typeof PagoFallidoRoute
-  '/api/mp-checkout': typeof ApiMpCheckoutRoute
-  '/api/mp-webhook': typeof ApiMpWebhookRoute
-  '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
+  '/cumplimiento': typeof CumplimientoRoute
+  '/habeas-data': typeof HabeasDataRoute
   '/library': typeof LibraryRoute
   '/marketplace': typeof MarketplaceRoute
   '/mis-compras': typeof MisComprasRoute
+  '/pago-exitoso': typeof PagoExitosoRoute
+  '/pago-fallido': typeof PagoFallidoRoute
   '/perfil': typeof PerfilRoute
+  '/privacidad': typeof PrivacidadRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terminos': typeof TerminosRoute
   '/vender': typeof VenderRoute
+  '/api/mp-checkout': typeof ApiMpCheckoutRoute
   '/dashboard/affiliates': typeof DashboardAffiliatesRoute
   '/dashboard/ai': typeof DashboardAiRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
@@ -281,6 +303,7 @@ export interface FileRoutesById {
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
 }
 export interface FileRouteTypes {
@@ -289,21 +312,19 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/checkout'
-    | '/pago-exitoso'
-    | '/pago-fallido'
-    | '/api/mp-checkout'
-    | '/api/mp-webhook'
-    | '/api/public/mp-webhook'
+    | '/cumplimiento'
+    | '/habeas-data'
     | '/library'
     | '/marketplace'
     | '/mis-compras'
+    | '/pago-exitoso'
+    | '/pago-fallido'
     | '/perfil'
-    | '/sitemap.xml'
-    | '/vender'
-    | '/terminos'
     | '/privacidad'
-    | '/habeas-data'
-    | '/cumplimiento'
+    | '/sitemap.xml'
+    | '/terminos'
+    | '/vender'
+    | '/api/mp-checkout'
     | '/dashboard/affiliates'
     | '/dashboard/ai'
     | '/dashboard/analytics'
@@ -318,27 +339,26 @@ export interface FileRouteTypes {
     | '/dashboard/settings'
     | '/dashboard/webhooks'
     | '/dashboard/'
+    | '/api/public/mp-webhook'
     | '/dashboard/products/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin'
     | '/checkout'
-    | '/pago-exitoso'
-    | '/pago-fallido'
-    | '/api/mp-checkout'
-    | '/api/mp-webhook'
-    | '/api/public/mp-webhook'
+    | '/cumplimiento'
+    | '/habeas-data'
     | '/library'
     | '/marketplace'
     | '/mis-compras'
+    | '/pago-exitoso'
+    | '/pago-fallido'
     | '/perfil'
-    | '/sitemap.xml'
-    | '/vender'
-    | '/terminos'
     | '/privacidad'
-    | '/habeas-data'
-    | '/cumplimiento'
+    | '/sitemap.xml'
+    | '/terminos'
+    | '/vender'
+    | '/api/mp-checkout'
     | '/dashboard/affiliates'
     | '/dashboard/ai'
     | '/dashboard/analytics'
@@ -353,27 +373,26 @@ export interface FileRouteTypes {
     | '/dashboard/settings'
     | '/dashboard/webhooks'
     | '/dashboard'
+    | '/api/public/mp-webhook'
     | '/dashboard/products/new'
   id:
     | '__root__'
     | '/'
     | '/admin'
     | '/checkout'
-    | '/pago-exitoso'
-    | '/pago-fallido'
-    | '/api/mp-checkout'
-    | '/api/mp-webhook'
-    | '/api/public/mp-webhook'
+    | '/cumplimiento'
+    | '/habeas-data'
     | '/library'
     | '/marketplace'
     | '/mis-compras'
+    | '/pago-exitoso'
+    | '/pago-fallido'
     | '/perfil'
-    | '/sitemap.xml'
-    | '/vender'
-    | '/terminos'
     | '/privacidad'
-    | '/habeas-data'
-    | '/cumplimiento'
+    | '/sitemap.xml'
+    | '/terminos'
+    | '/vender'
+    | '/api/mp-checkout'
     | '/dashboard/affiliates'
     | '/dashboard/ai'
     | '/dashboard/analytics'
@@ -388,6 +407,7 @@ export interface FileRouteTypes {
     | '/dashboard/settings'
     | '/dashboard/webhooks'
     | '/dashboard/'
+    | '/api/public/mp-webhook'
     | '/dashboard/products/new'
   fileRoutesById: FileRoutesById
 }
@@ -395,17 +415,19 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   CheckoutRoute: typeof CheckoutRoute
-  PagoExitosoRoute: typeof PagoExitosoRoute
-  PagoFallidoRoute: typeof PagoFallidoRoute
-  ApiMpCheckoutRoute: typeof ApiMpCheckoutRoute
-  ApiMpWebhookRoute: typeof ApiMpWebhookRoute
-  ApiPublicMpWebhookRoute: typeof ApiPublicMpWebhookRoute
+  CumplimientoRoute: typeof CumplimientoRoute
+  HabeasDataRoute: typeof HabeasDataRoute
   LibraryRoute: typeof LibraryRoute
   MarketplaceRoute: typeof MarketplaceRoute
   MisComprasRoute: typeof MisComprasRoute
+  PagoExitosoRoute: typeof PagoExitosoRoute
+  PagoFallidoRoute: typeof PagoFallidoRoute
   PerfilRoute: typeof PerfilRoute
+  PrivacidadRoute: typeof PrivacidadRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TerminosRoute: typeof TerminosRoute
   VenderRoute: typeof VenderRoute
+  ApiMpCheckoutRoute: typeof ApiMpCheckoutRoute
   DashboardAffiliatesRoute: typeof DashboardAffiliatesRoute
   DashboardAiRoute: typeof DashboardAiRoute
   DashboardAnalyticsRoute: typeof DashboardAnalyticsRoute
@@ -420,6 +442,7 @@ export interface RootRouteChildren {
   DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardWebhooksRoute: typeof DashboardWebhooksRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
+  ApiPublicMpWebhookRoute: typeof ApiPublicMpWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -431,6 +454,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VenderRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/terminos': {
+      id: '/terminos'
+      path: '/terminos'
+      fullPath: '/terminos'
+      preLoaderRoute: typeof TerminosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -438,11 +468,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/mis-compras': {
-      id: '/mis-compras'
-      path: '/mis-compras'
-      fullPath: '/mis-compras'
-      preLoaderRoute: typeof MisComprasRouteImport
+    '/privacidad': {
+      id: '/privacidad'
+      path: '/privacidad'
+      fullPath: '/privacidad'
+      preLoaderRoute: typeof PrivacidadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/perfil': {
@@ -450,6 +480,27 @@ declare module '@tanstack/react-router' {
       path: '/perfil'
       fullPath: '/perfil'
       preLoaderRoute: typeof PerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pago-fallido': {
+      id: '/pago-fallido'
+      path: '/pago-fallido'
+      fullPath: '/pago-fallido'
+      preLoaderRoute: typeof PagoFallidoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pago-exitoso': {
+      id: '/pago-exitoso'
+      path: '/pago-exitoso'
+      fullPath: '/pago-exitoso'
+      preLoaderRoute: typeof PagoExitosoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mis-compras': {
+      id: '/mis-compras'
+      path: '/mis-compras'
+      fullPath: '/mis-compras'
+      preLoaderRoute: typeof MisComprasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/marketplace': {
@@ -464,6 +515,20 @@ declare module '@tanstack/react-router' {
       path: '/library'
       fullPath: '/library'
       preLoaderRoute: typeof LibraryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/habeas-data': {
+      id: '/habeas-data'
+      path: '/habeas-data'
+      fullPath: '/habeas-data'
+      preLoaderRoute: typeof HabeasDataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cumplimiento': {
+      id: '/cumplimiento'
+      path: '/cumplimiento'
+      fullPath: '/cumplimiento'
+      preLoaderRoute: typeof CumplimientoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -585,55 +650,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardAffiliatesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard/products/new': {
-      id: '/dashboard/products/new'
-      path: '/new'
-      fullPath: '/dashboard/products/new'
-      preLoaderRoute: typeof DashboardProductsNewRouteImport
-      parentRoute: typeof DashboardProductsRoute
-    }
-    '/terminos': {
-      id: '/terminos'
-      path: '/terminos'
-      fullPath: '/terminos'
-      preLoaderRoute: typeof TerminosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacidad': {
-      id: '/privacidad'
-      path: '/privacidad'
-      fullPath: '/privacidad'
-      preLoaderRoute: typeof PrivacidadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/habeas-data': {
-      id: '/habeas-data'
-      path: '/habeas-data'
-      fullPath: '/habeas-data'
-      preLoaderRoute: typeof HabeasDataRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cumplimiento': {
-      id: '/cumplimiento'
-      path: '/cumplimiento'
-      fullPath: '/cumplimiento'
-      preLoaderRoute: typeof CumplimientoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pago-exitoso': {
-      id: '/pago-exitoso'
-      path: '/pago-exitoso'
-      fullPath: '/pago-exitoso'
-      preLoaderRoute: typeof PagoExitosoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pago-fallido': {
-      id: '/pago-fallido'
-      path: '/pago-fallido'
-      fullPath: '/pago-fallido'
-      preLoaderRoute: typeof PagoFallidoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/mp-checkout': {
       id: '/api/mp-checkout'
       path: '/api/mp-checkout'
@@ -641,12 +657,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMpCheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/mp-webhook': {
-      id: '/api/mp-webhook'
-      path: '/api/mp-webhook'
-      fullPath: '/api/mp-webhook'
-      preLoaderRoute: typeof ApiMpWebhookRouteImport
-      parentRoute: typeof rootRouteImport
+    '/dashboard/products/new': {
+      id: '/dashboard/products/new'
+      path: '/new'
+      fullPath: '/dashboard/products/new'
+      preLoaderRoute: typeof DashboardProductsNewRouteImport
+      parentRoute: typeof DashboardProductsRoute
     }
     '/api/public/mp-webhook': {
       id: '/api/public/mp-webhook'
@@ -673,17 +689,19 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   CheckoutRoute: CheckoutRoute,
-  PagoExitosoRoute: PagoExitosoRoute,
-  PagoFallidoRoute: PagoFallidoRoute,
-  ApiMpCheckoutRoute: ApiMpCheckoutRoute,
-  ApiMpWebhookRoute: ApiMpWebhookRoute,
-  ApiPublicMpWebhookRoute: ApiPublicMpWebhookRoute,
+  CumplimientoRoute: CumplimientoRoute,
+  HabeasDataRoute: HabeasDataRoute,
   LibraryRoute: LibraryRoute,
   MarketplaceRoute: MarketplaceRoute,
   MisComprasRoute: MisComprasRoute,
+  PagoExitosoRoute: PagoExitosoRoute,
+  PagoFallidoRoute: PagoFallidoRoute,
   PerfilRoute: PerfilRoute,
+  PrivacidadRoute: PrivacidadRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TerminosRoute: TerminosRoute,
   VenderRoute: VenderRoute,
+  ApiMpCheckoutRoute: ApiMpCheckoutRoute,
   DashboardAffiliatesRoute: DashboardAffiliatesRoute,
   DashboardAiRoute: DashboardAiRoute,
   DashboardAnalyticsRoute: DashboardAnalyticsRoute,
@@ -698,17 +716,8 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardWebhooksRoute: DashboardWebhooksRoute,
   DashboardIndexRoute: DashboardIndexRoute,
+  ApiPublicMpWebhookRoute: ApiPublicMpWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
