@@ -356,10 +356,10 @@ function NequiForm({ price }: { price: number }) {
         </div>
       </div>
       <div className="space-y-1.5">
-        <Label className="text-xs font-medium">Número de celular Nequi</Label>
+        <Label htmlFor="nequi-phone" className="text-xs font-medium">Número de celular Nequi</Label>
         <div className="flex gap-2">
           <div className="h-12 px-3 flex items-center text-sm font-mono bg-black/30 border border-input rounded-xl text-muted-foreground shrink-0">+57</div>
-          <Input placeholder="300 000 0000" className="bg-black/20 h-12 font-mono text-base flex-1" maxLength={10} />
+          <Input id="nequi-phone" placeholder="300 000 0000" className="bg-black/20 h-12 font-mono text-base flex-1" maxLength={10} />
         </div>
       </div>
       <div className="rounded-xl bg-black/20 border border-border p-3 text-[11px] text-muted-foreground space-y-1">
