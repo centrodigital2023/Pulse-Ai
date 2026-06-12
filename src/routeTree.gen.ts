@@ -9,6 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TerminosRouteImport } from './routes/terminos'
+import { Route as PrivacidadRouteImport } from './routes/privacidad'
+import { Route as HabeasDataRouteImport } from './routes/habeas-data'
+import { Route as CumplimientoRouteImport } from './routes/cumplimiento'
 import { Route as VenderRouteImport } from './routes/vender'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as MisComprasRouteImport } from './routes/mis-compras'
@@ -236,6 +240,10 @@ export interface FileRouteTypes {
     | '/mis-compras'
     | '/sitemap.xml'
     | '/vender'
+    | '/terminos'
+    | '/privacidad'
+    | '/habeas-data'
+    | '/cumplimiento'
     | '/dashboard/affiliates'
     | '/dashboard/ai'
     | '/dashboard/analytics'
@@ -261,6 +269,10 @@ export interface FileRouteTypes {
     | '/mis-compras'
     | '/sitemap.xml'
     | '/vender'
+    | '/terminos'
+    | '/privacidad'
+    | '/habeas-data'
+    | '/cumplimiento'
     | '/dashboard/affiliates'
     | '/dashboard/ai'
     | '/dashboard/analytics'
@@ -286,6 +298,10 @@ export interface FileRouteTypes {
     | '/mis-compras'
     | '/sitemap.xml'
     | '/vender'
+    | '/terminos'
+    | '/privacidad'
+    | '/habeas-data'
+    | '/cumplimiento'
     | '/dashboard/affiliates'
     | '/dashboard/ai'
     | '/dashboard/analytics'
@@ -490,6 +506,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/products/new'
       preLoaderRoute: typeof DashboardProductsNewRouteImport
       parentRoute: typeof DashboardProductsRoute
+    }
+    '/terminos': {
+      id: '/terminos'
+      path: '/terminos'
+      fullPath: '/terminos'
+      preLoaderRoute: typeof TerminosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidad': {
+      id: '/privacidad'
+      path: '/privacidad'
+      fullPath: '/privacidad'
+      preLoaderRoute: typeof PrivacidadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/habeas-data': {
+      id: '/habeas-data'
+      path: '/habeas-data'
+      fullPath: '/habeas-data'
+      preLoaderRoute: typeof HabeasDataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cumplimiento': {
+      id: '/cumplimiento'
+      path: '/cumplimiento'
+      fullPath: '/cumplimiento'
+      preLoaderRoute: typeof CumplimientoRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
