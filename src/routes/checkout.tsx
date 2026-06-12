@@ -328,12 +328,12 @@ function PSEForm() {
       </div>
       <div className="grid grid-cols-[1fr_auto] gap-3">
         <div className="space-y-1.5">
-          <Label className="text-xs font-medium">Número de documento</Label>
-          <Input placeholder="1234567890" className="bg-black/20 h-12 font-mono" />
+          <Label htmlFor="pse-document" className="text-xs font-medium">Número de documento</Label>
+          <Input id="pse-document" placeholder="1234567890" className="bg-black/20 h-12 font-mono" />
         </div>
         <div className="space-y-1.5">
-          <Label className="text-xs font-medium">Tipo</Label>
-          <select className="h-12 px-3 bg-black/20 border border-input rounded-xl text-sm text-foreground focus:outline-none focus:border-primary/40 w-24">
+          <Label htmlFor="pse-doctype" className="text-xs font-medium">Tipo</Label>
+          <select id="pse-doctype" className="h-12 px-3 bg-black/20 border border-input rounded-xl text-sm text-foreground focus:outline-none focus:border-primary/40 w-24">
             <option>CC</option><option>NIT</option><option>CE</option><option>PAS</option>
           </select>
         </div>
