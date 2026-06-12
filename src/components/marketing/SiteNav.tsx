@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
+import { useCanAccessDashboard } from "@/lib/db";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { ShoppingBag, Library, LogOut, ChevronDown, User } from "lucide-react";
 
