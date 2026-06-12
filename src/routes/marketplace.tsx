@@ -165,7 +165,7 @@ function ProductCard({ listing, onBuy, compact = false }: {
           <button onClick={shareOnFacebook} className="size-8 rounded-full bg-[#1877F2] flex items-center justify-center hover:scale-110 transition-transform shadow-lg" title="Compartir en Facebook">
             <Facebook className="size-3.5 text-white" />
           </button>
-          <button onClick={e => { e.stopPropagation(); toast.success("Agregado a favoritos ❤️"); }} className="size-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 flex items-center justify-center hover:scale-110 transition-transform shadow-lg">
+          <button aria-label="Agregar a favoritos" onClick={e => { e.stopPropagation(); toast.success("Agregado a favoritos ❤️"); }} className="size-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 flex items-center justify-center hover:scale-110 transition-transform shadow-lg">
             <Star className="size-3.5 text-yellow-400" />
           </button>
         </div>
@@ -255,10 +255,10 @@ function HorizontalCarousel({ title, icon, listings, onBuy }: {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold flex items-center gap-2">{icon} {title}</h2>
         <div className="flex items-center gap-2">
-          <button onClick={() => scroll("left")} className="size-8 rounded-full bg-surface border border-border flex items-center justify-center hover:border-primary/30 transition-colors">
+          <button aria-label="Desplazar a la izquierda" onClick={() => scroll("left")} className="size-8 rounded-full bg-surface border border-border flex items-center justify-center hover:border-primary/30 transition-colors">
             <ChevronLeft className="size-4" />
           </button>
-          <button onClick={() => scroll("right")} className="size-8 rounded-full bg-surface border border-border flex items-center justify-center hover:border-primary/30 transition-colors">
+          <button aria-label="Desplazar a la derecha" onClick={() => scroll("right")} className="size-8 rounded-full bg-surface border border-border flex items-center justify-center hover:border-primary/30 transition-colors">
             <ChevronRight className="size-4" />
           </button>
         </div>
@@ -464,7 +464,7 @@ function MarketplacePage() {
               />
               <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
                 {search ? (
-                  <button onClick={() => { setSearch(""); setShowSearch(false); }} className="text-muted-foreground hover:text-foreground">
+                  <button aria-label="Limpiar búsqueda" onClick={() => { setSearch(""); setShowSearch(false); }} className="text-muted-foreground hover:text-foreground">
                     <X className="size-4" />
                   </button>
                 ) : (

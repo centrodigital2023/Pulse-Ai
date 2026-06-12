@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://package-pal-55.lovable.app/sitemap.xml

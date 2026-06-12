@@ -197,9 +197,10 @@ function CardForm({
   return (
     <div className="space-y-4">
       <div className="space-y-1.5">
-        <Label className="text-xs font-medium">Número de tarjeta</Label>
+        <Label htmlFor="card-number" className="text-xs font-medium">Número de tarjeta</Label>
         <div className="relative">
           <Input
+            id="card-number"
             placeholder="0000 0000 0000 0000"
             value={card.number}
             onChange={e => setCard(c => ({ ...c, number: formatCardNumber(e.target.value) }))}
@@ -213,8 +214,9 @@ function CardForm({
       </div>
 
       <div className="space-y-1.5">
-        <Label className="text-xs font-medium">Nombre en la tarjeta</Label>
+        <Label htmlFor="card-name" className="text-xs font-medium">Nombre en la tarjeta</Label>
         <Input
+          id="card-name"
           placeholder="NOMBRE APELLIDO"
           value={card.name}
           onChange={e => setCard(c => ({ ...c, name: e.target.value.toUpperCase() }))}
@@ -224,8 +226,9 @@ function CardForm({
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
-          <Label className="text-xs font-medium">Vencimiento</Label>
+          <Label htmlFor="card-expiry" className="text-xs font-medium">Vencimiento</Label>
           <Input
+            id="card-expiry"
             placeholder="MM/AA"
             value={card.expiry}
             onChange={e => setCard(c => ({ ...c, expiry: formatExpiry(e.target.value) }))}
@@ -234,8 +237,9 @@ function CardForm({
           />
         </div>
         <div className="space-y-1.5">
-          <Label className="text-xs font-medium">CVV / CVC</Label>
+          <Label htmlFor="card-cvv" className="text-xs font-medium">CVV / CVC</Label>
           <Input
+            id="card-cvv"
             placeholder="•••"
             value={card.cvv}
             onChange={e => setCard(c => ({ ...c, cvv: e.target.value.replace(/\D/g, "").slice(0, 4) }))}
@@ -324,12 +328,12 @@ function PSEForm() {
       </div>
       <div className="grid grid-cols-[1fr_auto] gap-3">
         <div className="space-y-1.5">
-          <Label className="text-xs font-medium">Número de documento</Label>
-          <Input placeholder="1234567890" className="bg-black/20 h-12 font-mono" />
+          <Label htmlFor="pse-document" className="text-xs font-medium">Número de documento</Label>
+          <Input id="pse-document" placeholder="1234567890" className="bg-black/20 h-12 font-mono" />
         </div>
         <div className="space-y-1.5">
-          <Label className="text-xs font-medium">Tipo</Label>
-          <select className="h-12 px-3 bg-black/20 border border-input rounded-xl text-sm text-foreground focus:outline-none focus:border-primary/40 w-24">
+          <Label htmlFor="pse-doctype" className="text-xs font-medium">Tipo</Label>
+          <select id="pse-doctype" className="h-12 px-3 bg-black/20 border border-input rounded-xl text-sm text-foreground focus:outline-none focus:border-primary/40 w-24">
             <option>CC</option><option>NIT</option><option>CE</option><option>PAS</option>
           </select>
         </div>
@@ -352,10 +356,10 @@ function NequiForm({ price }: { price: number }) {
         </div>
       </div>
       <div className="space-y-1.5">
-        <Label className="text-xs font-medium">Número de celular Nequi</Label>
+        <Label htmlFor="nequi-phone" className="text-xs font-medium">Número de celular Nequi</Label>
         <div className="flex gap-2">
           <div className="h-12 px-3 flex items-center text-sm font-mono bg-black/30 border border-input rounded-xl text-muted-foreground shrink-0">+57</div>
-          <Input placeholder="300 000 0000" className="bg-black/20 h-12 font-mono text-base flex-1" maxLength={10} />
+          <Input id="nequi-phone" placeholder="300 000 0000" className="bg-black/20 h-12 font-mono text-base flex-1" maxLength={10} />
         </div>
       </div>
       <div className="rounded-xl bg-black/20 border border-border p-3 text-[11px] text-muted-foreground space-y-1">
@@ -381,10 +385,10 @@ function DaviplataForm({ price }: { price: number }) {
         </div>
       </div>
       <div className="space-y-1.5">
-        <Label className="text-xs font-medium">Número Daviplata</Label>
+        <Label htmlFor="daviplata-phone" className="text-xs font-medium">Número Daviplata</Label>
         <div className="flex gap-2">
           <div className="h-12 px-3 flex items-center text-sm font-mono bg-black/30 border border-input rounded-xl text-muted-foreground shrink-0">+57</div>
-          <Input placeholder="310 000 0000" className="bg-black/20 h-12 font-mono text-base flex-1" maxLength={10} />
+          <Input id="daviplata-phone" placeholder="310 000 0000" className="bg-black/20 h-12 font-mono text-base flex-1" maxLength={10} />
         </div>
       </div>
     </div>
@@ -412,8 +416,8 @@ function EfectyForm({ email }: { email: string }) {
         </div>
       </div>
       <div className="space-y-1.5">
-        <Label className="text-xs font-medium">Email para recibir confirmación</Label>
-        <Input type="email" defaultValue={email} className="bg-black/20 h-12" />
+        <Label htmlFor="efecty-email" className="text-xs font-medium">Email para recibir confirmación</Label>
+        <Input id="efecty-email" type="email" defaultValue={email} className="bg-black/20 h-12" />
       </div>
       <div className="text-[11px] text-muted-foreground space-y-1">
         <div className="flex items-start gap-1.5"><Check className="size-3 text-yellow-400 shrink-0 mt-0.5" /> Presenta el código en cualquier punto Efecty, Baloto o Apostar</div>

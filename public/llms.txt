@@ -1,0 +1,19 @@
+# PULSE AI
+
+> Marketplace de productos digitales premium de Latinoamérica: software, cursos, templates y eBooks con pago vía Mercado Pago y descarga instantánea.
+
+PULSE AI conecta a creadores y compradores de productos digitales en Latinoamérica, con un motor de licencias para software y un asistente de IA integrado.
+
+## Pages
+
+- [Inicio](/): Presentación del marketplace y productos destacados.
+- [Marketplace](/marketplace): Explora y compra productos digitales.
+- [Biblioteca](/library): Recursos y contenido para compradores.
+- [Vender](/vender): Registro de vendedores para publicar productos.
+
+## Optional
+
+- [Términos](/terminos): Términos y condiciones de uso.
+- [Privacidad](/privacidad): Política de privacidad.
+- [Habeas Data](/habeas-data): Tratamiento de datos personales.
+- [Cumplimiento](/cumplimiento): Información de cumplimiento legal.
