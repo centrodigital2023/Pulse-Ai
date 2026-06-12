@@ -255,10 +255,10 @@ function HorizontalCarousel({ title, icon, listings, onBuy }: {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold flex items-center gap-2">{icon} {title}</h2>
         <div className="flex items-center gap-2">
-          <button onClick={() => scroll("left")} className="size-8 rounded-full bg-surface border border-border flex items-center justify-center hover:border-primary/30 transition-colors">
+          <button aria-label="Desplazar a la izquierda" onClick={() => scroll("left")} className="size-8 rounded-full bg-surface border border-border flex items-center justify-center hover:border-primary/30 transition-colors">
             <ChevronLeft className="size-4" />
           </button>
-          <button onClick={() => scroll("right")} className="size-8 rounded-full bg-surface border border-border flex items-center justify-center hover:border-primary/30 transition-colors">
+          <button aria-label="Desplazar a la derecha" onClick={() => scroll("right")} className="size-8 rounded-full bg-surface border border-border flex items-center justify-center hover:border-primary/30 transition-colors">
             <ChevronRight className="size-4" />
           </button>
         </div>
