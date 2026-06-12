@@ -65,6 +65,35 @@ export function DashboardLayout({
   children: ReactNode;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
+  const { user, isLoading: authLoading } = useAuth();
+  const { canAccess, isLoading: roleLoading } = useCanAccessDashboard();
+
+  const checking = authLoading || roleLoading;
+
+  useEffect(() => {
+    if (!checking && !canAccess) {
+      navigate({ to: "/marketplace" });
+    }
+  }, [checking, canAccess, navigate]);
+
+  if (checking || !canAccess) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background text-foreground">
+        <Lock className="size-8 text-muted-foreground" />
+        <div className="text-sm text-muted-foreground">
+          {checking
+            ? "Verificando acceso…"
+            : !user
+              ? "Necesitas iniciar sesión como vendedor para acceder al panel."
+              : "Esta sección es solo para vendedores y administradores."}
+        </div>
+        <Button variant="contrast" size="sm" onClick={() => navigate({ to: "/marketplace" })}>
+          Volver al Marketplace
+        </Button>
+      </div>
+    );
+  }
 
   const isActive = (url: string) =>
     url === "/dashboard" ? pathname === url || pathname === "/dashboard/" : pathname.startsWith(url);
