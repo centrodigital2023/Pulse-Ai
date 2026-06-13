@@ -499,13 +499,29 @@ function Checkout() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: user?.id,
-          planId: PRODUCT.id,
+          planId: checkoutItems[0]?.id ?? PRODUCT.id,
           price: total,
-          planName: PRODUCT.name,
+          planName: checkoutItems[0]?.name ?? PRODUCT.name,
           userEmail: user?.email,
           paymentMethod: payMethod,
           installments: payMethod === "card" ? cuota : 1,
           bumps: selectedBumps,
+          items: [
+            ...(checkoutItems.length > 0
+              ? checkoutItems.map((i) => ({
+                  id: i.id,
+                  name: i.name,
+                  price: i.price,
+                  image: i.image,
+                  vendor: i.vendor,
+                }))
+              : [{ id: PRODUCT.id, name: PRODUCT.name, price: PRODUCT.priceCOP, image: PRODUCT.image }]),
+            ...ORDER_BUMPS.filter((b) => selectedBumps.includes(b.id)).map((b) => ({
+              id: b.id,
+              name: b.name,
+              price: b.price,
+            })),
+          ],
         }),
       });
 
