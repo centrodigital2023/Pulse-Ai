@@ -12,7 +12,7 @@ const ItemSchema = z.object({
 });
 
 const BodySchema = z.object({
-  userId: z.string().uuid().optional(),
+  userId: z.string().max(100).optional(),
   planId: z.string().optional(),
   price: z.number().positive().max(100_000_000),
   planName: z.string().min(1).max(200),
@@ -48,10 +48,12 @@ export const Route = createFileRoute("/api/mp-checkout")({
           // and is what the webhook uses to confirm and grant access.
           const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
           const groupRef = crypto.randomUUID();
+          const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+          const buyerId = order.userId && uuidRe.test(order.userId) ? order.userId : null;
 
           const rows = lineItems.map((it) => ({
             group_ref: groupRef,
-            buyer_id: order.userId ?? null,
+            buyer_id: buyerId,
             buyer_email: order.userEmail ?? null,
             product_id: it.id ?? null,
             product_name: it.name,
