@@ -8,8 +8,17 @@ import { AuthModal } from "@/components/auth/AuthModal";
 import { useUserStore } from "@/lib/user-store";
 import {
   ShoppingBag, Library, LogOut, ChevronDown, User, ShoppingCart,
-  Star, Tag, Wallet, Store, Clock, Package,
+  Star, Tag, Wallet, Store, Clock, Package, MapPin, Gift, TrendingUp,
+  ArrowLeft,
 } from "lucide-react";
+
+interface MenuItem {
+  label: string;
+  icon: React.ElementType;
+  to: string;
+  section?: string;
+  badge?: number;
+}
 
 export function SiteNav() {
   const { user, logout } = useAuth();
@@ -30,36 +39,64 @@ export function SiteNav() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const menuItems: { label: string; icon: React.ElementType; to: string; badge?: number }[] = [
-    { label: "Tus pedidos", icon: ShoppingBag, to: "/perfil", badge: cartCount || undefined },
-    { label: "Tus reseñas", icon: Star, to: "/perfil" },
-    { label: "Tu perfil", icon: User, to: "/perfil" },
-    { label: "Cupones y ofertas", icon: Tag, to: "/perfil" },
-    { label: "Saldo de crédito", icon: Wallet, to: "/perfil" },
-    { label: "Tiendas que sigues", icon: Store, to: "/perfil" },
-    { label: "Historial", icon: Clock, to: "/perfil" },
+  const menuItems: MenuItem[] = [
+    { label: "Tus pedidos", icon: ShoppingBag, to: "/perfil", section: "pedidos", badge: cartCount || undefined },
+    { label: "Tus reseñas", icon: Star, to: "/perfil", section: "resenas" },
+    { label: "Tu perfil", icon: User, to: "/perfil", section: "perfil" },
+    { label: "Cupones y ofertas", icon: Tag, to: "/perfil", section: "cupones" },
+    { label: "Saldo de crédito", icon: Wallet, to: "/perfil", section: "credito" },
+    { label: "Tiendas que sigues", icon: Store, to: "/perfil", section: "tiendas" },
+    { label: "Historial", icon: Clock, to: "/perfil", section: "historial" },
+    { label: "Direcciones", icon: MapPin, to: "/perfil", section: "direcciones" },
+    { label: "Referidos", icon: Gift, to: "/perfil", section: "referidos" },
     { label: "Mis Compras", icon: Package, to: "/mis-compras" },
     { label: "Mi Biblioteca", icon: Library, to: "/library" },
+    { label: "Programa de Afiliados", icon: TrendingUp, to: "/afiliados" },
   ];
+
+  const handleNavItem = (item: MenuItem) => {
+    if (item.section) {
+      // Navigate to /perfil with ?s=SECTION query param
+      window.location.href = `/perfil?s=${item.section}`;
+    } else {
+      navigate({ to: item.to as "/mis-compras" | "/library" | "/afiliados" });
+    }
+    setDropOpen(false);
+  };
 
   return (
     <>
       <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+
+          {/* Left: Logo + links */}
           <div className="flex items-center gap-6">
             <Link to="/marketplace"><Logo /></Link>
             <div className="hidden md:flex gap-5 text-sm font-medium text-muted-foreground">
-              <Link to="/marketplace" className="hover:text-foreground transition-colors [&.active]:text-foreground">
+              <Link
+                to="/marketplace"
+                className="hover:text-foreground transition-colors [&.active]:text-foreground"
+              >
                 Marketplace
               </Link>
+              <Link
+                to="/afiliados"
+                className="hover:text-foreground transition-colors [&.active]:text-foreground"
+              >
+                Afiliados
+              </Link>
               {canAccessDashboard && (
-                <Link to="/dashboard" className="hover:text-foreground transition-colors [&.active]:text-foreground">
+                <Link
+                  to="/dashboard"
+                  className="hover:text-foreground transition-colors [&.active]:text-foreground"
+                >
                   Dashboard
                 </Link>
               )}
             </div>
           </div>
 
+          {/* Right: actions */}
           <div className="flex items-center gap-2">
             <Link
               to="/vender"
@@ -72,10 +109,10 @@ export function SiteNav() {
             {user ? (
               <div className="flex items-center gap-2">
                 {/* Cart icon */}
-                <Link
-                  to="/perfil"
+                <button
+                  onClick={() => { window.location.href = "/perfil?s=pedidos"; }}
                   className="relative size-9 rounded-xl border border-border hover:border-primary/30 bg-surface flex items-center justify-center transition-colors"
-                  title="Tu carrito"
+                  title={`Carrito (${cartCount})`}
                 >
                   <ShoppingCart className="size-4 text-muted-foreground" />
                   {cartCount > 0 && (
@@ -83,8 +120,9 @@ export function SiteNav() {
                       {cartCount > 9 ? "9+" : cartCount}
                     </span>
                   )}
-                </Link>
+                </button>
 
+                {/* User dropdown */}
                 <div className="relative" ref={dropRef}>
                   <button
                     onClick={() => setDropOpen(o => !o)}
@@ -93,22 +131,35 @@ export function SiteNav() {
                     <div className="size-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary">
                       {user.initials}
                     </div>
-                    <span className="hidden sm:block text-sm font-medium max-w-[90px] truncate">{user.name.split(" ")[0]}</span>
-                    <ChevronDown className={`size-3.5 text-muted-foreground transition-transform ${dropOpen ? "rotate-180" : ""}`} />
+                    <span className="hidden sm:block text-sm font-medium max-w-[90px] truncate">
+                      {user.name.split(" ")[0]}
+                    </span>
+                    <ChevronDown
+                      className={`size-3.5 text-muted-foreground transition-transform ${dropOpen ? "rotate-180" : ""}`}
+                    />
                   </button>
 
                   {dropOpen && (
-                    <div className="absolute right-0 top-full mt-2 w-60 bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden z-50">
+                    <div className="absolute right-0 top-full mt-2 w-64 bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden z-50">
+                      {/* User info header */}
                       <div className="px-4 py-3 border-b border-border">
-                        <div className="text-sm font-semibold truncate">{user.name}</div>
-                        <div className="text-[11px] text-muted-foreground truncate">{user.email}</div>
+                        <div className="flex items-center gap-3">
+                          <div className="size-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary shrink-0">
+                            {user.initials}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-sm font-semibold truncate">{user.name}</div>
+                            <div className="text-[11px] text-muted-foreground truncate">{user.email}</div>
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="p-1.5 space-y-0.5 max-h-72 overflow-y-auto">
+                      {/* Menu items */}
+                      <div className="p-1.5 space-y-0.5 max-h-80 overflow-y-auto">
                         {menuItems.map(item => (
                           <button
                             key={item.label}
-                            onClick={() => { navigate({ to: item.to as "/perfil" }); setDropOpen(false); }}
+                            onClick={() => handleNavItem(item)}
                             className="flex items-center gap-2.5 px-3 py-2 text-sm rounded-xl hover:bg-white/5 transition-colors w-full text-left"
                           >
                             <item.icon className="size-4 text-muted-foreground shrink-0" />
@@ -122,9 +173,14 @@ export function SiteNav() {
                         ))}
                       </div>
 
+                      {/* Logout */}
                       <div className="border-t border-border p-1.5">
                         <button
-                          onClick={() => { logout(); setDropOpen(false); }}
+                          onClick={() => {
+                            logout();
+                            setDropOpen(false);
+                            navigate({ to: "/marketplace" });
+                          }}
                           className="flex items-center gap-2.5 px-3 py-2 text-sm rounded-xl hover:bg-red-500/5 transition-colors w-full text-left text-red-400 hover:text-red-300"
                         >
                           <LogOut className="size-4" />
@@ -155,5 +211,22 @@ export function SiteNav() {
 
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
     </>
+  );
+}
+
+// Compact back-to-marketplace bar — reusable in sub-pages
+export function BackToMarketplace({ label = "Volver al Marketplace" }: { label?: string }) {
+  return (
+    <div className="border-b border-border bg-surface/50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-10 flex items-center">
+        <Link
+          to="/marketplace"
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+        >
+          <ArrowLeft className="size-3.5" />
+          {label}
+        </Link>
+      </div>
+    </div>
   );
 }

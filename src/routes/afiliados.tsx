@@ -6,7 +6,7 @@ import {
   Package, BookOpen, Code2, Image, MessageSquare, ExternalLink,
   Wallet, Clock, CheckCircle2, Globe,
 } from "lucide-react";
-import { SiteNav } from "@/components/marketing/SiteNav";
+import { SiteNav, BackToMarketplace } from "@/components/marketing/SiteNav";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
 import { Button } from "@/components/ui/button";
 import { AuthModal } from "@/components/auth/AuthModal";
@@ -527,6 +527,7 @@ function AfiliadosPage() {
   return (
     <div className="min-h-screen bg-background">
       <SiteNav />
+      <BackToMarketplace label="Marketplace" />
 
       {isAffiliate && user ? (
         <AffiliateDashboard />

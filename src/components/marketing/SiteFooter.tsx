@@ -75,9 +75,15 @@ export function SiteFooter() {
               <Link to="/vender" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
                 Vender en PULSE AI
               </Link>
+              <Link to="/afiliados" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                Programa de Afiliados
+              </Link>
               <Link to="/mis-compras" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
                 Mis Compras
               </Link>
+              <a href="/perfil?s=referidos" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                Referidos
+              </a>
             </div>
 
             {/* Soporte */}

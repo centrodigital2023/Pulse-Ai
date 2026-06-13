@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/lib/auth-context";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { useUserStore } from "@/lib/user-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -431,6 +432,7 @@ function EfectyForm({ email }: { email: string }) {
 
 function Checkout() {
   const { user } = useAuth();
+  const { pendingCheckoutItems, addOrder, clearCart } = useUserStore();
   const navigate = useNavigate();
   const [showAuth, setShowAuth] = useState(!user);
   const [payMethod, setPayMethod] = useState<PayMethod>("card");
@@ -444,11 +446,17 @@ function Checkout() {
   const [step, setStep] = useState<"payment" | "processing" | "done">("payment");
   const [processingMsg, setProcessingMsg] = useState("Iniciando transacción segura...");
 
+  // Use real cart items if coming from /perfil, otherwise show demo product
+  const checkoutItems = pendingCheckoutItems.length > 0 ? pendingCheckoutItems : [];
+  const itemsSubtotal = checkoutItems.length > 0
+    ? checkoutItems.reduce((sum, i) => sum + i.price, 0)
+    : PRODUCT.priceCOP;
+
   const toggleBump = (id: string) =>
     setSelectedBumps(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
 
   const bumpsTotal = ORDER_BUMPS.filter(b => selectedBumps.includes(b.id)).reduce((a, b) => a + b.price, 0);
-  const total = PRODUCT.priceCOP + bumpsTotal;
+  const total = itemsSubtotal + bumpsTotal;
   const brand = detectBrand(card.number);
 
   const processingMessages = [
@@ -517,6 +525,23 @@ function Checkout() {
 
     // Demo mode: simulate payment success after 2.5s
     await new Promise(r => setTimeout(r, 2500));
+
+    // Persist the order to user store and clear the cart
+    if (checkoutItems.length > 0) {
+      addOrder({
+        items: checkoutItems,
+        subtotal: itemsSubtotal,
+        discount: 0,
+        creditUsed: 0,
+        total,
+        status: "completed",
+        paymentMethod: payMethod === "card"
+          ? `Tarjeta${cuota > 1 ? ` · ${cuota}x` : ""}`
+          : payMethod.toUpperCase(),
+      });
+      clearCart();
+    }
+
     setStep("done");
     setSuccess(true);
     setLoading(false);
@@ -582,14 +607,33 @@ function Checkout() {
           </div>
 
           <div className="rounded-2xl bg-surface border border-border p-5 text-left space-y-3">
-            <div className="flex items-start gap-3">
-              <img src={PRODUCT.image} alt="" className="size-14 rounded-xl object-cover border border-border shrink-0" />
-              <div>
-                <div className="font-semibold text-sm">{PRODUCT.name}</div>
-                <div className="text-xs text-muted-foreground mt-0.5">{PRODUCT.description}</div>
-                <div className="text-primary font-bold mt-1">{fmtCOP(total)}</div>
+            {checkoutItems.length > 0 ? (
+              <div className="space-y-3 max-h-48 overflow-y-auto">
+                {checkoutItems.map(item => (
+                  <div key={item.id} className="flex items-start gap-3">
+                    <img
+                      src={item.image} alt={item.name}
+                      className="size-12 rounded-xl object-cover border border-border shrink-0"
+                      onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-sm line-clamp-1">{item.name}</div>
+                      <div className="text-[10px] text-muted-foreground">{item.vendor}</div>
+                      <div className="text-primary font-bold text-sm mt-0.5">{fmtCOP(item.price)}</div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
+            ) : (
+              <div className="flex items-start gap-3">
+                <img src={PRODUCT.image} alt="" className="size-14 rounded-xl object-cover border border-border shrink-0" />
+                <div>
+                  <div className="font-semibold text-sm">{PRODUCT.name}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{PRODUCT.description}</div>
+                  <div className="text-primary font-bold mt-1">{fmtCOP(total)}</div>
+                </div>
+              </div>
+            )}
             <div className="border-t border-border pt-3 space-y-1.5">
               {[
                 "✅ Acceso inmediato habilitado en Mis Compras",
@@ -809,25 +853,49 @@ function Checkout() {
               </div>
             </div>
 
-            {/* Product */}
+            {/* Order summary */}
             <div className="rounded-2xl bg-surface border border-border p-5">
               <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-4">Resumen del pedido</div>
-              <div className="flex items-start gap-3 pb-4 border-b border-border">
-                <img src={PRODUCT.image} alt={PRODUCT.name} className="size-16 rounded-xl object-cover border border-border shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-sm leading-tight">{PRODUCT.name}</div>
-                  <div className="text-[11px] text-muted-foreground mt-1">{PRODUCT.description}</div>
-                  <div className="flex items-center gap-0.5 mt-1.5">
-                    {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="size-3 fill-yellow-400 text-yellow-400" />)}
-                    <span className="text-[10px] text-muted-foreground ml-1">({PRODUCT.reviews})</span>
+
+              {/* Cart items or demo product */}
+              {checkoutItems.length > 0 ? (
+                <div className="space-y-3 pb-4 border-b border-border max-h-56 overflow-y-auto">
+                  {checkoutItems.map(item => (
+                    <div key={item.id} className="flex items-start gap-3">
+                      <img
+                        src={item.image} alt={item.name}
+                        className="size-12 rounded-xl object-cover border border-border shrink-0"
+                        onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-xs leading-tight line-clamp-2">{item.name}</div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">{item.vendor}</div>
+                      </div>
+                      <div className="text-sm font-bold text-primary shrink-0">{fmtCOP(item.price)}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-start gap-3 pb-4 border-b border-border">
+                  <img src={PRODUCT.image} alt={PRODUCT.name} className="size-16 rounded-xl object-cover border border-border shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-sm leading-tight">{PRODUCT.name}</div>
+                    <div className="text-[11px] text-muted-foreground mt-1">{PRODUCT.description}</div>
+                    <div className="flex items-center gap-0.5 mt-1.5">
+                      {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="size-3 fill-yellow-400 text-yellow-400" />)}
+                      <span className="text-[10px] text-muted-foreground ml-1">({PRODUCT.reviews})</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
+              {/* Line items */}
               <div className="space-y-2 py-3 border-b border-border">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Producto</span>
-                  <span className="font-mono">{fmtCOP(PRODUCT.priceCOP)}</span>
+                  <span className="text-muted-foreground">
+                    {checkoutItems.length > 1 ? `Subtotal (${checkoutItems.length} productos)` : "Producto"}
+                  </span>
+                  <span className="font-mono">{fmtCOP(itemsSubtotal)}</span>
                 </div>
                 {ORDER_BUMPS.filter(b => selectedBumps.includes(b.id)).map(b => (
                   <div key={b.id} className="flex justify-between text-sm">

@@ -8,19 +8,21 @@ import {
   Lock, Zap, Users, Share2, Link2, Download, Gift,
   Minus,
 } from "lucide-react";
-import { SiteNav } from "@/components/marketing/SiteNav";
+import { SiteNav, BackToMarketplace } from "@/components/marketing/SiteNav";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
 import { Button } from "@/components/ui/button";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { useAuth } from "@/lib/auth-context";
 import {
   useUserStore, fmtCOP,
-  type CartItem, type UserAddress,
-  type ReferredUser,
+  type CartItem,
 } from "@/lib/user-store";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/perfil")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    s: typeof search.s === "string" ? search.s : undefined,
+  }),
   head: () => ({ meta: [{ title: "Mi Cuenta — PULSE AI" }] }),
   component: PerfilPage,
 });
@@ -985,7 +987,7 @@ function DireccionesSection() {
 // ─── Section: Referidos ───────────────────────────────────────────────────────
 
 function ReferidosSection() {
-  const { referralCode, referredUsers, referralEarnings, addReferral, creditBalance } = useUserStore();
+  const { referralCode, referredUsers, referralEarnings } = useUserStore();
   const referralLink = `https://pulseai.io/marketplace?ref=${referralCode}`;
   const [copied, setCopied] = useState(false);
   const conversions = referredUsers.filter(r => r.hasConverted).length;
@@ -1080,23 +1082,6 @@ function ReferidosSection() {
         </div>
       </div>
 
-      {/* Demo: simulate a referral (dev/test) */}
-      <div className="bg-surface border border-border rounded-2xl p-5 mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="font-bold text-sm">Simular referido (demo)</div>
-            <div className="text-xs text-muted-foreground">Prueba el flujo de referidos</div>
-          </div>
-          <div className="flex gap-2">
-            <button onClick={() => { addReferral(false); toast.success("Referido agregado (sin conversión)"); }} className="text-xs px-3 py-1.5 rounded-lg border border-border text-muted-foreground hover:border-primary/20 hover:text-primary transition-colors">
-              Sin compra
-            </button>
-            <button onClick={() => { addReferral(true); toast.success("¡Referido convertido! +$25.000 en créditos 🎉"); }} className="text-xs px-3 py-1.5 rounded-lg border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/5 transition-colors">
-              Con compra +$25K
-            </button>
-          </div>
-        </div>
-      </div>
 
       {/* Referred users list */}
       {referredUsers.length > 0 && (
@@ -1146,7 +1131,12 @@ function ReferidosSection() {
 function PerfilPage() {
   const { user, logout } = useAuth();
   const { cartCount, orders, creditBalance } = useUserStore();
-  const [section, setSection] = useState<Section>("pedidos");
+  const { s: initialSection } = Route.useSearch();
+  const [section, setSection] = useState<Section>(
+    initialSection && NAV_ITEMS.some(i => i.id === initialSection)
+      ? (initialSection as Section)
+      : "pedidos"
+  );
   const [showAuth, setShowAuth] = useState(false);
   const navigate = useNavigate();
 
@@ -1176,6 +1166,7 @@ function PerfilPage() {
   return (
     <div className="min-h-screen bg-background">
       <SiteNav />
+      <BackToMarketplace label="Marketplace" />
 
       {/* Mobile tabs */}
       <div className="md:hidden border-b border-border bg-background/95 backdrop-blur sticky top-16 z-40 overflow-x-auto">

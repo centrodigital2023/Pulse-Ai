@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { SiteNav } from "@/components/marketing/SiteNav";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
 import { useAuth } from "@/lib/auth-context";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { useUserStore, fmtCOP } from "@/lib/user-store";
 import {
   Download, Package, Star, ExternalLink, Search,
   FileText, Video, Code, BookOpen, Clock, CheckCircle, ShoppingBag,
@@ -202,13 +203,51 @@ function PurchaseCard({ purchase, onRate }: { purchase: Purchase; onRate: (id: s
   );
 }
 
+function getCategoryType(cat: string): Purchase["type"] {
+  if (cat === "education") return "course";
+  if (cat === "books") return "ebook";
+  if (cat === "resources") return "template";
+  return "software";
+}
+
 function MisCompras() {
   const { user } = useAuth();
+  const { orders } = useUserStore();
   const navigate = useNavigate();
   const [showAuth, setShowAuth] = useState(!user);
-  const [purchases, setPurchases] = useState(mockPurchases);
+  const [ratings, setRatings] = useState<Record<string, number>>({});
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | Purchase["type"]>("all");
+
+  // Real purchases from store, mapped to Purchase shape
+  const realPurchases = useMemo<Purchase[]>(() =>
+    orders
+      .filter(o => o.status === "completed")
+      .flatMap(order =>
+        order.items.map(item => ({
+          id: `${order.id}-${item.id}`,
+          orderId: `PLS-${order.id.slice(-8).toUpperCase()}`,
+          product: item.name,
+          vendor: item.vendor,
+          type: getCategoryType(item.category),
+          price: item.price,
+          date: order.paidAt,
+          status: "completed" as const,
+          downloads: 1,
+          image: item.image,
+          rating: ratings[`${order.id}-${item.id}`],
+        }))
+      ),
+  [orders, ratings]);
+
+  // Show real purchases first, then demo ones if no real data yet
+  const allPurchases = realPurchases.length > 0
+    ? realPurchases
+    : mockPurchases;
+
+  const handleRate = (id: string, rating: number) => {
+    setRatings(prev => ({ ...prev, [id]: rating }));
+  };
 
   if (!user && !showAuth) {
     return (
@@ -235,17 +274,14 @@ function MisCompras() {
     );
   }
 
-  const filtered = purchases.filter(p => {
+  const filtered = allPurchases.filter(p => {
     const matchSearch = !search || p.product.toLowerCase().includes(search.toLowerCase()) || p.vendor.toLowerCase().includes(search.toLowerCase());
     const matchFilter = filter === "all" || p.type === filter;
     return matchSearch && matchFilter;
   });
 
-  const totalSpent = purchases.filter(p => p.status === "completed").reduce((a, p) => a + p.price, 0);
+  const totalSpent = allPurchases.filter(p => p.status === "completed").reduce((a, p) => a + p.price, 0);
 
-  const handleRate = (id: string, rating: number) => {
-    setPurchases(prev => prev.map(p => p.id === id ? { ...p, rating } : p));
-  };
 
   return (
     <>
@@ -268,9 +304,9 @@ function MisCompras() {
           {/* Stats strip */}
           <div className="grid grid-cols-3 gap-4 mb-8">
             {[
-              { label: "Productos", value: purchases.filter(p => p.status === "completed").length.toString() },
-              { label: "Total invertido", value: `$${totalSpent}` },
-              { label: "Descargas", value: purchases.reduce((a, p) => a + p.downloads, 0).toString() },
+              { label: "Productos", value: allPurchases.filter(p => p.status === "completed").length.toString() },
+              { label: "Total invertido", value: fmtCOP(totalSpent) },
+              { label: "Descargas", value: allPurchases.reduce((a, p) => a + p.downloads, 0).toString() },
             ].map(s => (
               <div key={s.label} className="rounded-xl bg-surface border border-border p-4 text-center">
                 <div className="text-2xl font-extrabold tracking-tight text-primary">{s.value}</div>
