@@ -1,115 +1,154 @@
 import { useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Play, Copy, FileCode, FileText, Video, Music, Image } from "lucide-react";
+import { Download, Package, ShoppingBag } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
-import { libraryItems, fileKindLabel, type FileKind } from "@/lib/mock-data";
-import productBox from "@/assets/product-box.jpg";
-import videoStill from "@/assets/video-still.jpg";
+import { useAuth } from "@/lib/auth-context";
+import { AuthModal } from "@/components/auth/AuthModal";
+import { useMyOrders, type DBOrder } from "@/lib/db";
+import { fmtCOP } from "@/lib/user-store";
 
 export const Route = createFileRoute("/library")({
   head: () => ({ meta: [{ title: "Mi Biblioteca — PULSE AI" }] }),
   component: LibraryPage,
 });
 
-const kindIcon: Record<FileKind, typeof FileCode> = { code: FileCode, doc: FileText, video: Video, audio: Music, image: Image };
-
 function LibraryPage() {
-  const [active, setActive] = useState(libraryItems[0].id);
-  const item = libraryItems.find((i) => i.id === active)!;
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { data: orders = [], isLoading } = useMyOrders();
+  const [active, setActive] = useState<string | null>(null);
+  const [showAuth, setShowAuth] = useState(!user);
 
-  const copyKey = (k: string) => {
-    navigator.clipboard?.writeText(k);
-    toast.success("Clave de licencia copiada");
+  const item: DBOrder | undefined = orders.find((o) => o.id === active) ?? orders[0];
+
+  const handleDownload = (o: DBOrder) => {
+    if (o.download_url) {
+      window.open(o.download_url, "_blank", "noopener");
+    } else {
+      toast.success(`Preparando la descarga de "${o.product_name}"`);
+    }
   };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <header className="h-16 border-b border-border flex items-center px-6">
+          <Link to="/marketplace"><Logo /></Link>
+        </header>
+        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-6 px-4 text-center">
+          <div className="size-20 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <Package className="size-10 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold mb-2">Inicia sesión para ver tu biblioteca</h1>
+            <p className="text-muted-foreground text-sm">Accede a todos los productos que has comprado.</p>
+          </div>
+          <Button variant="contrast" onClick={() => setShowAuth(true)}>Iniciar sesión</Button>
+          {showAuth && <AuthModal onClose={() => { setShowAuth(false); if (!user) navigate({ to: "/marketplace" }); }} />}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="h-16 border-b border-border flex items-center justify-between px-6 sticky top-0 bg-background/80 backdrop-blur-md z-30">
-        <Logo />
+        <Link to="/marketplace"><Logo /></Link>
         <div className="flex items-center gap-3">
-          <Button asChild variant="ghost" size="sm"><Link to="/dashboard">Panel del creador</Link></Button>
-          <div className="size-8 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center text-[10px] text-primary font-mono">JD</div>
+          <Button asChild variant="ghost" size="sm"><Link to="/marketplace">Marketplace</Link></Button>
+          <div className="size-8 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center text-[10px] text-primary font-mono">
+            {user.initials}
+          </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-8 grid lg:grid-cols-[280px_1fr] gap-8">
-        {/* Library list */}
-        <aside className="space-y-2">
-          <div className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-3">Mi biblioteca</div>
-          {libraryItems.map((i) => (
-            <button
-              key={i.id}
-              onClick={() => setActive(i.id)}
-              className={`w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-colors ${
-                i.id === active ? "bg-primary/10 border-primary/30" : "bg-surface border-border hover:border-primary/20"
-              }`}
-            >
-              <img src={productBox} alt="" loading="lazy" width={48} height={48} className="size-12 rounded object-cover shrink-0" />
-              <div className="min-w-0">
-                <div className="text-sm font-medium truncate">{i.product}</div>
-                <div className="text-[10px] text-muted-foreground">{i.order} • {i.date}</div>
-              </div>
-            </button>
-          ))}
-        </aside>
-
-        {/* Detail */}
-        <main className="space-y-6">
+      {orders.length === 0 ? (
+        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 px-4 text-center">
+          <Package className="size-12 opacity-30" />
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">{item.product}</h1>
-            <p className="text-sm text-muted-foreground">Orden {item.order} • {item.date}</p>
+            <p className="font-semibold mb-1">{isLoading ? "Cargando tu biblioteca..." : "Tu biblioteca está vacía"}</p>
+            {!isLoading && <p className="text-sm text-muted-foreground mb-4">Compra un producto y aparecerá aquí al instante.</p>}
           </div>
-
-          {/* Video player */}
-          {item.hasVideo && (
-            <div className="aspect-video bg-black rounded-xl relative overflow-hidden group border border-border">
-              <img src={videoStill} alt="Course preview" loading="lazy" width={896} height={512} className="w-full h-full object-cover opacity-50" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <button aria-label="Reproducir video" onClick={() => toast("Reproductor de streaming (demo)")} className="size-16 rounded-full bg-primary/90 flex items-center justify-center pl-1 shadow-lg group-hover:scale-110 transition-transform">
-                  <Play className="size-7 text-primary-foreground fill-current" />
-                </button>
-              </div>
-              <div className="absolute bottom-0 inset-x-0 h-1 bg-secondary"><div className="w-1/3 h-full bg-primary" /></div>
-            </div>
+          {!isLoading && (
+            <Link to="/marketplace" className="inline-flex items-center gap-2 bg-primary text-primary-foreground text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-primary/90 transition-colors">
+              <ShoppingBag className="size-4" /> Ir al Marketplace
+            </Link>
           )}
+        </div>
+      ) : (
+        <div className="max-w-7xl mx-auto px-6 py-8 grid lg:grid-cols-[300px_1fr] gap-8">
+          {/* Library list */}
+          <aside className="space-y-2">
+            <div className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-3">Mi biblioteca ({orders.length})</div>
+            {orders.map((o) => (
+              <button
+                key={o.id}
+                onClick={() => setActive(o.id)}
+                className={`w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-colors ${
+                  o.id === item?.id ? "bg-primary/10 border-primary/30" : "bg-surface border-border hover:border-primary/20"
+                }`}
+              >
+                <img
+                  src={o.product_image || `https://picsum.photos/seed/${o.id}/48/48`}
+                  alt=""
+                  loading="lazy"
+                  width={48}
+                  height={48}
+                  className="size-12 rounded object-cover shrink-0"
+                />
+                <div className="min-w-0">
+                  <div className="text-sm font-medium truncate">{o.product_name}</div>
+                  <div className="text-[10px] text-muted-foreground">
+                    PLS-{o.id.slice(-8).toUpperCase()} • {new Date(o.created_at).toLocaleDateString("es-CO")}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </aside>
 
-          {/* License key */}
-          {item.licenseKey && (
-            <div className="bg-surface border border-border rounded-xl p-6">
-              <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-4">Tu clave de licencia</div>
-              <div className="flex gap-4">
-                <code className="flex-1 bg-black/50 border border-border px-4 py-3 rounded text-primary font-mono text-sm">{item.licenseKey}</code>
-                <Button variant="secondary" onClick={() => copyKey(item.licenseKey!)}><Copy className="size-3.5" /> Copiar</Button>
+          {/* Detail */}
+          {item && (
+            <main className="space-y-6">
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight">{item.product_name}</h1>
+                <p className="text-sm text-muted-foreground">
+                  Orden PLS-{item.id.slice(-8).toUpperCase()} • {new Date(item.created_at).toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" })}
+                </p>
               </div>
-              <p className="text-[10px] text-muted-foreground mt-3">Válida para 3 activaciones de dispositivo. Verificada mediante PULSE API v2.</p>
-            </div>
-          )}
 
-          {/* Files */}
-          <div className="bg-surface border border-border rounded-xl divide-y divide-border">
-            {item.files.map((f) => {
-              const Icon = kindIcon[f.kind];
-              return (
-                <div key={f.id} className="flex items-center justify-between gap-4 p-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="size-9 rounded bg-secondary flex items-center justify-center font-mono text-[10px] shrink-0">{fileKindLabel(f.kind)}</div>
-                    <div className="min-w-0">
-                      <div className="text-sm font-medium truncate">{f.name}</div>
-                      <div className="text-[10px] text-muted-foreground">{f.size} • {f.meta}</div>
+              <div className="bg-surface border border-border rounded-xl overflow-hidden">
+                <div className="flex items-center gap-4 p-5">
+                  <img
+                    src={item.product_image || `https://picsum.photos/seed/${item.id}/120/120`}
+                    alt=""
+                    className="size-16 rounded-xl object-cover border border-border shrink-0"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold">{item.product_name}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      Pagado · {fmtCOP(item.amount)} {item.currency}
                     </div>
                   </div>
-                  <Button variant={f.kind === "video" ? "outline" : "contrast"} size="sm" onClick={() => toast.success(`Descargando ${f.name}`)}>
-                    <Icon className="size-3.5" />
-                    {f.kind === "doc" ? "Abrir" : f.kind === "video" ? "Reproducir" : "Descargar"}
-                  </Button>
+                  <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full px-2.5 py-1 shrink-0">
+                    Acceso activo
+                  </span>
                 </div>
-              );
-            })}
-          </div>
-        </main>
-      </div>
+                <div className="border-t border-border p-5">
+                  <Button variant="contrast" onClick={() => handleDownload(item)} className="gap-2">
+                    <Download className="size-4" />
+                    Descargar producto
+                  </Button>
+                  <p className="text-[11px] text-muted-foreground mt-3">
+                    Acceso de por vida. Verificado mediante PULSE API. Si tienes problemas con la descarga, contáctanos.
+                  </p>
+                </div>
+              </div>
+            </main>
+          )}
+        </div>
+      )}
     </div>
   );
 }
