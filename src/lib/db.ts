@@ -211,3 +211,41 @@ export function useCreateLicense() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["my-licenses"] }),
   });
 }
+
+// ─── Orders / Purchases ───────────────────────────────────────────────────────
+
+export interface DBOrder {
+  id: string;
+  group_ref: string;
+  buyer_id: string | null;
+  buyer_email: string | null;
+  product_id: string | null;
+  product_name: string;
+  product_image: string | null;
+  download_url: string | null;
+  amount: number;
+  currency: string;
+  installments: number;
+  payment_method: string | null;
+  status: "pending" | "paid" | "failed";
+  mp_payment_id: string | null;
+  created_at: string;
+}
+
+/** Paid purchases for the signed-in buyer. RLS scopes rows to auth.uid(). */
+export function useMyOrders() {
+  return useQuery({
+    queryKey: ["my-orders"],
+    queryFn: async (): Promise<DBOrder[]> => {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user?.id) return [];
+      const { data, error } = await supabase
+        .from("orders" as never)
+        .select("*")
+        .eq("status", "paid")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as unknown as DBOrder[];
+    },
+  });
+}

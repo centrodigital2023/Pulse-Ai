@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/marketing/SiteFooter";
 import { useAuth } from "@/lib/auth-context";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { useUserStore, fmtCOP } from "@/lib/user-store";
+import { useMyOrders } from "@/lib/db";
 import {
   Download, Package, Star, ExternalLink, Search,
   FileText, Video, Code, BookOpen, Clock, CheckCircle, ShoppingBag,
@@ -147,18 +148,34 @@ function getCategoryType(cat: string): Purchase["type"] {
 function MisCompras() {
   const { user } = useAuth();
   const { orders } = useUserStore();
+  const { data: dbOrders = [] } = useMyOrders();
   const navigate = useNavigate();
   const [showAuth, setShowAuth] = useState(!user);
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | Purchase["type"]>("all");
 
-  // Real purchases from store, mapped to Purchase shape
-  const realPurchases = useMemo<Purchase[]>(() =>
-    orders
-      .filter(o => o.status === "completed")
-      .flatMap(order =>
-        order.items.map(item => ({
+  // Real purchases: paid orders from the database (source of truth), plus any
+  // locally-recorded demo orders for backward compatibility.
+  const realPurchases = useMemo<Purchase[]>(() => {
+    const fromDb: Purchase[] = dbOrders.map((o) => ({
+      id: o.id,
+      orderId: `PLS-${o.id.slice(-8).toUpperCase()}`,
+      product: o.product_name,
+      vendor: "PULSE AI",
+      type: "software" as const,
+      price: o.amount,
+      date: o.created_at,
+      status: "completed" as const,
+      downloads: 1,
+      image: o.product_image || "https://picsum.photos/seed/" + o.id + "/120/120",
+      rating: ratings[o.id],
+    }));
+
+    const fromLocal: Purchase[] = orders
+      .filter((o) => o.status === "completed")
+      .flatMap((order) =>
+        order.items.map((item) => ({
           id: `${order.id}-${item.id}`,
           orderId: `PLS-${order.id.slice(-8).toUpperCase()}`,
           product: item.name,
@@ -170,9 +187,12 @@ function MisCompras() {
           downloads: 1,
           image: item.image,
           rating: ratings[`${order.id}-${item.id}`],
-        }))
-      ),
-  [orders, ratings]);
+        })),
+      );
+
+    return [...fromDb, ...fromLocal];
+  }, [dbOrders, orders, ratings]);
+
 
   const handleRate = (id: string, rating: number) => {
     setRatings(prev => ({ ...prev, [id]: rating }));

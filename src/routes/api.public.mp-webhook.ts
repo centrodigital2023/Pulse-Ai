@@ -5,7 +5,7 @@ import type {} from "@tanstack/react-start";
  * Mercado Pago IPN / Webhook receiver.
  * Lives under /api/public/* so Mercado Pago can reach it without auth on the
  * published site. We verify the payment server-side using the access token
- * before trusting any status.
+ * before trusting any status, then mark the matching order(s) as paid.
  */
 export const Route = createFileRoute("/api/public/mp-webhook")({
   server: {
@@ -31,17 +31,42 @@ export const Route = createFileRoute("/api/public/mp-webhook")({
           const paymentClient = new Payment(client);
           const payment = await paymentClient.get({ id: String(paymentId) });
 
-          if (payment.status === "approved") {
-            // Payment verified as approved. Fulfillment (granting library
-            // access, issuing licenses) can be wired here using supabaseAdmin
-            // once the purchases schema is defined.
-            console.log(
-              "[MP Webhook] Approved payment",
-              paymentId,
-              "ref:",
-              payment.external_reference,
-            );
+          const groupRef = payment.external_reference;
+          if (!groupRef) return new Response("OK", { status: 200 });
+
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+          // Map MP status -> our order status
+          const newStatus =
+            payment.status === "approved"
+              ? "paid"
+              : payment.status === "rejected" || payment.status === "cancelled"
+                ? "failed"
+                : "pending";
+
+          const { error } = await supabaseAdmin
+            .from("orders")
+            .update({
+              status: newStatus,
+              mp_payment_id: String(paymentId),
+            })
+            .eq("group_ref", groupRef);
+
+          if (error) {
+            console.error("[MP Webhook] order update failed", error);
+            return new Response("Webhook Error", { status: 500 });
           }
+
+          console.log(
+            "[MP Webhook]",
+            payment.status,
+            "payment",
+            paymentId,
+            "group:",
+            groupRef,
+            "->",
+            newStatus,
+          );
 
           return new Response("OK", { status: 200 });
         } catch (error) {

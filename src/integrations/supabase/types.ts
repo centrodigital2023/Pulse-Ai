@@ -112,6 +112,66 @@ export type Database = {
           },
         ]
       }
+      orders: {
+        Row: {
+          amount: number
+          buyer_email: string | null
+          buyer_id: string | null
+          created_at: string
+          currency: string
+          download_url: string | null
+          group_ref: string
+          id: string
+          installments: number
+          mp_payment_id: string | null
+          mp_preference_id: string | null
+          payment_method: string | null
+          product_id: string | null
+          product_image: string | null
+          product_name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          buyer_email?: string | null
+          buyer_id?: string | null
+          created_at?: string
+          currency?: string
+          download_url?: string | null
+          group_ref?: string
+          id?: string
+          installments?: number
+          mp_payment_id?: string | null
+          mp_preference_id?: string | null
+          payment_method?: string | null
+          product_id?: string | null
+          product_image?: string | null
+          product_name: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          buyer_email?: string | null
+          buyer_id?: string | null
+          created_at?: string
+          currency?: string
+          download_url?: string | null
+          group_ref?: string
+          id?: string
+          installments?: number
+          mp_payment_id?: string | null
+          mp_preference_id?: string | null
+          payment_method?: string | null
+          product_id?: string | null
+          product_image?: string | null
+          product_name?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       product_files: {
         Row: {
           created_at: string
