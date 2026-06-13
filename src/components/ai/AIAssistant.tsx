@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Bot, X, Send, Sparkles, ChevronDown } from "lucide-react";
-import { marketplaceListings } from "@/lib/mock-data";
+import { useAllListings } from "@/lib/products-store";
+import type { MarketplaceListing as ML } from "@/lib/mock-data";
 
 type Message = { role: "user" | "ai"; text: string; products?: string[] };
 
@@ -12,11 +13,12 @@ const QUICK = [
   "Templates de UI premium",
 ];
 
-function buildReply(q: string): Message {
+function buildReply(q: string, listings: ML[]): Message {
   const lq = q.toLowerCase();
 
   if (/ia|intelig|machine|ml|deep|python|data science/.test(lq)) {
-    const hits = marketplaceListings.filter(l => l.tags.some(t => /ai|ml|python|data/i.test(t)));
+    const hits = listings.filter(l => l.tags.some(t => /ai|ml|python|data/i.test(t)));
+    if (hits.length === 0) return { role: "ai", text: "Aún no hay productos de IA disponibles, ¡pero pronto habrá! Vuelve a revisar más tarde." };
     return {
       role: "ai",
       text: `Detecté interés en IA y Machine Learning. Tenemos ${hits.length} productos perfectos para ti:`,
@@ -24,7 +26,8 @@ function buildReply(q: string): Message {
     };
   }
   if (/\$?100|barat|econ|precio bajo/.test(lq)) {
-    const hits = marketplaceListings.filter(l => l.price <= 100);
+    const hits = listings.filter(l => l.price <= 100);
+    if (hits.length === 0) return { role: "ai", text: "Por ahora no hay productos bajo $100, pero el catálogo está creciendo. ¡Revisa pronto!" };
     return {
       role: "ai",
       text: `${hits.length} productos excelentes por menos de $100, todos con garantía 30 días:`,
@@ -32,7 +35,8 @@ function buildReply(q: string): Message {
     };
   }
   if (/vend|popular|top|mejor/.test(lq)) {
-    const hits = [...marketplaceListings].sort((a, b) => b.sales - a.sales).slice(0, 3);
+    const hits = [...listings].sort((a, b) => b.sales - a.sales).slice(0, 3);
+    if (hits.length === 0) return { role: "ai", text: "El marketplace está recién lanzado. ¡Sé de los primeros en descubrir los productos!" };
     return {
       role: "ai",
       text: "Los productos más vendidos de PULSE AI este mes:",
@@ -40,7 +44,8 @@ function buildReply(q: string): Message {
     };
   }
   if (/software|sdk|api|app/.test(lq)) {
-    const hits = marketplaceListings.filter(l => l.category === "software");
+    const hits = listings.filter(l => l.category === "software");
+    if (hits.length === 0) return { role: "ai", text: "Próximamente habrá herramientas de software disponibles. ¡Vuelve pronto!" };
     return {
       role: "ai",
       text: "Las herramientas de software más potentes para desarrolladores:",
@@ -48,7 +53,8 @@ function buildReply(q: string): Message {
     };
   }
   if (/template|ui|ux|diseño|plantilla/.test(lq)) {
-    const hits = marketplaceListings.filter(l => l.category === "templates" || l.tags.some(t => /ui|ux|template/i.test(t)));
+    const hits = listings.filter(l => l.category === "resources" || l.tags.some(t => /ui|ux|template/i.test(t)));
+    if (hits.length === 0) return { role: "ai", text: "Próximamente habrá templates y recursos de diseño. ¡Vuelve pronto!" };
     return {
       role: "ai",
       text: "Los mejores templates y recursos de diseño UI/UX:",
@@ -56,14 +62,16 @@ function buildReply(q: string): Message {
     };
   }
   if (/curso|aprend|educaci/.test(lq)) {
-    const hits = marketplaceListings.filter(l => l.category === "education");
+    const hits = listings.filter(l => l.category === "education");
+    if (hits.length === 0) return { role: "ai", text: "Pronto habrá cursos disponibles. ¡Regresa en los próximos días!" };
     return {
       role: "ai",
       text: "Selección de cursos con las mejores reseñas de nuestra comunidad:",
       products: hits.slice(0, 3).map(p => `${p.name} — ⭐ ${p.rating}`),
     };
   }
-  const hits = [...marketplaceListings].sort((a, b) => b.rating - a.rating).slice(0, 3);
+  const hits = [...listings].sort((a, b) => b.rating - a.rating).slice(0, 3);
+  if (hits.length === 0) return { role: "ai", text: "El catálogo está creciendo. ¡Vuelve pronto para ver los primeros productos del marketplace!" };
   return {
     role: "ai",
     text: "Basado en tu búsqueda, aquí los productos mejor valorados por la comunidad:",
@@ -72,6 +80,7 @@ function buildReply(q: string): Message {
 }
 
 export function AIAssistant() {
+  const listings = useAllListings();
   const [open, setOpen] = useState(false);
   const [msgs, setMsgs] = useState<Message[]>([
     { role: "ai", text: "¡Hola! Soy el asistente de PULSE AI. Puedo ayudarte a encontrar el producto digital perfecto para ti. ¿Qué estás buscando?" },
@@ -91,7 +100,7 @@ export function AIAssistant() {
     setInput("");
     setTyping(true);
     setTimeout(() => {
-      setMsgs(prev => [...prev, buildReply(text)]);
+      setMsgs(prev => [...prev, buildReply(text, listings)]);
       setTyping(false);
     }, 900 + Math.random() * 600);
   };

@@ -78,10 +78,10 @@ function AffiliateLanding({ onRegister }: { onRegister: () => void }) {
           {/* Stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
             {[
-              { value: "35K+", label: "Afiliados activos" },
-              { value: "$2.8B", label: "Pagado en comisiones" },
+              { value: "Gratis", label: "Sin costo de registro" },
               { value: "Hasta 40%", label: "Comisión máxima" },
               { value: "30 días", label: "Duración de cookie" },
+              { value: "Instantáneo", label: "Acceso a tus enlaces" },
             ].map(s => (
               <div key={s.label} className="bg-surface/60 backdrop-blur border border-border rounded-2xl py-4 px-3">
                 <div className="text-2xl font-extrabold text-primary">{s.value}</div>
@@ -228,7 +228,7 @@ function AffiliateLanding({ onRegister }: { onRegister: () => void }) {
       <div className="bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 border-y border-primary/20 py-20">
         <div className="max-w-2xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-black mb-4">¿Listo para empezar a ganar?</h2>
-          <p className="text-muted-foreground mb-8">Únete a 35.000+ afiliados que ya están generando ingresos con PULSE AI. Registro gratuito, sin compromisos.</p>
+          <p className="text-muted-foreground mb-8">Empieza a generar ingresos con PULSE AI hoy mismo. Registro gratuito, sin compromisos.</p>
           <Button size="lg" variant="contrast" className="gap-2 text-base font-bold px-10 py-4 h-auto" onClick={onRegister}>
             <Rocket className="size-5" /> Registrarme como afiliado gratis
           </Button>

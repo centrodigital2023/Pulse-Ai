@@ -558,12 +558,12 @@ export const marketplaceVendors: MarketplaceVendor[] = [
 ];
 
 export const marketplaceCategories = [
-  { id: "all", label: "Todos los productos", count: 148, emoji: "🛒" },
-  { id: "software", label: "Software & SaaS", count: 38, emoji: "💻" },
-  { id: "education", label: "Cursos & Educación", count: 42, emoji: "🎓" },
-  { id: "resources", label: "Plantillas & Recursos", count: 31, emoji: "🎨" },
-  { id: "books", label: "eBooks & Guías", count: 24, emoji: "📚" },
-  { id: "services", label: "Servicios", count: 13, emoji: "⚡" },
+  { id: "all", label: "Todos los productos", count: 0, emoji: "🛒" },
+  { id: "software", label: "Software & SaaS", count: 0, emoji: "💻" },
+  { id: "education", label: "Cursos & Educación", count: 0, emoji: "🎓" },
+  { id: "resources", label: "Plantillas & Recursos", count: 0, emoji: "🎨" },
+  { id: "books", label: "eBooks & Guías", count: 0, emoji: "📚" },
+  { id: "services", label: "Servicios", count: 0, emoji: "⚡" },
 ];
 
 export interface MarketplaceListing {
@@ -586,104 +586,7 @@ export interface MarketplaceListing {
   tags: string[];
 }
 
-export const marketplaceListings: MarketplaceListing[] = [
-  {
-    id: "ml1", name: "Neural-Kit SDK", vendor: "DevCraft Studio", vendorAvatar: "DC",
-    category: "software", price: 149, originalPrice: 249, recurring: false,
-    rating: 4.9, reviews: 142, sales: 565, soldToday: 23, viewers: 87,
-    badge: "bestseller", tagline: "Toolkit ML de nivel producción con código fuente completo.",
-    image: "https://picsum.photos/seed/neural1/600/400",
-    tags: ["Python", "TensorFlow", "API", "SDK"],
-  },
-  {
-    id: "ml2", name: "Masterclass IA Engineering Completa", vendor: "Neural Works", vendorAvatar: "NW",
-    category: "education", price: 299, originalPrice: 499, recurring: false,
-    rating: 5.0, reviews: 211, sales: 429, soldToday: 18, viewers: 142,
-    badge: "featured", tagline: "40 videos HD · de cero a sistemas IA en producción.",
-    image: "https://picsum.photos/seed/aiclass/600/400",
-    tags: ["IA", "Machine Learning", "Python", "Certificado"],
-  },
-  {
-    id: "ml3", name: "SaaS Starter Stack Pro", vendor: "DevCraft Studio", vendorAvatar: "DC",
-    category: "software", price: 29, originalPrice: 49, recurring: true,
-    rating: 4.7, reviews: 64, sales: 318, soldToday: 11, viewers: 55,
-    badge: "new", tagline: "Boilerplate full-stack con auth, billing y dashboard incluidos.",
-    image: "https://picsum.photos/seed/saasstack/600/400",
-    tags: ["Next.js", "Stripe", "Auth", "TypeScript"],
-  },
-  {
-    id: "ml4", name: "Advanced Shader Pack Pro", vendor: "Pixel Factory", vendorAvatar: "PF",
-    category: "resources", price: 79, originalPrice: 129, recurring: false,
-    rating: 4.8, reviews: 98, sales: 521, soldToday: 14, viewers: 63,
-    badge: "bestseller", tagline: "120+ shaders GLSL listos para producción.",
-    image: "https://picsum.photos/seed/shaders/600/400",
-    tags: ["GLSL", "Unity", "WebGL", "Gráficos"],
-  },
-  {
-    id: "ml5", name: "Enterprise Design System", vendor: "Design Foundry", vendorAvatar: "DF",
-    category: "resources", price: 199, originalPrice: 349, recurring: true,
-    rating: 4.9, reviews: 87, sales: 320, soldToday: 9, viewers: 48,
-    badge: "featured", tagline: "500+ componentes para Figma y React. Actualización permanente.",
-    image: "https://picsum.photos/seed/design/600/400",
-    tags: ["Figma", "React", "UI", "Componentes"],
-  },
-  {
-    id: "ml6", name: "DevOps Masterclass 2024", vendor: "Code Atelier", vendorAvatar: "CA",
-    category: "education", price: 199, originalPrice: 299, recurring: false,
-    rating: 4.8, reviews: 74, sales: 248, soldToday: 7, viewers: 39,
-    badge: "oferta", tagline: "CI/CD, Docker, Kubernetes — la guía completa.",
-    image: "https://picsum.photos/seed/devops/600/400",
-    tags: ["Docker", "K8s", "CI/CD", "AWS"],
-  },
-  {
-    id: "ml7", name: "API Architecture Playbook", vendor: "Neural Works", vendorAvatar: "NW",
-    category: "books", price: 49, originalPrice: 79, recurring: false,
-    rating: 4.7, reviews: 156, sales: 892, soldToday: 31, viewers: 104,
-    badge: "bestseller", tagline: "Diseña APIs que escalan a millones de usuarios.",
-    image: "https://picsum.photos/seed/apibook/600/400",
-    tags: ["REST", "GraphQL", "Microservicios", "Guía"],
-  },
-  {
-    id: "ml8", name: "Startup Legal Pack", vendor: "Code Atelier", vendorAvatar: "CA",
-    category: "resources", price: 89, originalPrice: 149, recurring: false,
-    rating: 4.6, reviews: 33, sales: 178, soldToday: 5, viewers: 28,
-    tagline: "40+ plantillas legales para empresas tecnológicas.",
-    image: "https://picsum.photos/seed/legal/600/400",
-    tags: ["Legal", "Contratos", "Startups", "Templates"],
-  },
-  {
-    id: "ml9", name: "React Performance Secrets", vendor: "DevCraft Studio", vendorAvatar: "DC",
-    category: "education", price: 129, originalPrice: 199, recurring: false,
-    rating: 4.8, reviews: 88, sales: 412, soldToday: 16, viewers: 72,
-    badge: "new", tagline: "Optimización avanzada de React: bundle, render, caché.",
-    image: "https://picsum.photos/seed/reactperf/600/400",
-    tags: ["React", "Performance", "Webpack", "Hooks"],
-  },
-  {
-    id: "ml10", name: "Figma to React Workflow", vendor: "Pixel Factory", vendorAvatar: "PF",
-    category: "resources", price: 59, originalPrice: 89, recurring: false,
-    rating: 4.7, reviews: 61, sales: 287, soldToday: 8, viewers: 41,
-    tagline: "Sistema completo: de diseño Figma a código React listo para producción.",
-    image: "https://picsum.photos/seed/figma2react/600/400",
-    tags: ["Figma", "React", "Código", "Workflow"],
-  },
-  {
-    id: "ml11", name: "E-commerce Analytics Bible", vendor: "Neural Works", vendorAvatar: "NW",
-    category: "books", price: 39, originalPrice: 69, recurring: false,
-    rating: 4.9, reviews: 203, sales: 1104, soldToday: 42, viewers: 188,
-    badge: "bestseller", tagline: "Métricas, embudos y dashboards para tiendas online.",
-    image: "https://picsum.photos/seed/analytics/600/400",
-    tags: ["Analytics", "KPIs", "E-commerce", "Data"],
-  },
-  {
-    id: "ml12", name: "No-Code App Builder Course", vendor: "Code Atelier", vendorAvatar: "CA",
-    category: "education", price: 99, originalPrice: 149, recurring: false,
-    rating: 4.6, reviews: 47, sales: 193, soldToday: 6, viewers: 33,
-    badge: "new", tagline: "Crea apps web y móviles sin escribir código con Bubble y Webflow.",
-    image: "https://picsum.photos/seed/nocode/600/400",
-    tags: ["No-Code", "Bubble", "Webflow", "Apps"],
-  },
-];
+export const marketplaceListings: MarketplaceListing[] = [];
 
 // ─── AI Insights ──────────────────────────────────────────────────────────────
 

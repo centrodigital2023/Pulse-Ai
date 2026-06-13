@@ -29,72 +29,6 @@ interface Purchase {
   rating?: number;
 }
 
-const mockPurchases: Purchase[] = [
-  {
-    id: "p1",
-    orderId: "PLS-2024-001",
-    product: "Python para Data Science — Curso Completo",
-    vendor: "DataMaster Pro",
-    type: "course",
-    price: 149,
-    date: "2024-03-15",
-    status: "completed",
-    downloads: 3,
-    image: "https://picsum.photos/seed/course1/80/80",
-    rating: 5,
-  },
-  {
-    id: "p2",
-    orderId: "PLS-2024-002",
-    product: "React & TypeScript Avanzado",
-    vendor: "CodeCraft Academy",
-    type: "course",
-    price: 199,
-    date: "2024-02-28",
-    status: "completed",
-    downloads: 1,
-    image: "https://picsum.photos/seed/course2/80/80",
-    rating: 4,
-  },
-  {
-    id: "p3",
-    orderId: "PLS-2024-003",
-    product: "Neural-Kit SDK v2.0",
-    vendor: "AI Dev Tools",
-    type: "software",
-    price: 299,
-    date: "2024-01-10",
-    status: "completed",
-    downloads: 5,
-    image: "https://picsum.photos/seed/sdk1/80/80",
-  },
-  {
-    id: "p4",
-    orderId: "PLS-2024-004",
-    product: "Pack de Plantillas UI Premium",
-    vendor: "DesignForge",
-    type: "template",
-    price: 79,
-    date: "2024-01-05",
-    status: "completed",
-    downloads: 2,
-    image: "https://picsum.photos/seed/tmpl1/80/80",
-    rating: 5,
-  },
-  {
-    id: "p5",
-    orderId: "PLS-2024-005",
-    product: "Guía SEO Avanzado 2024",
-    vendor: "Marketing Pro",
-    type: "ebook",
-    price: 49,
-    date: "2023-12-20",
-    status: "completed",
-    downloads: 1,
-    image: "https://picsum.photos/seed/ebook1/80/80",
-    rating: 3,
-  },
-];
 
 const typeIcon: Record<Purchase["type"], typeof Download> = {
   course: Video,
@@ -240,11 +174,6 @@ function MisCompras() {
       ),
   [orders, ratings]);
 
-  // Show real purchases first, then demo ones if no real data yet
-  const allPurchases = realPurchases.length > 0
-    ? realPurchases
-    : mockPurchases;
-
   const handleRate = (id: string, rating: number) => {
     setRatings(prev => ({ ...prev, [id]: rating }));
   };
@@ -274,13 +203,13 @@ function MisCompras() {
     );
   }
 
-  const filtered = allPurchases.filter(p => {
+  const filtered = realPurchases.filter(p => {
     const matchSearch = !search || p.product.toLowerCase().includes(search.toLowerCase()) || p.vendor.toLowerCase().includes(search.toLowerCase());
     const matchFilter = filter === "all" || p.type === filter;
     return matchSearch && matchFilter;
   });
 
-  const totalSpent = allPurchases.filter(p => p.status === "completed").reduce((a, p) => a + p.price, 0);
+  const totalSpent = realPurchases.filter(p => p.status === "completed").reduce((a, p) => a + p.price, 0);
 
 
   return (
@@ -304,9 +233,9 @@ function MisCompras() {
           {/* Stats strip */}
           <div className="grid grid-cols-3 gap-4 mb-8">
             {[
-              { label: "Productos", value: allPurchases.filter(p => p.status === "completed").length.toString() },
+              { label: "Productos", value: realPurchases.filter(p => p.status === "completed").length.toString() },
               { label: "Total invertido", value: fmtCOP(totalSpent) },
-              { label: "Descargas", value: allPurchases.reduce((a, p) => a + p.downloads, 0).toString() },
+              { label: "Descargas", value: realPurchases.reduce((a, p) => a + p.downloads, 0).toString() },
             ].map(s => (
               <div key={s.label} className="rounded-xl bg-surface border border-border p-4 text-center">
                 <div className="text-2xl font-extrabold tracking-tight text-primary">{s.value}</div>
@@ -348,7 +277,21 @@ function MisCompras() {
           {filtered.length === 0 ? (
             <div className="text-center py-16 text-muted-foreground">
               <Package className="size-12 mx-auto mb-3 opacity-30" />
-              <p className="text-sm">No se encontraron compras</p>
+              {realPurchases.length === 0 ? (
+                <>
+                  <p className="font-semibold text-foreground mb-1">Aún no tienes compras</p>
+                  <p className="text-sm mb-4">Explora el marketplace y encuentra tu próximo producto digital.</p>
+                  <Link
+                    to="/marketplace"
+                    className="inline-flex items-center gap-2 bg-primary text-primary-foreground text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-primary/90 transition-colors"
+                  >
+                    <ShoppingBag className="size-4" />
+                    Ir al Marketplace
+                  </Link>
+                </>
+              ) : (
+                <p className="text-sm">No se encontraron productos con ese filtro</p>
+              )}
             </div>
           ) : (
             <div className="space-y-4">

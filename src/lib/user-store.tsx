@@ -157,40 +157,13 @@ function makeCode(len = 6) {
   return Math.random().toString(36).slice(2, 2 + len).toUpperCase();
 }
 
-const DEMO_ORDER: PurchasedOrder = {
-  id: "ord-demo-001",
-  items: [{
-    id: "3",
-    name: "Pack de Templates para Email Marketing",
-    tagline: "100+ plantillas premium listas para convertir",
-    vendor: "DataVault Pro",
-    vendorAvatar: "DV",
-    price: 149000,
-    originalPrice: 350000,
-    image: "https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?w=400&q=80",
-    category: "resources",
-    rating: 4.8,
-    totalReviews: 2341,
-    totalSales: 17430,
-    addedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-  }],
-  subtotal: 149000, discount: 0, creditUsed: 0, total: 149000,
-  status: "completed", paymentMethod: "Tarjeta de crédito",
-  paidAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-};
-
 const DEFAULT_STORE: UserStoreData = {
   cart: [],
-  orders: [DEMO_ORDER],
+  orders: [],
   reviews: [],
-  coupons: [
-    { code: "PULSE10", description: "10% de descuento en cualquier compra", discount: 10, type: "percent", minOrder: 50000, status: "available", expiresAt: "2026-12-31" },
-    { code: "BIENVENIDO", description: "$20.000 en tu primera compra", discount: 20000, type: "fixed", minOrder: 80000, status: "available", expiresAt: "2026-12-31" },
-  ],
-  creditBalance: 50000,
-  creditHistory: [
-    { id: "ct-001", amount: 50000, reason: "Crédito de bienvenida", date: new Date().toISOString() },
-  ],
+  coupons: [],
+  creditBalance: 0,
+  creditHistory: [],
   followedStores: [],
   browseHistory: [],
   addresses: [],
@@ -397,20 +370,14 @@ export function UserStoreProvider({ children }: { children: ReactNode }) {
 
   // Affiliate
   const becomeAffiliate = () => {
-    const demoLinks: AffiliateLink[] = [
-      { id: "al-1", productId: "1", productName: "PULSE PRO Suite", productImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&q=60", productPrice: 297000, category: "software", commissionRate: 30, url: `https://pulseai.io/marketplace?ref=${data.affiliateCode}&p=1`, clicks: 145, conversions: 12, earnings: 1069200, createdAt: new Date(Date.now() - 14 * 86400000).toISOString() },
-      { id: "al-2", productId: "7", productName: "Curso Marketing Digital Colombia", productImage: "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?w=200&q=60", productPrice: 189000, category: "education", commissionRate: 35, url: `https://pulseai.io/marketplace?ref=${data.affiliateCode}&p=7`, clicks: 89, conversions: 7, earnings: 463050, createdAt: new Date(Date.now() - 7 * 86400000).toISOString() },
-    ];
     patch({
       isAffiliate: true,
-      affiliateLinks: demoLinks,
-      affiliateEarnings: 1532250,
-      affiliatePendingEarnings: 356700,
-      affiliateTotalClicks: 234,
-      affiliateTotalConversions: 19,
-      affiliatePayments: [
-        { id: "ap-1", amount: 1175550, status: "paid", date: new Date(Date.now() - 30 * 86400000).toISOString() },
-      ],
+      affiliateLinks: [],
+      affiliateEarnings: 0,
+      affiliatePendingEarnings: 0,
+      affiliateTotalClicks: 0,
+      affiliateTotalConversions: 0,
+      affiliatePayments: [],
     });
   };
 

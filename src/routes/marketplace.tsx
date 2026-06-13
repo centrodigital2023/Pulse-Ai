@@ -751,11 +751,23 @@ function MarketplacePage() {
             {sorted.length === 0 && (
               <div className="text-center py-24">
                 <Bot className="size-12 text-primary/30 mx-auto mb-4" />
-                <h3 className="font-semibold text-lg mb-2">No encontramos productos</h3>
-                <p className="text-sm text-muted-foreground mb-4">Intenta con otros términos o pídele ayuda al asistente IA.</p>
-                <Button variant="outline" onClick={() => { setSearch(""); setActiveCategory("all"); }}>
-                  Ver todos los productos
-                </Button>
+                {allListings.length === 0 ? (
+                  <>
+                    <h3 className="font-semibold text-lg mb-2">El marketplace está listo para sus primeros productos</h3>
+                    <p className="text-sm text-muted-foreground mb-4">¿Tienes un producto digital? Publícalo ahora y llega a miles de compradores.</p>
+                    <Button variant="outline" onClick={() => navigate({ to: "/vender" })}>
+                      Publicar mi producto
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <h3 className="font-semibold text-lg mb-2">No encontramos productos</h3>
+                    <p className="text-sm text-muted-foreground mb-4">Intenta con otros términos o pídele ayuda al asistente IA.</p>
+                    <Button variant="outline" onClick={() => { setSearch(""); setActiveCategory("all"); }}>
+                      Ver todos los productos
+                    </Button>
+                  </>
+                )}
               </div>
             )}
           </main>
