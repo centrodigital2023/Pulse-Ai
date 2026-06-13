@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/marketing/SiteFooter";
 import { useAuth } from "@/lib/auth-context";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { useUserStore, fmtCOP } from "@/lib/user-store";
+import { useMyOrders } from "@/lib/db";
 import {
   Download, Package, Star, ExternalLink, Search,
   FileText, Video, Code, BookOpen, Clock, CheckCircle, ShoppingBag,
