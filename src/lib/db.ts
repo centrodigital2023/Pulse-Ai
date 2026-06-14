@@ -75,11 +75,17 @@ export function useMyRoles() {
   });
 }
 
-/** True for sellers (creator) and super admins — these can see the dashboard. */
+/** True only for sellers/creators — dashboard is vendor-only. Admins go to /admin. */
 export function useCanAccessDashboard() {
   const { data: roles = [], isLoading } = useMyRoles();
-  const canAccess = roles.includes("admin") || roles.includes("creator");
+  const canAccess = roles.includes("creator");
   return { canAccess, isLoading };
+}
+
+/** True for superadmin (admin role) — gives access to /admin panel. */
+export function useIsAdmin() {
+  const { data: roles = [], isLoading } = useMyRoles();
+  return { isAdmin: roles.includes("admin"), isLoading };
 }
 
 // ─── Products ────────────────────────────────────────────────────────────────

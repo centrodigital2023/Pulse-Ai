@@ -14,6 +14,10 @@ import {
   RefreshCw, User,
 } from "lucide-react";
 import { marketplaceVendors, type MarketplaceVendor, customers, products } from "@/lib/mock-data";
+import { useAuth } from "@/lib/auth-context";
+import { useIsAdmin } from "@/lib/db";
+import { useProducts } from "@/lib/products-store";
+import { fmtCOP } from "@/lib/user-store";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Administración — PULSE AI" }] }),
@@ -682,33 +686,206 @@ function SecurityTab() {
   );
 }
 
+// ─── Products Tab (real vendor products) ──────────────────────────────────────
+
+function ProductsTab() {
+  const { products: vendorProducts, updateProduct, deleteProduct } = useProducts();
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<"all" | "live" | "draft">("all");
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+
+  const filtered = vendorProducts.filter(p => {
+    const matchFilter = filter === "all" || p.status === filter;
+    const q = search.toLowerCase();
+    const matchSearch = !search || p.name.toLowerCase().includes(q) || p.vendorName.toLowerCase().includes(q) || p.category.toLowerCase().includes(q);
+    return matchFilter && matchSearch;
+  });
+
+  const liveCount = vendorProducts.filter(p => p.status === "live").length;
+  const draftCount = vendorProducts.filter(p => p.status === "draft").length;
+
+  return (
+    <div className="space-y-6">
+      {confirmDelete && (
+        <ConfirmDialog
+          title="¿Eliminar producto?"
+          message="Esta acción no se puede deshacer. El producto será eliminado permanentemente del marketplace."
+          onConfirm={() => { deleteProduct(confirmDelete); setConfirmDelete(null); toast.success("Producto eliminado permanentemente"); }}
+          onCancel={() => setConfirmDelete(null)}
+          danger
+        />
+      )}
+
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { label: "Total", value: vendorProducts.length, cls: "" },
+          { label: "Publicados", value: liveCount, cls: "text-primary" },
+          { label: "Borradores", value: draftCount, cls: "text-muted-foreground" },
+        ].map(s => (
+          <div key={s.label} className="p-4 rounded-xl bg-surface border border-border">
+            <div className="text-[10px] font-mono text-muted-foreground mb-1">{s.label.toUpperCase()}</div>
+            <div className={`text-3xl font-extrabold ${s.cls}`}>{s.value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Filters + Search */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-2">
+          {(["all", "live", "draft"] as const).map(f => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                filter === f ? "bg-primary/10 border-primary/20 text-primary" : "bg-surface border-border text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {f === "all" ? `Todos (${vendorProducts.length})` : f === "live" ? `Publicados (${liveCount})` : `Borradores (${draftCount})`}
+            </button>
+          ))}
+        </div>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar producto o vendedor..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="bg-surface pl-9 w-64"
+          />
+        </div>
+      </div>
+
+      {/* List */}
+      {vendorProducts.length === 0 ? (
+        <div className="text-center py-24 border border-dashed border-border rounded-2xl">
+          <Package className="size-12 mx-auto mb-4 text-muted-foreground/30" />
+          <p className="font-semibold mb-2">No hay productos en el marketplace</p>
+          <p className="text-sm text-muted-foreground">Los vendedores aún no han subido productos.</p>
+        </div>
+      ) : (
+        <div className="rounded-xl bg-surface border border-border overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-black/10 flex items-center gap-4 text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
+            <span className="flex-1">Producto</span>
+            <span className="hidden sm:block min-w-[90px] text-center">Precio</span>
+            <span className="hidden md:block min-w-[100px]">Vendedor</span>
+            <span className="min-w-[80px] text-center">Estado</span>
+            <span className="ml-auto">Acciones</span>
+          </div>
+          <div className="divide-y divide-border">
+            {filtered.map(p => (
+              <div key={p.id} className="flex items-center gap-4 p-4 hover:bg-black/5 transition-colors">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  {p.coverImage ? (
+                    <img src={p.coverImage} alt={p.name} className="size-10 rounded-xl object-cover border border-border shrink-0" onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                  ) : (
+                    <div className="size-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                      <Package className="size-4 text-primary" />
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <div className="text-sm font-medium truncate">{p.name}</div>
+                    <div className="text-[11px] text-muted-foreground">{p.category} · {new Date(p.createdAt).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })}</div>
+                  </div>
+                </div>
+                <div className="hidden sm:block text-sm font-bold text-primary min-w-[90px] text-center">{fmtCOP(p.price)}</div>
+                <div className="hidden md:flex items-center gap-2 min-w-[100px]">
+                  <div className="size-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-[10px] font-bold text-primary shrink-0">{p.vendorInitials}</div>
+                  <span className="text-xs text-muted-foreground truncate">{p.vendorName}</span>
+                </div>
+                <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border min-w-[80px] text-center ${p.status === "live" ? "bg-primary/10 text-primary border-primary/20" : "bg-secondary text-muted-foreground border-border"}`}>
+                  {p.status === "live" ? "✓ Publicado" : "Borrador"}
+                </span>
+                <div className="flex items-center gap-2 ml-auto">
+                  {p.status === "live" ? (
+                    <button
+                      onClick={() => { updateProduct(p.id, { status: "draft" }); toast.success("Producto ocultado del marketplace"); }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-400/10 border border-orange-400/20 text-orange-400 text-xs font-medium hover:bg-orange-400/20 transition-colors"
+                    >
+                      <Ban className="size-3.5" /> Bloquear
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => { updateProduct(p.id, { status: "live" }); toast.success("Producto publicado en el marketplace"); }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-primary text-xs font-medium hover:bg-primary/20 transition-colors"
+                    >
+                      <CheckCheck className="size-3.5" /> Aprobar
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setConfirmDelete(p.id)}
+                    className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-xs font-medium hover:bg-destructive/20 transition-colors"
+                  >
+                    <Trash2 className="size-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+          {filtered.length === 0 && vendorProducts.length > 0 && (
+            <div className="text-center py-10">
+              <p className="text-sm text-muted-foreground">Sin resultados para "{search}"</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Admin Page ──────────────────────────────────────────────────────────
 
 function AdminPage() {
-  const [authed, setAuthed] = useState(false);
+  const { user, signIn, logout } = useAuth();
+  const { isAdmin, isLoading: roleLoading } = useIsAdmin();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [mfa, setMfa] = useState("");
   const [showPw, setShowPw] = useState(false);
-  const [step, setStep] = useState<"login" | "mfa">("login");
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
 
   const pendingCount = marketplaceVendors.filter(v => v.status === "pending").length;
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email || !password) { toast.error("Completa todos los campos"); return; }
     setLoading(true);
-    setTimeout(() => { setLoading(false); setStep("mfa"); }, 1000);
+    const result = await signIn(email, password);
+    setLoading(false);
+    if (result.error) {
+      toast.error("Credenciales incorrectas o sin permisos de administración");
+    }
   };
 
-  const handleMfa = () => {
-    if (!mfa) { toast.error("Ingresa el código MFA"); return; }
-    setLoading(true);
-    setTimeout(() => { setLoading(false); setAuthed(true); toast.success("Acceso administrativo concedido"); }, 800);
-  };
+  // Checking role after login
+  if (user && roleLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-sm text-muted-foreground animate-pulse">Verificando permisos administrativos...</div>
+      </div>
+    );
+  }
 
-  if (!authed) {
+  // Logged in but NOT admin
+  if (user && !isAdmin) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <div className="text-center max-w-sm">
+          <div className="size-16 rounded-2xl bg-destructive/10 border border-destructive/20 flex items-center justify-center mx-auto mb-4">
+            <Shield className="size-8 text-destructive" />
+          </div>
+          <h1 className="text-lg font-bold mb-2">Acceso denegado</h1>
+          <p className="text-sm text-muted-foreground mb-6">Tu cuenta <strong>{user.email}</strong> no tiene permisos de superadministrador.</p>
+          <div className="flex gap-3 justify-center">
+            <Button variant="outline" onClick={() => { logout(); }}>Cerrar sesión</Button>
+            <Button variant="outline" asChild><Link to="/marketplace">Ir al marketplace</Link></Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // NOT logged in → show login form
+  if (!user) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-6">
         <div className="w-full max-w-sm space-y-6">
@@ -717,55 +894,38 @@ function AdminPage() {
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-destructive/10 border border-destructive/20 text-destructive text-xs font-mono mb-4">
               <Shield className="size-3.5" /> Acceso Administrativo Restringido
             </div>
-            <h1 className="text-xl font-bold">Panel de Administración</h1>
-            <p className="text-xs text-muted-foreground mt-1">Solo personal autorizado</p>
+            <h1 className="text-xl font-bold">Panel SuperAdmin</h1>
+            <p className="text-xs text-muted-foreground mt-1">Solo personal autorizado · PULSE AI</p>
           </div>
 
-          {step === "login" ? (
-            <div className="rounded-2xl bg-surface border border-border p-6 space-y-4">
-              <div className="space-y-2">
-                <Label>Email administrativo</Label>
-                <Input type="email" placeholder="admin@pulseai.io" value={email} onChange={e => setEmail(e.target.value)} className="bg-black/20" onKeyDown={e => e.key === "Enter" && handleLogin()} />
-              </div>
-              <div className="space-y-2">
-                <Label>Contraseña</Label>
-                <div className="relative">
-                  <Input type={showPw ? "text" : "password"} placeholder="••••••••••••" value={password} onChange={e => setPassword(e.target.value)} className="bg-black/20 pr-10" onKeyDown={e => e.key === "Enter" && handleLogin()} />
-                  <button onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                    {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                  </button>
-                </div>
-              </div>
-              <Button variant="contrast" className="w-full" onClick={handleLogin} disabled={loading}>
-                <Lock className="size-4" /> {loading ? "Verificando..." : "Continuar"}
-              </Button>
+          <div className="rounded-2xl bg-surface border border-border p-6 space-y-4">
+            <div className="space-y-2">
+              <Label>Email de administrador</Label>
+              <Input type="email" placeholder="admin@pulseai.io" value={email} onChange={e => setEmail(e.target.value)} className="bg-black/20" onKeyDown={e => e.key === "Enter" && handleLogin()} />
             </div>
-          ) : (
-            <div className="rounded-2xl bg-surface border border-border p-6 space-y-4">
-              <div className="text-center py-2">
-                <div className="size-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-3">
-                  <Cpu className="size-6 text-primary" />
-                </div>
-                <p className="text-sm font-medium">Verificación de Dos Factores</p>
-                <p className="text-xs text-muted-foreground mt-1">Código de tu app autenticadora</p>
+            <div className="space-y-2">
+              <Label>Contraseña</Label>
+              <div className="relative">
+                <Input type={showPw ? "text" : "password"} placeholder="••••••••••••" value={password} onChange={e => setPassword(e.target.value)} className="bg-black/20 pr-10" onKeyDown={e => e.key === "Enter" && handleLogin()} />
+                <button onClick={() => setShowPw(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                  {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
               </div>
-              <Input placeholder="000000" value={mfa} onChange={e => setMfa(e.target.value.slice(0, 6))} className="bg-black/20 font-mono text-center text-xl tracking-widest" onKeyDown={e => e.key === "Enter" && handleMfa()} />
-              <Button variant="contrast" className="w-full" onClick={handleMfa} disabled={loading}>
-                {loading ? "Verificando..." : "Verificar y Acceder"}
-              </Button>
-              <button onClick={() => setStep("login")} className="w-full text-xs text-muted-foreground hover:text-foreground">← Volver</button>
             </div>
-          )}
+            <Button variant="contrast" className="w-full gap-2" onClick={handleLogin} disabled={loading}>
+              <Lock className="size-4" /> {loading ? "Verificando..." : "Ingresar al Panel"}
+            </Button>
+          </div>
 
           <div className="text-center">
-            <Link to="/" className="text-xs text-muted-foreground/40 hover:text-muted-foreground">Volver al sitio público</Link>
+            <Link to="/marketplace" className="text-xs text-muted-foreground/40 hover:text-muted-foreground">Volver al sitio público</Link>
           </div>
         </div>
       </div>
     );
   }
 
-  // ── Admin Panel ────────────────────────────────────────────────────────────
+  // ── Admin Panel (user is logged in and is admin) ──────────────────────────
   const tabs: { id: AdminTab; label: string; icon: typeof Shield; badge?: number }[] = [
     { id: "dashboard", label: "Resumen", icon: BarChart3 },
     { id: "vendors", label: "Vendedores", icon: Users, badge: pendingCount > 0 ? pendingCount : undefined },
@@ -784,8 +944,8 @@ function AdminPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-xs text-muted-foreground font-mono hidden sm:block">admin@pulseai.io</span>
-          <Button variant="outline" size="sm" onClick={() => setAuthed(false)}>Cerrar sesión</Button>
+          <span className="text-xs text-muted-foreground font-mono hidden sm:block">{user.email}</span>
+          <Button variant="outline" size="sm" onClick={() => { logout(); }}>Cerrar sesión</Button>
         </div>
       </header>
 
@@ -817,29 +977,7 @@ function AdminPage() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {activeTab === "dashboard" && <DashboardTab />}
         {activeTab === "vendors" && <VendorsTab />}
-        {activeTab === "products" && (
-          <div className="space-y-4">
-            <h2 className="font-bold">Todos los Productos del Marketplace</h2>
-            <div className="grid gap-3">
-              {products.map(p => (
-                <div key={p.id} className="flex items-center justify-between p-4 rounded-xl bg-surface border border-border">
-                  <div>
-                    <div className="font-medium text-sm">{p.name}</div>
-                    <div className="text-[11px] text-muted-foreground">{p.category} · {p.sales} ventas · ${p.revenue.toLocaleString()} ingresos</div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-mono border ${p.status === "live" ? "bg-primary/10 text-primary border-primary/20" : "bg-secondary text-muted-foreground border-border"}`}>
-                      {p.status.toUpperCase()}
-                    </span>
-                    <Button variant="outline" size="sm" className="text-destructive border-destructive/30 hover:bg-destructive/10 text-xs" onClick={() => toast.error(`Desactivando ${p.name}`)}>
-                      <Ban className="size-3.5" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {activeTab === "products" && <ProductsTab />}
         {activeTab === "users" && <UsersTab />}
         {activeTab === "security" && <SecurityTab />}
       </div>

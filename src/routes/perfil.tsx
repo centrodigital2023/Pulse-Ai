@@ -13,6 +13,7 @@ import { SiteFooter } from "@/components/marketing/SiteFooter";
 import { Button } from "@/components/ui/button";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { useAuth } from "@/lib/auth-context";
+import { supabase } from "@/integrations/supabase/client";
 import {
   useUserStore, fmtCOP,
   type CartItem,
@@ -472,14 +473,18 @@ function PerfilSection({ user }: { user: NonNullable<ReturnType<typeof useAuth>[
   const [showDelete, setShowDelete] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState("");
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
+    const { error } = await supabase.auth.updateUser({ data: { name } });
+    if (error) { toast.error("Error al guardar: " + error.message); return; }
     toast.success("Perfil actualizado correctamente");
   };
 
-  const handleChangePass = () => {
+  const handleChangePass = async () => {
     if (!currentPass) { toast.error("Ingresa tu contraseña actual"); return; }
     if (newPass.length < 8) { toast.error("La nueva contraseña debe tener mínimo 8 caracteres"); return; }
     if (newPass !== confirmPass) { toast.error("Las contraseñas no coinciden"); return; }
+    const { error } = await supabase.auth.updateUser({ password: newPass });
+    if (error) { toast.error("Error al cambiar contraseña: " + error.message); return; }
     toast.success("Contraseña actualizada correctamente");
     setCurrentPass(""); setNewPass(""); setConfirmPass("");
   };
@@ -733,10 +738,10 @@ function CreditoSection() {
         </h3>
         <div className="space-y-2">
           {[
-            ["Crédito de bienvenida", "$50.000", "Al registrarte"],
-            ["Invitar amigos", "$20.000 c/u", "Por cada amigo que compre"],
-            ["Reseñas verificadas", "$5.000 c/u", "Al dejar una reseña"],
-            ["Compras frecuentes", "Hasta 5%", "En tu próxima compra"],
+            ["Invitar amigos", "$25.000 c/u", "Por cada amigo que realice su primera compra"],
+            ["Reseñas verificadas", "$5.000 c/u", "Al dejar una reseña de compra verificada"],
+            ["Compras frecuentes", "Hasta 5%", "Cashback en tu próxima compra"],
+            ["Programa de referidos", "Ilimitado", "Sin tope de ganancias por referidos"],
           ].map(([action, amount, desc]) => (
             <div key={action} className="flex items-center justify-between py-2 border-b border-border last:border-0">
               <div>
@@ -1162,6 +1167,10 @@ function PerfilPage() {
   }
 
   const activeOrders = orders.filter(o => o.status === "completed");
+  const totalSpent = activeOrders.reduce((sum, o) => sum + o.total, 0);
+  const loyaltyTier = totalSpent >= 1000000 ? { label: "Gold", cls: "text-yellow-400 bg-yellow-400/10 border-yellow-400/20" }
+    : totalSpent >= 300000 ? { label: "Silver", cls: "text-slate-300 bg-slate-300/10 border-slate-300/20" }
+    : { label: "Starter", cls: "text-primary bg-primary/10 border-primary/20" };
 
   return (
     <div className="min-h-screen bg-background">
@@ -1196,27 +1205,36 @@ function PerfilPage() {
           <aside className="hidden md:flex flex-col gap-4 w-72 shrink-0">
             {/* User card */}
             <div className="bg-surface border border-border rounded-2xl p-5">
-              <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center gap-3 mb-3">
                 <div className="size-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center font-bold text-primary text-lg shrink-0">
                   {user.initials}
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="font-bold text-sm truncate">{user.name}</div>
                   <div className="text-[11px] text-muted-foreground truncate">{user.email}</div>
+                  <span className={`inline-flex items-center gap-1 mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${loyaltyTier.cls}`}>
+                    ★ {loyaltyTier.label}
+                  </span>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-2 text-center">
+              <div className="grid grid-cols-3 gap-2 text-center mb-3">
                 {[
-                  { label: "Pedidos", value: activeOrders.length },
-                  { label: "Créditos", value: fmtCOP(creditBalance) },
+                  { label: "Compras", value: activeOrders.length },
+                  { label: "Crédito", value: creditBalance > 0 ? fmtCOP(creditBalance) : "$0" },
                   { label: "Carrito", value: cartCount },
                 ].map(s => (
                   <div key={s.label} className="bg-background rounded-xl p-2 border border-border">
-                    <div className="text-sm font-bold">{s.value}</div>
+                    <div className="text-xs font-bold truncate">{s.value}</div>
                     <div className="text-[9px] text-muted-foreground">{s.label}</div>
                   </div>
                 ))}
               </div>
+              <a
+                href="/mis-compras"
+                className="w-full flex items-center justify-center gap-1.5 text-xs font-medium py-2 rounded-xl border border-border text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors"
+              >
+                <Download className="size-3.5" /> Ver mis descargas
+              </a>
             </div>
 
             {/* Nav */}

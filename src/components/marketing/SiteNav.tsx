@@ -3,7 +3,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
-import { useCanAccessDashboard } from "@/lib/db";
+import { useCanAccessDashboard, useIsAdmin } from "@/lib/db";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { useUserStore } from "@/lib/user-store";
 import {
@@ -23,6 +23,7 @@ interface MenuItem {
 export function SiteNav() {
   const { user, logout } = useAuth();
   const { canAccess: canAccessDashboard } = useCanAccessDashboard();
+  const { isAdmin } = useIsAdmin();
   const { cartCount } = useUserStore();
   const [showAuth, setShowAuth] = useState(false);
   const [dropOpen, setDropOpen] = useState(false);
@@ -85,7 +86,14 @@ export function SiteNav() {
               >
                 Afiliados
               </Link>
-              {canAccessDashboard && (
+              {isAdmin ? (
+                <Link
+                  to="/admin"
+                  className="hover:text-foreground transition-colors [&.active]:text-foreground text-destructive/70 hover:text-destructive"
+                >
+                  Admin
+                </Link>
+              ) : canAccessDashboard && (
                 <Link
                   to="/dashboard"
                   className="hover:text-foreground transition-colors [&.active]:text-foreground"
