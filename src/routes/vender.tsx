@@ -201,7 +201,10 @@ function BenefitsSidebar() {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 function VenderPage() {
+  const { user, signUp } = useAuth();
+  const navigate = useNavigate();
   const [step, setStep] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState<FormData>({
     name: "", email: "", phone: "", country: "Colombia", password: "",
     cedulaFront: null, cedulaBack: null, recibo: null,
@@ -212,6 +215,40 @@ function VenderPage() {
 
   const set = (k: keyof FormData, v: string | File | null) =>
     setForm(f => ({ ...f, [k]: v }));
+
+  // Real seller registration: create account if needed, then grant the seller (creator) role.
+  const submitSellerApplication = async () => {
+    if (!validateStep()) return;
+    setSubmitting(true);
+    try {
+      if (!user) {
+        const { error } = await signUp(form.name, form.email, form.password);
+        if (error) {
+          // If the account already exists, ask them to sign in instead.
+          toast.error(error.includes("registered") || error.includes("already")
+            ? "Ya existe una cuenta con ese email. Inicia sesión y vuelve a enviar."
+            : error);
+          setSubmitting(false);
+          return;
+        }
+        // Wait briefly for the session to be established after sign up.
+        await new Promise(r => setTimeout(r, 800));
+      }
+      const { error: rpcError } = await supabase.rpc("become_seller");
+      if (rpcError) {
+        toast.error("No pudimos activar tu cuenta de vendedor. Inicia sesión y reintenta.");
+        setSubmitting(false);
+        return;
+      }
+      setStep(4);
+      toast.success("¡Cuenta de vendedor activada! Ya tienes acceso al panel.");
+    } catch {
+      toast.error("Ocurrió un error. Inténtalo de nuevo.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
 
   const validateStep = () => {
     if (step === 0) {
