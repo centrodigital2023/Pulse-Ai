@@ -578,12 +578,14 @@ function VenderPage() {
               <Button
                 variant="contrast"
                 className="gap-2 px-8 font-bold"
-                onClick={step === 3 ? () => { if (validateStep()) { setStep(4); toast.success("¡Solicitud enviada correctamente!"); } } : next}
+                disabled={submitting}
+                onClick={step === 3 ? submitSellerApplication : next}
               >
-                {step === 3 ? "Enviar solicitud" : "Continuar"}
+                {step === 3 ? (submitting ? "Activando…" : "Activar mi cuenta de vendedor") : "Continuar"}
                 {step < 3 && <ChevronRight className="size-4" />}
               </Button>
             </div>
+
           )}
         </div>
 
