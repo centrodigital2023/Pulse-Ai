@@ -14,6 +14,427 @@ export type Database = {
   }
   public: {
     Tables: {
+      affiliate_commissions: {
+        Row: {
+          affiliate_id: string
+          amount: number
+          created_at: string
+          id: string
+          link_id: string
+          order_id: string | null
+          owner_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          affiliate_id: string
+          amount?: number
+          created_at?: string
+          id?: string
+          link_id: string
+          order_id?: string | null
+          owner_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          affiliate_id?: string
+          amount?: number
+          created_at?: string
+          id?: string
+          link_id?: string
+          order_id?: string | null
+          owner_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_commissions_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_commissions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliate_links: {
+        Row: {
+          affiliate_id: string
+          clicks: number
+          code: string
+          conversions: number
+          created_at: string
+          id: string
+          program_id: string
+          updated_at: string
+        }
+        Insert: {
+          affiliate_id: string
+          clicks?: number
+          code: string
+          conversions?: number
+          created_at?: string
+          id?: string
+          program_id: string
+          updated_at?: string
+        }
+        Update: {
+          affiliate_id?: string
+          clicks?: number
+          code?: string
+          conversions?: number
+          created_at?: string
+          id?: string
+          program_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_links_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliate_programs: {
+        Row: {
+          commission_rate: number
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+          product_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          name: string
+          owner_id: string
+          product_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
+          product_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_programs_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      analytics_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          owner_id: string
+          product_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          owner_id: string
+          product_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          owner_id?: string
+          product_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_events_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          entity: string | null
+          entity_id: string | null
+          id: string
+          ip: string | null
+          metadata: Json | null
+          owner_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          entity?: string | null
+          entity_id?: string | null
+          id?: string
+          ip?: string | null
+          metadata?: Json | null
+          owner_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          entity?: string | null
+          entity_id?: string | null
+          id?: string
+          ip?: string | null
+          metadata?: Json | null
+          owner_id?: string | null
+        }
+        Relationships: []
+      }
+      categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          owner_id: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          owner_id: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          owner_id?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      course_lessons: {
+        Row: {
+          content: string | null
+          course_id: string
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          module_id: string
+          owner_id: string
+          position: number
+          title: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          content?: string | null
+          course_id: string
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          module_id: string
+          owner_id: string
+          position?: number
+          title: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          content?: string | null
+          course_id?: string
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          module_id?: string
+          owner_id?: string
+          position?: number
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_lessons_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_lessons_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "course_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_modules: {
+        Row: {
+          course_id: string
+          created_at: string
+          id: string
+          owner_id: string
+          position: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          id?: string
+          owner_id: string
+          position?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          id?: string
+          owner_id?: string
+          position?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_modules_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_progress: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          course_id: string
+          created_at: string
+          id: string
+          lesson_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          course_id: string
+          created_at?: string
+          id?: string
+          lesson_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          course_id?: string
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_progress_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "course_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          cover_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          owner_id: string
+          product_id: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          owner_id: string
+          product_id?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          owner_id?: string
+          product_id?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "courses_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customers: {
         Row: {
           activations: number
@@ -56,6 +477,93 @@ export type Database = {
           products?: number
           segment?: string
           spent?: number
+        }
+        Relationships: []
+      }
+      downloads: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          file_name: string | null
+          id: string
+          ip: string | null
+          order_id: string | null
+          owner_id: string | null
+          product_id: string | null
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          file_name?: string | null
+          id?: string
+          ip?: string | null
+          order_id?: string | null
+          owner_id?: string | null
+          product_id?: string | null
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          file_name?: string | null
+          id?: string
+          ip?: string | null
+          order_id?: string | null
+          owner_id?: string | null
+          product_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "downloads_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "downloads_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_campaigns: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+          scheduled_at: string | null
+          sent_count: number
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          owner_id: string
+          scheduled_at?: string | null
+          sent_count?: number
+          status?: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
+          scheduled_at?: string | null
+          sent_count?: number
+          status?: string
+          subject?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -111,6 +619,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          link: string | null
+          read: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          read?: boolean
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          read?: boolean
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       orders: {
         Row: {
@@ -287,6 +828,180 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      subscription_events: {
+        Row: {
+          created_at: string
+          data: Json | null
+          event_type: string
+          id: string
+          owner_id: string
+          subscription_id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json | null
+          event_type: string
+          id?: string
+          owner_id: string
+          subscription_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json | null
+          event_type?: string
+          id?: string
+          owner_id?: string
+          subscription_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_events_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          amount: number
+          cancel_at_period_end: boolean
+          created_at: string
+          currency: string
+          current_period_end: string | null
+          customer_id: string | null
+          id: string
+          interval: string
+          owner_id: string
+          plan: string
+          product_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          cancel_at_period_end?: boolean
+          created_at?: string
+          currency?: string
+          current_period_end?: string | null
+          customer_id?: string | null
+          id?: string
+          interval?: string
+          owner_id: string
+          plan: string
+          product_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          cancel_at_period_end?: boolean
+          created_at?: string
+          currency?: string
+          current_period_end?: string | null
+          customer_id?: string | null
+          id?: string
+          interval?: string
+          owner_id?: string
+          plan?: string
+          product_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_messages: {
+        Row: {
+          author: string
+          body: string
+          created_at: string
+          id: string
+          owner_id: string
+          ticket_id: string
+        }
+        Insert: {
+          author: string
+          body: string
+          created_at?: string
+          id?: string
+          owner_id: string
+          ticket_id: string
+        }
+        Update: {
+          author?: string
+          body?: string
+          created_at?: string
+          id?: string
+          owner_id?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tickets: {
+        Row: {
+          created_at: string
+          customer_id: string | null
+          id: string
+          owner_id: string
+          priority: string
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          owner_id: string
+          priority?: string
+          status?: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          owner_id?: string
+          priority?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tickets_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
