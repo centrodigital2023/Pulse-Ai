@@ -17,6 +17,7 @@ import { WhatsAppFloat } from "@/components/ui/WhatsAppFloat";
 import { ProductsProvider } from "@/lib/products-store";
 import { UserStoreProvider } from "@/lib/user-store";
 import { AnalyticsScripts, AnalyticsNoScript } from "@/components/Analytics";
+import { CommandPalette } from "@/components/CommandPalette";
 
 const SITE_URL = "https://pulseai.co"; // ← cambia a tu dominio de producción
 
@@ -207,6 +208,7 @@ function RootComponent() {
       <AuthProvider>
         <ProductsProvider>
           <UserStoreProvider>
+            <CommandPalette />
             <Outlet />
             <WhatsAppFloat />
             <Toaster />

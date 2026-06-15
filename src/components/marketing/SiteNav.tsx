@@ -9,7 +9,7 @@ import { useUserStore } from "@/lib/user-store";
 import {
   ShoppingBag, Library, LogOut, ChevronDown, User, ShoppingCart,
   Star, Tag, Wallet, Store, Clock, Package, MapPin, Gift, TrendingUp,
-  ArrowLeft,
+  ArrowLeft, Search,
 } from "lucide-react";
 
 interface MenuItem {
@@ -98,6 +98,16 @@ export function SiteNav() {
 
           {/* Right: actions */}
           <div className="flex items-center gap-2">
+            {/* ⌘K trigger hint */}
+            <button
+              onClick={() => { const e = new KeyboardEvent("keydown", { key: "k", metaKey: true, ctrlKey: true, bubbles: true }); document.dispatchEvent(e); }}
+              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-border bg-surface/60 text-xs text-muted-foreground hover:border-primary/30 hover:text-foreground transition-all"
+              aria-label="Buscar (⌘K)"
+            >
+              <Search className="size-3.5" />
+              <span className="hidden lg:block">Buscar</span>
+              <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-black/30 text-[9px] font-mono border border-border">⌘K</kbd>
+            </button>
             <Link
               to="/vender"
               className="text-xs font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg px-3 py-1.5 hover:border-primary/30 transition-colors hidden sm:inline-flex items-center gap-1"
