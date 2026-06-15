@@ -234,7 +234,7 @@ function VenderPage() {
         // Wait briefly for the session to be established after sign up.
         await new Promise(r => setTimeout(r, 800));
       }
-      const { error: rpcError } = await supabase.rpc("become_seller");
+      const { error: rpcError } = await supabase.rpc("become_seller" as never);
       if (rpcError) {
         toast.error("No pudimos activar tu cuenta de vendedor. Inicia sesión y reintenta.");
         setSubmitting(false);
