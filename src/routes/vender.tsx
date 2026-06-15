@@ -1,6 +1,8 @@
 import { useState, useRef } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth-context";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -199,7 +201,10 @@ function BenefitsSidebar() {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 function VenderPage() {
+  const { user, signUp } = useAuth();
+  const navigate = useNavigate();
   const [step, setStep] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState<FormData>({
     name: "", email: "", phone: "", country: "Colombia", password: "",
     cedulaFront: null, cedulaBack: null, recibo: null,
@@ -210,6 +215,40 @@ function VenderPage() {
 
   const set = (k: keyof FormData, v: string | File | null) =>
     setForm(f => ({ ...f, [k]: v }));
+
+  // Real seller registration: create account if needed, then grant the seller (creator) role.
+  const submitSellerApplication = async () => {
+    if (!validateStep()) return;
+    setSubmitting(true);
+    try {
+      if (!user) {
+        const { error } = await signUp(form.name, form.email, form.password);
+        if (error) {
+          // If the account already exists, ask them to sign in instead.
+          toast.error(error.includes("registered") || error.includes("already")
+            ? "Ya existe una cuenta con ese email. Inicia sesión y vuelve a enviar."
+            : error);
+          setSubmitting(false);
+          return;
+        }
+        // Wait briefly for the session to be established after sign up.
+        await new Promise(r => setTimeout(r, 800));
+      }
+      const { error: rpcError } = await supabase.rpc("become_seller" as never);
+      if (rpcError) {
+        toast.error("No pudimos activar tu cuenta de vendedor. Inicia sesión y reintenta.");
+        setSubmitting(false);
+        return;
+      }
+      setStep(4);
+      toast.success("¡Cuenta de vendedor activada! Ya tienes acceso al panel.");
+    } catch {
+      toast.error("Ocurrió un error. Inténtalo de nuevo.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
 
   const validateStep = () => {
     if (step === 0) {
@@ -449,18 +488,18 @@ function VenderPage() {
         <Check className="size-10 text-primary" />
       </div>
       <div>
-        <h2 className="text-2xl font-bold mb-2">¡Solicitud enviada!</h2>
+        <h2 className="text-2xl font-bold mb-2">¡Tu cuenta de vendedor está activa!</h2>
         <p className="text-muted-foreground max-w-sm mx-auto">
-          Hola <strong>{form.name.split(" ")[0]}</strong>, recibimos tu solicitud para vender en PULSE AI. Nuestro equipo revisará tus documentos en las próximas <strong>24 horas hábiles</strong>.
+          Hola <strong>{form.name.split(" ")[0]}</strong>, ya eres vendedor en PULSE AI. Entra a tu panel para publicar tu primer producto y empezar a vender hoy mismo.
         </p>
       </div>
 
       <div className="rounded-2xl bg-surface border border-border p-6 max-w-sm mx-auto text-left space-y-3">
-        <h3 className="text-sm font-bold">¿Qué pasa ahora?</h3>
+        <h3 className="text-sm font-bold">Próximos pasos</h3>
         {[
-          { step: "1", label: "Revisamos tus documentos", time: "< 24 horas" },
-          { step: "2", label: "Te enviamos el email de aprobación", time: "Al aprobar" },
-          { step: "3", label: "Configuras tu tienda y publicas", time: "Inmediato" },
+          { step: "1", label: "Configura tu tienda y branding", time: "Inmediato" },
+          { step: "2", label: "Publica tu primer producto", time: "Inmediato" },
+          { step: "3", label: "Conecta tu método de cobro", time: "Inmediato" },
           { step: "4", label: "Empiezas a recibir pagos", time: "Semanal" },
         ].map(s => (
           <div key={s.step} className="flex items-start gap-3">
@@ -474,15 +513,16 @@ function VenderPage() {
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
-        <Button variant="contrast" asChild className="gap-2">
-          <Link to="/marketplace">Ver el Marketplace</Link>
+        <Button variant="contrast" className="gap-2" onClick={() => navigate({ to: "/dashboard" })}>
+          Ir a mi panel
         </Button>
         <Button variant="outline" asChild>
-          <Link to="/">Volver al inicio</Link>
+          <Link to="/marketplace">Ver el Marketplace</Link>
         </Button>
       </div>
     </div>
   );
+
 
   const stepContent = [renderStep0, renderStep1, renderStep2, renderStep3];
 
@@ -538,12 +578,14 @@ function VenderPage() {
               <Button
                 variant="contrast"
                 className="gap-2 px-8 font-bold"
-                onClick={step === 3 ? () => { if (validateStep()) { setStep(4); toast.success("¡Solicitud enviada correctamente!"); } } : next}
+                disabled={submitting}
+                onClick={step === 3 ? submitSellerApplication : next}
               >
-                {step === 3 ? "Enviar solicitud" : "Continuar"}
+                {step === 3 ? (submitting ? "Activando…" : "Activar mi cuenta de vendedor") : "Continuar"}
                 {step < 3 && <ChevronRight className="size-4" />}
               </Button>
             </div>
+
           )}
         </div>
 
