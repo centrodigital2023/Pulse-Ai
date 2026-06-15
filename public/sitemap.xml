@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- Página principal / Marketplace -->
+  <url>
+    <loc>https://pulseai.co/marketplace</loc>
+    <lastmod>2025-06-15</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="es-419" href="https://pulseai.co/marketplace"/>
+    <xhtml:link rel="alternate" hreflang="es-CO"  href="https://pulseai.co/marketplace"/>
+  </url>
+
+  <!-- Landing / Inicio -->
+  <url>
+    <loc>https://pulseai.co/</loc>
+    <lastmod>2025-06-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Vender en PULSE AI -->
+  <url>
+    <loc>https://pulseai.co/vender</loc>
+    <lastmod>2025-06-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="es-419" href="https://pulseai.co/vender"/>
+  </url>
+
+  <!-- Programa de Afiliados -->
+  <url>
+    <loc>https://pulseai.co/afiliados</loc>
+    <lastmod>2025-06-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="es-419" href="https://pulseai.co/afiliados"/>
+  </url>
+
+  <!-- Términos y Condiciones -->
+  <url>
+    <loc>https://pulseai.co/terminos</loc>
+    <lastmod>2025-06-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <!-- Política de Privacidad -->
+  <url>
+    <loc>https://pulseai.co/privacidad</loc>
+    <lastmod>2025-06-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <!-- Habeas Data -->
+  <url>
+    <loc>https://pulseai.co/habeas-data</loc>
+    <lastmod>2025-06-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <!-- Cumplimiento Legal -->
+  <url>
+    <loc>https://pulseai.co/cumplimiento</loc>
+    <lastmod>2025-06-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+</urlset>

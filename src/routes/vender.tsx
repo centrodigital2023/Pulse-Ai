@@ -15,9 +15,15 @@ import {
 export const Route = createFileRoute("/vender")({
   head: () => ({
     meta: [
-      { title: "Vende en PULSE AI — Registrarse como Vendedor" },
-      { name: "description", content: "Regístrate como vendedor en PULSE AI. Carga tus productos digitales y empieza a ganar hoy." },
+      { title: "Vende Productos Digitales en Colombia | Gana hasta 90% — PULSE AI" },
+      { name: "description", content: "Vende software, cursos, ebooks y templates en el marketplace digital #1 de Colombia. Publica gratis, cobra con Mercado Pago y gana hasta el 90% de comisión. Miles de compradores te esperan." },
+      { name: "keywords", content: "vender productos digitales colombia, publicar curso online colombia, vender software latam, marketplace vendedores digitales, gana dinero online colombia, mercado pago vendedor" },
+      { property: "og:title", content: "Vende Productos Digitales en PULSE AI — Hasta 90% de Comisión" },
+      { property: "og:description", content: "Publica gratis y llega a miles de compradores en Latinoamérica. Cobra con Mercado Pago cada semana." },
+      { property: "og:url", content: "https://pulseai.co/vender" },
+      { property: "og:type", content: "website" },
     ],
+    links: [{ rel: "canonical", href: "https://pulseai.co/vender" }],
   }),
   component: VenderPage,
 });

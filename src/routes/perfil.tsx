@@ -6,7 +6,8 @@ import {
   Package, AlertTriangle, Shield, RotateCcw,
   ShoppingCart, Heart, Eye, Edit2, CheckCircle2,
   Lock, Zap, Users, Share2, Link2, Download, Gift,
-  Minus,
+  Minus, Bell, BellOff, Trophy, Target, Flame, TrendingUp,
+  BookOpen, Sparkles, ArrowRight,
 } from "lucide-react";
 import { SiteNav, BackToMarketplace } from "@/components/marketing/SiteNav";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
@@ -28,7 +29,7 @@ export const Route = createFileRoute("/perfil")({
   component: PerfilPage,
 });
 
-type Section = "pedidos" | "resenas" | "perfil" | "cupones" | "credito" | "tiendas" | "historial" | "direcciones" | "referidos";
+type Section = "pedidos" | "resenas" | "perfil" | "cupones" | "credito" | "tiendas" | "historial" | "direcciones" | "referidos" | "notificaciones" | "logros";
 
 const NAV_ITEMS: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: "pedidos", label: "Tus pedidos", icon: ShoppingBag },
@@ -40,6 +41,8 @@ const NAV_ITEMS: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: "historial", label: "Historial", icon: Clock },
   { id: "direcciones", label: "Direcciones", icon: MapPin },
   { id: "referidos", label: "Referidos", icon: Gift },
+  { id: "notificaciones", label: "Notificaciones", icon: Bell },
+  { id: "logros", label: "Logros y Nivel", icon: Trophy },
 ];
 
 // ─── Star Rating ──────────────────────────────────────────────────────────────
@@ -1131,6 +1134,234 @@ function ReferidosSection() {
   );
 }
 
+// ─── Section: Notificaciones ──────────────────────────────────────────────────
+
+function NotificacionesSection() {
+  const [prefs, setPrefs] = useState({
+    compras: true,
+    ofertas: true,
+    referidos: true,
+    afiliados: false,
+    newsletter: true,
+    seguridad: true,
+    nuevosProductos: false,
+    recomendaciones: true,
+  });
+
+  const notifications = [
+    { id: "n1", icon: ShoppingBag, color: "text-primary", title: "Pedido #A9F2C completado", time: "hace 2 días", read: false, msg: "Tu descarga está lista. Accede en Mi Biblioteca." },
+    { id: "n2", icon: Tag, color: "text-yellow-400", title: "Cupón PULSE10 está por vencer", time: "hace 3 días", read: false, msg: "Tienes 2 días para usar tu descuento del 10%." },
+    { id: "n3", icon: Gift, color: "text-emerald-400", title: "¡Amigo referido realizó su primera compra!", time: "hace 5 días", read: true, msg: "Recibiste $25.000 COP en créditos. ¡Sigue invitando!" },
+    { id: "n4", icon: Star, color: "text-orange-400", title: "Recuerda dejar tu reseña", time: "hace 1 semana", read: true, msg: "Comparte tu experiencia y gana $5.000 COP en créditos." },
+  ];
+
+  const toggle = (key: keyof typeof prefs) => setPrefs(p => ({ ...p, [key]: !p[key] }));
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-xl font-bold mb-2">Notificaciones</h2>
+        <p className="text-sm text-muted-foreground mb-6">Gestiona tus alertas y preferencias de comunicación.</p>
+      </div>
+
+      {/* Inbox */}
+      <div className="bg-surface border border-border rounded-2xl overflow-hidden">
+        <div className="px-5 py-3 border-b border-border flex items-center justify-between">
+          <span className="text-sm font-bold flex items-center gap-2">
+            <Bell className="size-4 text-primary" /> Bandeja de entrada
+          </span>
+          <span className="text-xs text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-full">
+            {notifications.filter(n => !n.read).length} nuevas
+          </span>
+        </div>
+        <div className="divide-y divide-border">
+          {notifications.map(n => (
+            <div key={n.id} className={`flex items-start gap-4 px-5 py-4 transition-colors ${!n.read ? "bg-primary/3" : "hover:bg-black/5"}`}>
+              <div className={`size-9 rounded-xl bg-black/20 flex items-center justify-center shrink-0 mt-0.5`}>
+                <n.icon className={`size-4 ${n.color}`} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold">{n.title}</span>
+                  {!n.read && <span className="size-2 rounded-full bg-primary shrink-0" />}
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">{n.msg}</p>
+                <span className="text-[10px] text-muted-foreground/60 mt-1 block">{n.time}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Preferences */}
+      <div className="bg-surface border border-border rounded-2xl p-5">
+        <h3 className="font-bold mb-4 flex items-center gap-2">
+          <BellOff className="size-4 text-muted-foreground" /> Preferencias de notificación
+        </h3>
+        <div className="space-y-1">
+          {([
+            ["compras", "Confirmaciones de compra", "Cuando un pago se procesa exitosamente"],
+            ["ofertas", "Ofertas y descuentos", "Alertas de flash sales y cupones exclusivos"],
+            ["referidos", "Programa de referidos", "Cuando un amigo tuyo se registra o compra"],
+            ["afiliados", "Actividad de afiliados", "Clicks y conversiones en tus enlaces"],
+            ["nuevosProductos", "Nuevos productos", "Cuando hay productos nuevos en categorías que te gustan"],
+            ["recomendaciones", "Recomendaciones IA", "Sugerencias personalizadas basadas en tus compras"],
+            ["newsletter", "Newsletter semanal", "Resumen de lo mejor del marketplace cada semana"],
+            ["seguridad", "Seguridad de la cuenta", "Inicios de sesión y cambios de contraseña"],
+          ] as [keyof typeof prefs, string, string][]).map(([key, label, desc]) => (
+            <div key={key} className="flex items-center justify-between py-3 border-b border-border last:border-0">
+              <div>
+                <div className="text-sm font-medium">{label}</div>
+                <div className="text-[11px] text-muted-foreground">{desc}</div>
+              </div>
+              <button
+                onClick={() => toggle(key)}
+                className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ml-4 ${prefs[key] ? "bg-primary" : "bg-border"}`}
+              >
+                <span className={`absolute top-0.5 size-5 rounded-full bg-white shadow transition-transform ${prefs[key] ? "translate-x-5" : "translate-x-0.5"}`} />
+              </button>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 pt-4 border-t border-border">
+          <button onClick={() => { Object.keys(prefs).forEach(k => setPrefs(p => ({ ...p, [k]: false }))); }} className="text-xs text-muted-foreground hover:text-destructive transition-colors">
+            Desactivar todas las notificaciones
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Section: Logros y Nivel ──────────────────────────────────────────────────
+
+function LogrosSection() {
+  const { orders, referredUsers, reviews, creditBalance } = useUserStore();
+  const completedOrders = orders.filter(o => o.status === "completed");
+  const totalSpent = completedOrders.reduce((s, o) => s + o.total, 0);
+  const conversions = referredUsers.filter(r => r.hasConverted).length;
+
+  const tiers = [
+    { id: "starter", label: "Starter", min: 0, max: 300000, color: "text-primary", bg: "bg-primary/10", border: "border-primary/20" },
+    { id: "silver", label: "Silver", min: 300000, max: 1000000, color: "text-slate-300", bg: "bg-slate-300/10", border: "border-slate-300/20" },
+    { id: "gold", label: "Gold", min: 1000000, max: 3000000, color: "text-yellow-400", bg: "bg-yellow-400/10", border: "border-yellow-400/20" },
+    { id: "platinum", label: "Platinum", min: 3000000, max: 10000000, color: "text-purple-400", bg: "bg-purple-400/10", border: "border-purple-400/20" },
+    { id: "diamond", label: "Diamond", min: 10000000, max: Infinity, color: "text-blue-400", bg: "bg-blue-400/10", border: "border-blue-400/20" },
+  ];
+
+  const currentTier = tiers.find(t => totalSpent >= t.min && totalSpent < t.max) ?? tiers[0];
+  const nextTier = tiers[tiers.indexOf(currentTier) + 1];
+  const progress = nextTier ? Math.min(100, ((totalSpent - currentTier.min) / (nextTier.min - currentTier.min)) * 100) : 100;
+
+  const achievements = [
+    { icon: ShoppingBag, label: "Primera compra", desc: "Realizaste tu primera compra", earned: completedOrders.length >= 1, pts: 100 },
+    { icon: Star, label: "Reseñador activo", desc: "Deja 3 reseñas verificadas", earned: reviews.length >= 3, pts: 150 },
+    { icon: Users, label: "Conector social", desc: "Refiere 3 amigos al marketplace", earned: referredUsers.length >= 3, pts: 300 },
+    { icon: Trophy, label: "Comprador VIP", desc: "Acumula $300.000 COP en compras", earned: totalSpent >= 300000, pts: 500 },
+    { icon: Flame, label: "Racha ganadora", desc: "3 compras en menos de 30 días", earned: completedOrders.length >= 3, pts: 250 },
+    { icon: TrendingUp, label: "Embajador", desc: "Convierte 5 referidos en compradores", earned: conversions >= 5, pts: 750 },
+    { icon: BookOpen, label: "Coleccionista", desc: "Compra productos de 3 categorías distintas", earned: new Set(completedOrders.flatMap(o => o.items.map(i => i.category))).size >= 3, pts: 200 },
+    { icon: Sparkles, label: "Afiliado estrella", desc: "Únete al programa de afiliados", earned: creditBalance > 0, pts: 100 },
+  ];
+
+  const earnedCount = achievements.filter(a => a.earned).length;
+  const totalPoints = achievements.filter(a => a.earned).reduce((s, a) => s + a.pts, 0);
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-xl font-bold mb-2">Logros y Nivel</h2>
+        <p className="text-sm text-muted-foreground mb-6">Tu progreso y recompensas por ser un cliente activo de PULSE AI.</p>
+      </div>
+
+      {/* Current tier card */}
+      <div className={`relative rounded-2xl border ${currentTier.border} ${currentTier.bg} p-6 overflow-hidden`}>
+        <div className="absolute top-0 right-0 text-[120px] font-black opacity-5 leading-none select-none -mt-4 -mr-4">
+          {currentTier.label[0]}
+        </div>
+        <div className="relative flex items-center gap-5">
+          <div className={`size-16 rounded-2xl ${currentTier.bg} border ${currentTier.border} flex items-center justify-center`}>
+            <Trophy className={`size-8 ${currentTier.color}`} />
+          </div>
+          <div className="flex-1">
+            <div className={`text-xs font-bold uppercase tracking-widest ${currentTier.color} mb-1`}>Nivel actual</div>
+            <div className="text-2xl font-extrabold">{currentTier.label}</div>
+            <div className="text-sm text-muted-foreground">{totalPoints} puntos · {earnedCount}/{achievements.length} logros</div>
+          </div>
+        </div>
+
+        {nextTier && (
+          <div className="mt-5">
+            <div className="flex items-center justify-between text-xs mb-2">
+              <span className="text-muted-foreground">Progreso hacia <strong className="text-foreground">{nextTier.label}</strong></span>
+              <span className="font-mono font-bold">{Math.round(progress)}%</span>
+            </div>
+            <div className="h-2 rounded-full bg-black/20 overflow-hidden">
+              <div className={`h-full rounded-full ${currentTier.color.replace("text-", "bg-")} transition-all duration-700`} style={{ width: `${progress}%` }} />
+            </div>
+            <div className="text-[10px] text-muted-foreground mt-1.5">
+              Te faltan <strong className="text-foreground">{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(Math.max(0, nextTier.min - totalSpent))}</strong> en compras para alcanzar {nextTier.label}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Tier roadmap */}
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+        {tiers.map(tier => {
+          const reached = totalSpent >= tier.min;
+          return (
+            <div key={tier.id} className={`rounded-xl border p-3 text-center transition-all ${reached ? `${tier.bg} ${tier.border}` : "border-border bg-surface opacity-40"}`}>
+              <Trophy className={`size-5 mx-auto mb-1 ${reached ? tier.color : "text-muted-foreground"}`} />
+              <div className={`text-xs font-bold ${reached ? tier.color : "text-muted-foreground"}`}>{tier.label}</div>
+              <div className="text-[9px] text-muted-foreground mt-0.5">
+                {tier.min === 0 ? "Gratis" : `$${(tier.min / 1000).toFixed(0)}k`}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Achievements grid */}
+      <div>
+        <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-4">Logros desbloqueables</h3>
+        <div className="grid sm:grid-cols-2 gap-3">
+          {achievements.map(a => (
+            <div key={a.label} className={`flex items-center gap-4 p-4 rounded-2xl border transition-all ${a.earned ? "border-primary/30 bg-primary/5" : "border-border bg-surface opacity-60"}`}>
+              <div className={`size-12 rounded-xl flex items-center justify-center shrink-0 ${a.earned ? "bg-primary/10 border border-primary/20" : "bg-black/20 border border-border"}`}>
+                {a.earned ? (
+                  <a.icon className="size-5 text-primary" />
+                ) : (
+                  <Lock className="size-5 text-muted-foreground" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold flex items-center gap-2">
+                  {a.label}
+                  {a.earned && <CheckCircle2 className="size-3.5 text-primary shrink-0" />}
+                </div>
+                <div className="text-[11px] text-muted-foreground">{a.desc}</div>
+              </div>
+              <div className={`text-xs font-bold shrink-0 ${a.earned ? "text-primary" : "text-muted-foreground"}`}>+{a.pts} pts</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* CTA */}
+      <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-2xl p-5 flex items-center justify-between gap-4">
+        <div>
+          <div className="font-bold mb-1">¿Quieres subir de nivel más rápido?</div>
+          <div className="text-sm text-muted-foreground">Invita amigos y gana $25.000 por cada conversión. ¡Sin límite!</div>
+        </div>
+        <a href="/perfil?s=referidos" className="shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 transition-colors">
+          Referir amigos <ArrowRight className="size-4" />
+        </a>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 function PerfilPage() {
@@ -1168,9 +1399,18 @@ function PerfilPage() {
 
   const activeOrders = orders.filter(o => o.status === "completed");
   const totalSpent = activeOrders.reduce((sum, o) => sum + o.total, 0);
-  const loyaltyTier = totalSpent >= 1000000 ? { label: "Gold", cls: "text-yellow-400 bg-yellow-400/10 border-yellow-400/20" }
-    : totalSpent >= 300000 ? { label: "Silver", cls: "text-slate-300 bg-slate-300/10 border-slate-300/20" }
-    : { label: "Starter", cls: "text-primary bg-primary/10 border-primary/20" };
+  const loyaltyTiers = [
+    { label: "Starter", min: 0, max: 300000, cls: "text-primary bg-primary/10 border-primary/20", bar: "bg-primary" },
+    { label: "Silver", min: 300000, max: 1000000, cls: "text-slate-300 bg-slate-300/10 border-slate-300/20", bar: "bg-slate-300" },
+    { label: "Gold", min: 1000000, max: 3000000, cls: "text-yellow-400 bg-yellow-400/10 border-yellow-400/20", bar: "bg-yellow-400" },
+    { label: "Platinum", min: 3000000, max: 10000000, cls: "text-purple-400 bg-purple-400/10 border-purple-400/20", bar: "bg-purple-400" },
+    { label: "Diamond", min: 10000000, max: Infinity, cls: "text-blue-400 bg-blue-400/10 border-blue-400/20", bar: "bg-blue-400" },
+  ];
+  const loyaltyTier = loyaltyTiers.find(t => totalSpent >= t.min && totalSpent < t.max) ?? loyaltyTiers[0];
+  const nextTier = loyaltyTiers[loyaltyTiers.indexOf(loyaltyTier) + 1];
+  const loyaltyProgress = nextTier
+    ? Math.min(100, ((totalSpent - loyaltyTier.min) / (nextTier.min - loyaltyTier.min)) * 100)
+    : 100;
 
   return (
     <div className="min-h-screen bg-background">
@@ -1212,11 +1452,25 @@ function PerfilPage() {
                 <div className="min-w-0 flex-1">
                   <div className="font-bold text-sm truncate">{user.name}</div>
                   <div className="text-[11px] text-muted-foreground truncate">{user.email}</div>
-                  <span className={`inline-flex items-center gap-1 mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${loyaltyTier.cls}`}>
-                    ★ {loyaltyTier.label}
-                  </span>
+                  <button onClick={() => setSection("logros")} className={`inline-flex items-center gap-1 mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full border transition-colors hover:opacity-80 ${loyaltyTier.cls}`}>
+                    <Trophy className="size-2.5" /> {loyaltyTier.label}
+                  </button>
                 </div>
               </div>
+
+              {/* Loyalty progress bar */}
+              {nextTier && (
+                <div className="mb-3">
+                  <div className="flex justify-between text-[9px] text-muted-foreground mb-1">
+                    <span>{loyaltyTier.label}</span>
+                    <span>{Math.round(loyaltyProgress)}% → {nextTier.label}</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-black/20 overflow-hidden">
+                    <div className={`h-full rounded-full transition-all ${loyaltyTier.bar}`} style={{ width: `${loyaltyProgress}%` }} />
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-3 gap-2 text-center mb-3">
                 {[
                   { label: "Compras", value: activeOrders.length },
@@ -1296,6 +1550,8 @@ function PerfilPage() {
             {section === "historial" && <HistorialSection />}
             {section === "direcciones" && <DireccionesSection />}
             {section === "referidos" && <ReferidosSection />}
+            {section === "notificaciones" && <NotificacionesSection />}
+            {section === "logros" && <LogrosSection />}
 
             {/* Mobile logout */}
             <div className="md:hidden mt-10 pt-6 border-t border-border flex gap-3">

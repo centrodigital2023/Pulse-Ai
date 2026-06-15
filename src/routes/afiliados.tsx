@@ -4,23 +4,30 @@ import {
   TrendingUp, DollarSign, Users, Link2, Copy, Check, ChevronDown, ChevronUp,
   Zap, Shield, Star, BarChart3, Share2, Gift, Rocket, ArrowRight,
   Package, BookOpen, Code2, Image, MessageSquare, ExternalLink,
-  Wallet, Clock, CheckCircle2, Globe,
+  Wallet, Clock, CheckCircle2, Globe, Trophy, Target, Flame,
+  Lightbulb, Award, Play, ChevronRight,
 } from "lucide-react";
 import { SiteNav, BackToMarketplace } from "@/components/marketing/SiteNav";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
 import { Button } from "@/components/ui/button";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { useAuth } from "@/lib/auth-context";
-import { useUserStore, fmtCOP, CATEGORY_COMMISSIONS, type AffiliateLink } from "@/lib/user-store";
+import { useUserStore, fmtCOP, type AffiliateLink } from "@/lib/user-store";
 import { useAllListings } from "@/lib/products-store";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/afiliados")({
   head: () => ({
     meta: [
-      { title: "Programa de Afiliados — PULSE AI | Gana comisiones en línea" },
-      { name: "description", content: "Sé afiliado PULSE AI y gana hasta 40% de comisión vendiendo productos digitales premium. Regístrate gratis y empieza a ganar hoy." },
+      { title: "Programa de Afiliados Colombia | Gana hasta 40% de Comisión — PULSE AI" },
+      { name: "description", content: "Gana hasta 40% de comisión como afiliado PULSE AI. Comparte tu enlace, vende productos digitales y cobra cada 15 días. Sin inversión, sin inventario. El programa de afiliados más rentable de Colombia." },
+      { name: "keywords", content: "programa afiliados colombia, ganar dinero afiliados, comisiones productos digitales, marketing de afiliados colombia, ingresos pasivos online colombia, afiliados mercado pago" },
+      { property: "og:title", content: "Programa de Afiliados PULSE AI — Gana hasta 40% de Comisión" },
+      { property: "og:description", content: "Comparte un enlace, gana comisiones. Sin inversión, sin inventario. Cobros cada 15 días con Mercado Pago." },
+      { property: "og:url", content: "https://pulseai.co/afiliados" },
+      { property: "og:type", content: "website" },
     ],
+    links: [{ rel: "canonical", href: "https://pulseai.co/afiliados" }],
   }),
   component: AfiliadosPage,
 });
@@ -266,6 +273,7 @@ function AffiliateDashboard() {
 
   const copyLink = (url: string, id: string) => {
     navigator.clipboard.writeText(url);
+    trackAffiliateClick(id);
     setCopiedId(id);
     toast.success("¡Enlace copiado al portapapeles!");
     setTimeout(() => setCopiedId(null), 2000);
@@ -453,6 +461,145 @@ function AffiliateDashboard() {
           </div>
         </div>
       )}
+
+      {/* Monthly Goals */}
+      <div className="bg-surface border border-border rounded-2xl p-6">
+        <h2 className="font-bold text-lg mb-1 flex items-center gap-2">
+          <Target className="size-5 text-primary" /> Metas del mes
+        </h2>
+        <p className="text-xs text-muted-foreground mb-5">Alcanza tus metas y desbloquea bonos adicionales.</p>
+        <div className="space-y-5">
+          {[
+            { label: "Clicks generados", current: affiliateTotalClicks, goal: 500, unit: "clicks", reward: "$15.000 bono", color: "bg-blue-400" },
+            { label: "Ventas concretadas", current: affiliateTotalConversions, goal: 10, unit: "ventas", reward: "$50.000 bono", color: "bg-emerald-400" },
+            { label: "Comisiones ganadas", current: affiliateEarnings, goal: 500000, unit: "COP", reward: "Nivel Diamante", color: "bg-primary", isCurrency: true },
+          ].map(g => {
+            const pct = Math.min(100, (g.current / g.goal) * 100);
+            return (
+              <div key={g.label}>
+                <div className="flex items-center justify-between text-sm mb-2">
+                  <span className="font-medium">{g.label}</span>
+                  <span className="text-[11px] text-muted-foreground">
+                    {g.isCurrency ? fmtCOP(g.current) : g.current.toLocaleString("es-CO")} / {g.isCurrency ? fmtCOP(g.goal) : g.goal.toLocaleString("es-CO")} {!g.isCurrency && g.unit}
+                  </span>
+                </div>
+                <div className="h-2.5 rounded-full bg-black/20 overflow-hidden mb-1.5">
+                  <div className={`h-full rounded-full ${g.color} transition-all duration-700`} style={{ width: `${pct}%` }} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-muted-foreground">{Math.round(pct)}% completado</span>
+                  <span className="text-[10px] font-bold text-primary flex items-center gap-1">
+                    <Gift className="size-3" /> {g.reward}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Leaderboard */}
+      <div className="bg-surface border border-border rounded-2xl p-6">
+        <h2 className="font-bold text-lg mb-1 flex items-center gap-2">
+          <Trophy className="size-5 text-yellow-400" /> Top Afiliados del Mes
+        </h2>
+        <p className="text-xs text-muted-foreground mb-5">Compite con otros afiliados y gana bonos exclusivos de temporada.</p>
+        <div className="space-y-3">
+          {[
+            { pos: 1, name: "Carlos M.", city: "Bogotá", earnings: 4200000, sales: 84, badge: "🥇" },
+            { pos: 2, name: "Diego R.", city: "Cali", earnings: 3800000, sales: 76, badge: "🥈" },
+            { pos: 3, name: "Laura P.", city: "Medellín", earnings: 1800000, sales: 36, badge: "🥉" },
+            { pos: 4, name: "Ana G.", city: "Barranquilla", earnings: 1200000, sales: 24, badge: "4°" },
+            { pos: 5, name: "Tú", city: "—", earnings: affiliateEarnings, sales: affiliateTotalConversions, badge: "—", isMe: true },
+          ].map(a => (
+            <div key={a.pos} className={`flex items-center gap-4 p-3 rounded-xl border transition-all ${(a as {isMe?: boolean}).isMe ? "border-primary/30 bg-primary/5" : "border-border hover:bg-black/5"}`}>
+              <div className="text-lg w-8 text-center shrink-0">{a.badge}</div>
+              <div className="size-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-[10px] font-bold text-primary shrink-0">
+                {a.name.split(" ")[0][0]}{a.name.split(" ")[1]?.[0] ?? ""}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold flex items-center gap-1.5">
+                  {a.name}
+                  {(a as {isMe?: boolean}).isMe && <span className="text-[9px] text-primary font-bold bg-primary/10 px-1.5 py-0.5 rounded-full">TÚ</span>}
+                </div>
+                <div className="text-[10px] text-muted-foreground">{a.city} · {a.sales} ventas</div>
+              </div>
+              <div className="text-right shrink-0">
+                <div className="font-extrabold text-sm text-emerald-400">{fmtCOP(a.earnings)}</div>
+                <div className="text-[9px] text-muted-foreground">este mes</div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 pt-4 border-t border-border text-center">
+          <p className="text-xs text-muted-foreground">El top 3 recibe un bono adicional del <strong className="text-primary">5% extra</strong> en sus comisiones del próximo ciclo.</p>
+        </div>
+      </div>
+
+      {/* Income Projection */}
+      <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-2xl p-6">
+        <h2 className="font-bold text-lg mb-1 flex items-center gap-2">
+          <TrendingUp className="size-5 text-primary" /> Proyección de ingresos
+        </h2>
+        <p className="text-xs text-muted-foreground mb-5">Basada en tu tasa de conversión actual y tendencias del marketplace.</p>
+        <div className="grid grid-cols-3 gap-4 mb-5">
+          {[
+            { label: "Este mes (estimado)", value: fmtCOP(affiliateEarnings + affiliatePendingEarnings), color: "text-foreground" },
+            { label: "Si duplicas tus clicks", value: fmtCOP((affiliateEarnings + affiliatePendingEarnings) * 2), color: "text-primary" },
+            { label: "Potencial a 90 días", value: fmtCOP((affiliateEarnings + affiliatePendingEarnings) * 3.5), color: "text-emerald-400" },
+          ].map(p => (
+            <div key={p.label} className="bg-background border border-border rounded-xl p-4 text-center">
+              <div className={`text-xl font-extrabold ${p.color}`}>{p.value}</div>
+              <div className="text-[10px] text-muted-foreground mt-1 leading-tight">{p.label}</div>
+            </div>
+          ))}
+        </div>
+        <div className="space-y-2">
+          {[
+            { icon: Flame, text: "Publica 2 posts semanales con tu enlace para triplicar los clicks.", color: "text-orange-400" },
+            { icon: Zap, text: "Los productos de software generan 30% más comisión. Priorízalos.", color: "text-yellow-400" },
+            { icon: Share2, text: "WhatsApp tiene la tasa de conversión más alta (8.4%). Úsalo primero.", color: "text-emerald-400" },
+          ].map(tip => (
+            <div key={tip.text} className="flex items-start gap-3 p-3 rounded-xl bg-black/20 border border-border">
+              <tip.icon className={`size-4 ${tip.color} shrink-0 mt-0.5`} />
+              <p className="text-xs text-muted-foreground">{tip.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Training Center */}
+      <div className="bg-surface border border-border rounded-2xl p-6">
+        <h2 className="font-bold text-lg mb-1 flex items-center gap-2">
+          <Lightbulb className="size-5 text-yellow-400" /> Centro de formación
+        </h2>
+        <p className="text-xs text-muted-foreground mb-5">Aprende las mejores estrategias de los afiliados top de PULSE AI.</p>
+        <div className="grid sm:grid-cols-2 gap-4">
+          {[
+            { icon: Play, title: "Cómo crear contenido viral para vender", duration: "12 min", category: "Video", new: true },
+            { icon: BookOpen, title: "Guía: WhatsApp Marketing para afiliados", duration: "8 min lectura", category: "Guía" },
+            { icon: BarChart3, title: "Análisis: qué productos convierten más en 2025", duration: "15 min lectura", category: "Análisis", new: true },
+            { icon: Award, title: "Casos de éxito: de $0 a $4M/mes en 3 meses", duration: "20 min lectura", category: "Caso de éxito" },
+          ].map(r => (
+            <div key={r.title} className="flex items-start gap-3 p-4 rounded-xl border border-border hover:border-primary/30 hover:bg-white/2 transition-all group cursor-pointer">
+              <div className="size-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
+                <r.icon className="size-4 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="text-[9px] font-bold text-primary uppercase tracking-wider">{r.category}</span>
+                  {r.new && <span className="text-[8px] font-bold bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded-full">NUEVO</span>}
+                </div>
+                <div className="text-sm font-semibold leading-tight mb-1">{r.title}</div>
+                <div className="text-[10px] text-muted-foreground flex items-center gap-1">
+                  <Clock className="size-3" /> {r.duration}
+                </div>
+              </div>
+              <ChevronRight className="size-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0 mt-1" />
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

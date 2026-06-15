@@ -13,16 +13,24 @@ import { useUserStore } from "@/lib/user-store";
 import {
   Search, Star, ShoppingCart, ChevronLeft, ChevronRight,
   Flame, Clock, Eye, Zap, Shield, Download, Bell,
-  Facebook, Twitter, Share2, X, Check, TrendingUp, Users,
+  Share2, X, Check, TrendingUp, Users,
   ArrowRight, Tag, Package, Sparkles, Bot,
 } from "lucide-react";
 
 export const Route = createFileRoute("/marketplace")({
   head: () => ({
     meta: [
-      { title: "Marketplace — PULSE AI | Productos Digitales Premium" },
-      { name: "description", content: "Miles de productos digitales: software, cursos, templates y ebooks. Compra y descarga instantánea con Mercado Pago." },
+      { title: "Marketplace de Productos Digitales | Software, Cursos, Templates — PULSE AI" },
+      { name: "description", content: "Compra software, cursos online, templates y eBooks con descarga instantánea. Paga con Mercado Pago, PSE o Nequi. +148 productos verificados con garantía de 30 días. El marketplace digital #1 de Colombia y Latinoamérica." },
+      { name: "keywords", content: "marketplace digital colombia, comprar software online, cursos online colombia, templates digitales, ebooks colombia, mercado pago, productos digitales descarga instantanea, afiliados digitales colombia" },
+      { property: "og:title", content: "Marketplace de Productos Digitales Premium — PULSE AI" },
+      { property: "og:description", content: "+148 productos digitales: software, cursos, templates y eBooks. Paga con Mercado Pago y descarga al instante. Garantía 30 días." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://pulseai.co/marketplace" },
+      { name: "twitter:title", content: "Marketplace Productos Digitales Premium — PULSE AI Colombia" },
+      { name: "twitter:description", content: "+148 productos: software, cursos, templates y eBooks con Mercado Pago. Descarga instantánea." },
     ],
+    links: [{ rel: "canonical", href: "https://pulseai.co/marketplace" }],
   }),
   component: MarketplacePage,
 });
@@ -175,7 +183,7 @@ function ProductCard({ listing, onBuy, compact = false }: {
         {/* Actions */}
         <div className="absolute top-3 right-3 flex flex-col gap-2">
           <button onClick={shareOnFacebook} className="size-8 rounded-full bg-[#1877F2] flex items-center justify-center hover:scale-110 transition-transform shadow-lg" title="Compartir en Facebook">
-            <Facebook className="size-3.5 text-white" />
+            <span className="text-white text-xs font-bold leading-none">f</span>
           </button>
           <button aria-label="Agregar a favoritos" onClick={e => { e.stopPropagation(); toast.success("Agregado a favoritos ❤️"); }} className="size-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 flex items-center justify-center hover:scale-110 transition-transform shadow-lg">
             <Star className="size-3.5 text-yellow-400" />
@@ -322,6 +330,7 @@ function MarketplacePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const allListings = useAllListings();
+  const { addToCart, setPendingCheckoutItems } = useUserStore();
   const [activeCategory, setActiveCategory] = useState("all");
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
@@ -374,6 +383,22 @@ function MarketplacePage() {
       setShowAuth(true);
       return;
     }
+    addToCart(listing);
+    setPendingCheckoutItems([{
+      id: listing.id,
+      name: listing.name,
+      tagline: listing.tagline,
+      vendor: listing.vendor,
+      vendorAvatar: listing.vendorAvatar,
+      price: listing.price,
+      originalPrice: listing.originalPrice,
+      image: listing.image,
+      category: listing.category,
+      rating: listing.rating,
+      totalReviews: listing.reviews,
+      totalSales: listing.sales,
+      addedAt: new Date().toISOString(),
+    }]);
     navigate({ to: "/checkout" });
   };
 
@@ -784,13 +809,13 @@ function MarketplacePage() {
               onClick={() => { window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent("https://pulseai.io/marketplace")}`, "_blank", "width=600,height=400"); toast.success("¡Compartido en Facebook!"); }}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1877F2] text-white font-medium hover:bg-[#1877F2]/90 transition-colors text-sm"
             >
-              <Facebook className="size-4" /> Facebook
+              <span className="font-bold text-base leading-none">f</span> Facebook
             </button>
             <button
               onClick={() => { window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent("🔥 Productos digitales increíbles en PULSE AI — software, cursos y más!")}&url=${encodeURIComponent("https://pulseai.io/marketplace")}`, "_blank", "width=600,height=400"); toast.success("¡Compartido!"); }}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-black text-white font-medium hover:bg-black/80 transition-colors text-sm"
             >
-              <Twitter className="size-4" /> X / Twitter
+              <span className="font-bold text-sm leading-none">𝕏</span> X / Twitter
             </button>
             <button
               onClick={() => { navigator.clipboard?.writeText("https://pulseai.io/marketplace"); toast.success("Enlace copiado"); }}

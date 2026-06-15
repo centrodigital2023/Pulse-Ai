@@ -1,4 +1,17 @@
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /checkout
+Disallow: /pago-exitoso
+Disallow: /pago-fallido
 
-Sitemap: https://package-pal-55.lovable.app/sitemap.xml
+# Sitemap principal
+Sitemap: https://pulseai.co/sitemap.xml
+
+# Crawl-delay para bots agresivos
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10

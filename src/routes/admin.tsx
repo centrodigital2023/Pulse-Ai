@@ -11,7 +11,9 @@ import {
   Settings, Globe, Database, Cpu, Search, Filter,
   CheckCheck, Ban, Trash2, ChevronDown, X,
   Mail, Phone, MapPin, Calendar, Star, ExternalLink,
-  RefreshCw, User,
+  RefreshCw, User, Wallet, CreditCard, Percent, Bell,
+  ToggleLeft, ToggleRight, ArrowUpRight, ArrowDownRight, Zap,
+  FileText, Building2,
 } from "lucide-react";
 import { marketplaceVendors, type MarketplaceVendor, customers, products } from "@/lib/mock-data";
 import { useAuth } from "@/lib/auth-context";
@@ -25,7 +27,7 @@ export const Route = createFileRoute("/admin")({
 });
 
 type VendorStatus = "active" | "pending" | "suspended" | "blocked";
-type AdminTab = "dashboard" | "vendors" | "products" | "users" | "security";
+type AdminTab = "dashboard" | "vendors" | "products" | "users" | "security" | "finanzas" | "configuracion";
 
 // ─── Confirm Dialog ───────────────────────────────────────────────────────────
 
@@ -833,6 +835,276 @@ function ProductsTab() {
   );
 }
 
+// ─── Finanzas Tab ─────────────────────────────────────────────────────────────
+
+function FinanzasTab() {
+  const totalRevenue = 2400000;
+  const mrr = 38400;
+  const pendingPayouts = marketplaceVendors.filter(v => v.status === "active" && v.revenue > 0).reduce((s, v) => s + Math.round(v.revenue * 0.85), 0);
+
+  const recentTransactions = [
+    { id: "tx001", vendor: "DevCraft Studio", amount: 84230, commission: 8423, status: "paid", date: "2025-06-14", method: "Bancolombia" },
+    { id: "tx002", vendor: "NeuralForge", amount: 63800, commission: 6380, status: "paid", date: "2025-06-14", method: "Nequi" },
+    { id: "tx003", vendor: "PixelLab Pro", amount: 41200, commission: 4120, status: "pending", date: "2025-06-15", method: "PSE" },
+    { id: "tx004", vendor: "SaaS Masters", amount: 17400, commission: 1740, status: "pending", date: "2025-06-15", method: "Daviplata" },
+    { id: "tx005", vendor: "EduTech Latam", amount: 128400, commission: 12840, status: "processing", date: "2025-06-13", method: "Bancolombia" },
+  ];
+
+  const paymentMethods = [
+    { name: "Tarjeta de crédito", pct: 48, color: "bg-primary" },
+    { name: "PSE", pct: 22, color: "bg-blue-400" },
+    { name: "Nequi", pct: 15, color: "bg-purple-400" },
+    { name: "Daviplata", pct: 9, color: "bg-red-400" },
+    { name: "Efecty", pct: 6, color: "bg-yellow-400" },
+  ];
+
+  return (
+    <div className="space-y-8">
+      {/* KPIs */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { icon: DollarSign, label: "GMV TOTAL", value: `$${(totalRevenue / 1000).toFixed(0)}k`, delta: "+18.2%", up: true, color: "text-primary" },
+          { icon: TrendingUp, label: "MRR", value: `$${mrr.toLocaleString()}`, delta: "+12.4%", up: true, color: "text-emerald-400" },
+          { icon: Wallet, label: "PAGOS PENDIENTES", value: fmtCOP(pendingPayouts), delta: `${marketplaceVendors.filter(v => v.status === "active").length} vendedores`, up: null, color: "text-yellow-400" },
+          { icon: CreditCard, label: "COMISIONES (MES)", value: fmtCOP(mrr * 0.1), delta: "10% promedio", up: null, color: "text-blue-400" },
+        ].map(k => (
+          <div key={k.label} className="p-4 rounded-xl bg-surface border border-border">
+            <div className="flex items-center gap-2 mb-3">
+              <k.icon className={`size-4 ${k.color}`} />
+              <div className="text-[10px] font-mono text-muted-foreground">{k.label}</div>
+            </div>
+            <div className="text-2xl font-extrabold tracking-tight">{k.value}</div>
+            <div className="flex items-center gap-1 mt-1">
+              {k.up !== null && (k.up
+                ? <ArrowUpRight className="size-3 text-emerald-400" />
+                : <ArrowDownRight className="size-3 text-destructive" />)}
+              <span className={`text-[10px] ${k.up === true ? "text-emerald-400" : k.up === false ? "text-destructive" : "text-muted-foreground"}`}>{k.delta}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Payment methods breakdown */}
+        <div className="bg-surface border border-border rounded-xl p-5">
+          <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
+            <CreditCard className="size-4 text-primary" /> Métodos de pago
+          </h3>
+          <div className="space-y-3">
+            {paymentMethods.map(m => (
+              <div key={m.name}>
+                <div className="flex items-center justify-between text-xs mb-1">
+                  <span>{m.name}</span>
+                  <span className="font-bold">{m.pct}%</span>
+                </div>
+                <div className="h-2 rounded-full bg-black/20 overflow-hidden">
+                  <div className={`h-full rounded-full ${m.color}`} style={{ width: `${m.pct}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Pending payouts */}
+        <div className="bg-surface border border-border rounded-xl p-5">
+          <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
+            <Wallet className="size-4 text-yellow-400" /> Pagos pendientes a vendedores
+          </h3>
+          <div className="space-y-2">
+            {marketplaceVendors.filter(v => v.status === "active" && v.revenue > 0).slice(0, 5).map(v => (
+              <div key={v.id} className="flex items-center gap-3 py-2 border-b border-border last:border-0">
+                <div className="size-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-[9px] font-bold text-primary shrink-0">{v.initials}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-medium truncate">{v.name}</div>
+                  <div className="text-[10px] text-muted-foreground">{v.country}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs font-bold text-emerald-400">{fmtCOP(Math.round(v.revenue * 0.85))}</div>
+                  <span className="text-[9px] text-yellow-400 font-bold">⏳ Pendiente</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => toast.success("Iniciando pago masivo a todos los vendedores activos...")}
+            className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-bold hover:bg-emerald-500/20 transition-colors"
+          >
+            <Zap className="size-4" /> Procesar pagos masivos
+          </button>
+        </div>
+      </div>
+
+      {/* Transaction log */}
+      <div className="bg-surface border border-border rounded-xl overflow-hidden">
+        <div className="px-5 py-3 border-b border-border flex items-center justify-between">
+          <h3 className="text-sm font-semibold flex items-center gap-2">
+            <FileText className="size-4 text-primary" /> Transacciones recientes
+          </h3>
+          <button onClick={() => toast("Exportando transacciones a CSV...")} className="text-xs text-primary hover:text-primary/80 flex items-center gap-1">
+            <ArrowUpRight className="size-3" /> Exportar
+          </button>
+        </div>
+        <div className="divide-y divide-border">
+          {recentTransactions.map(tx => (
+            <div key={tx.id} className="flex items-center gap-4 px-5 py-3 hover:bg-black/5 transition-colors">
+              <div className="text-[10px] font-mono text-muted-foreground w-20 shrink-0">#{tx.id}</div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium truncate">{tx.vendor}</div>
+                <div className="text-[10px] text-muted-foreground">{tx.date} · {tx.method}</div>
+              </div>
+              <div className="hidden sm:block text-right min-w-[90px]">
+                <div className="text-xs font-bold">{fmtCOP(tx.amount)}</div>
+                <div className="text-[10px] text-muted-foreground">Comisión: {fmtCOP(tx.commission)}</div>
+              </div>
+              <span className={`px-2 py-0.5 rounded text-[9px] font-bold border shrink-0 ${
+                tx.status === "paid" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
+                tx.status === "pending" ? "bg-yellow-500/10 text-yellow-400 border-yellow-500/20" :
+                "bg-blue-500/10 text-blue-400 border-blue-500/20"
+              }`}>
+                {tx.status === "paid" ? "Pagado" : tx.status === "pending" ? "Pendiente" : "Procesando"}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Configuracion Tab ────────────────────────────────────────────────────────
+
+function ConfiguracionTab() {
+  const [commissions, setCommissions] = useState({ software: 30, education: 35, books: 40, resources: 25, services: 20 });
+  const [features, setFeatures] = useState({
+    affiliateProgram: true,
+    referralProgram: true,
+    flashSales: true,
+    aiAssistant: true,
+    coursesModule: true,
+    multiVendor: true,
+    webhooks: false,
+    apiAccess: false,
+  });
+  const [platform, setPlatform] = useState({ siteName: "PULSE AI", supportEmail: "centrodigital2023@gmail.com", minPayout: "50000", withdrawalCycle: "15" });
+
+  const toggleFeature = (key: keyof typeof features) => setFeatures(f => ({ ...f, [key]: !f[key] }));
+
+  return (
+    <div className="space-y-8">
+      {/* Commission rates */}
+      <div className="bg-surface border border-border rounded-xl p-5">
+        <h3 className="text-sm font-semibold mb-1 flex items-center gap-2">
+          <Percent className="size-4 text-primary" /> Tasas de comisión por categoría
+        </h3>
+        <p className="text-xs text-muted-foreground mb-5">Estas tasas se aplican al programa de afiliados de la plataforma.</p>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {(Object.entries(commissions) as [keyof typeof commissions, number][]).map(([key, val]) => (
+            <div key={key} className="bg-background border border-border rounded-xl p-4">
+              <div className="text-xs font-bold capitalize mb-3">{key === "books" ? "E-books" : key === "education" ? "Cursos" : key === "software" ? "Software" : key === "resources" ? "Templates" : "Servicios"}</div>
+              <div className="flex items-center gap-3">
+                <input
+                  type="range" min={5} max={50} step={5} value={val}
+                  onChange={e => setCommissions(c => ({ ...c, [key]: Number(e.target.value) }))}
+                  className="flex-1 accent-primary h-1.5"
+                />
+                <span className="text-lg font-extrabold text-primary w-12 text-right">{val}%</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        <button onClick={() => toast.success("Comisiones actualizadas y aplicadas globalmente")} className="mt-4 flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary text-sm font-bold hover:bg-primary/20 transition-colors">
+          <CheckCircle className="size-4" /> Guardar comisiones
+        </button>
+      </div>
+
+      {/* Feature flags */}
+      <div className="bg-surface border border-border rounded-xl p-5">
+        <h3 className="text-sm font-semibold mb-1 flex items-center gap-2">
+          <Zap className="size-4 text-primary" /> Funcionalidades del sistema
+        </h3>
+        <p className="text-xs text-muted-foreground mb-5">Activa o desactiva módulos para todos los usuarios de la plataforma.</p>
+        <div className="divide-y divide-border">
+          {([
+            ["affiliateProgram", "Programa de Afiliados", "Los usuarios pueden unirse y ganar comisiones por ventas referidas"],
+            ["referralProgram", "Programa de Referidos", "Usuarios ganan $25.000 COP por cada amigo que realice su primera compra"],
+            ["flashSales", "Ventas Flash", "Banner de cuenta regresiva y descuentos urgentes en el marketplace"],
+            ["aiAssistant", "Asistente IA", "Chatbot de recomendaciones en el marketplace para compradores"],
+            ["coursesModule", "Módulo de Cursos", "Los vendedores pueden crear y vender cursos con progreso y certificados"],
+            ["multiVendor", "Multi-Vendor Marketplace", "Múltiples vendedores pueden publicar productos en la plataforma"],
+            ["webhooks", "Webhooks externos", "Vendedores pueden configurar webhooks para eventos de ventas y pagos"],
+            ["apiAccess", "Acceso API (Beta)", "API REST pública para integraciones de terceros con autenticación JWT"],
+          ] as [keyof typeof features, string, string][]).map(([key, label, desc]) => (
+            <div key={key} className="flex items-center justify-between py-3.5">
+              <div>
+                <div className="text-sm font-medium">{label}</div>
+                <div className="text-[11px] text-muted-foreground">{desc}</div>
+              </div>
+              <button onClick={() => toggleFeature(key)} className="shrink-0 ml-4">
+                {features[key]
+                  ? <ToggleRight className="size-8 text-primary" />
+                  : <ToggleLeft className="size-8 text-muted-foreground" />}
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Platform settings */}
+      <div className="bg-surface border border-border rounded-xl p-5">
+        <h3 className="text-sm font-semibold mb-1 flex items-center gap-2">
+          <Building2 className="size-4 text-primary" /> Configuración general
+        </h3>
+        <p className="text-xs text-muted-foreground mb-5">Parámetros operativos de la plataforma.</p>
+        <div className="grid sm:grid-cols-2 gap-4">
+          {([
+            ["siteName", "Nombre de la plataforma", "text"],
+            ["supportEmail", "Email de soporte", "email"],
+            ["minPayout", "Pago mínimo (COP)", "number"],
+            ["withdrawalCycle", "Ciclo de pagos (días)", "number"],
+          ] as [keyof typeof platform, string, string][]).map(([key, label, type]) => (
+            <div key={key}>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{label}</label>
+              <input
+                type={type} value={platform[key]}
+                onChange={e => setPlatform(p => ({ ...p, [key]: e.target.value }))}
+                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 transition-colors"
+              />
+            </div>
+          ))}
+        </div>
+        <div className="flex items-center gap-3 mt-5">
+          <button onClick={() => toast.success("Configuración guardada exitosamente")} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary text-sm font-bold hover:bg-primary/20 transition-colors">
+            <CheckCircle className="size-4" /> Guardar configuración
+          </button>
+          <button onClick={() => toast("Enviando email de prueba a " + platform.supportEmail)} className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border text-muted-foreground text-sm hover:text-foreground transition-colors">
+            <Bell className="size-4" /> Enviar email de prueba
+          </button>
+        </div>
+      </div>
+
+      {/* Notifications config */}
+      <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-5">
+        <h3 className="text-sm font-semibold mb-1 flex items-center gap-2 text-destructive">
+          <AlertTriangle className="size-4" /> Zona de mantenimiento
+        </h3>
+        <p className="text-xs text-muted-foreground mb-4">Estas acciones afectan a todos los usuarios de la plataforma en tiempo real.</p>
+        <div className="grid sm:grid-cols-3 gap-3">
+          {[
+            { label: "Modo mantenimiento", desc: "Desconecta el sitio para todos", danger: true },
+            { label: "Limpiar caché CDN", desc: "Cloudflare cache purge global", danger: false },
+            { label: "Backup completo", desc: "Exportar todos los datos", danger: false },
+          ].map(a => (
+            <button key={a.label} onClick={() => toast(a.danger ? "⚠️ Requiere confirmación adicional de dos factores" : a.label + " iniciado...")} className={`p-3 rounded-xl border text-left hover:bg-black/10 transition-colors ${a.danger ? "border-destructive/30 bg-destructive/5" : "border-border"}`}>
+              <div className={`text-sm font-medium ${a.danger ? "text-destructive" : ""}`}>{a.label}</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">{a.desc}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Admin Page ──────────────────────────────────────────────────────────
 
 function AdminPage() {
@@ -932,6 +1204,8 @@ function AdminPage() {
     { id: "products", label: "Productos", icon: Package },
     { id: "users", label: "Usuarios", icon: User as unknown as typeof Shield },
     { id: "security", label: "Seguridad", icon: Shield },
+    { id: "finanzas", label: "Finanzas", icon: Wallet },
+    { id: "configuracion", label: "Configuración", icon: Settings },
   ];
 
   return (
@@ -980,6 +1254,8 @@ function AdminPage() {
         {activeTab === "products" && <ProductsTab />}
         {activeTab === "users" && <UsersTab />}
         {activeTab === "security" && <SecurityTab />}
+        {activeTab === "finanzas" && <FinanzasTab />}
+        {activeTab === "configuracion" && <ConfiguracionTab />}
       </div>
     </div>
   );
