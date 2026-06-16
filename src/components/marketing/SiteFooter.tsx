@@ -233,7 +233,7 @@ export function SiteFooter() {
           </p>
           <div className="flex items-center gap-4">
             <Link
-              to="/admin"
+              to="/superadmin"
               className="text-[9px] font-mono text-muted-foreground/25 hover:text-muted-foreground/60 transition-colors"
             >
               superadmin
