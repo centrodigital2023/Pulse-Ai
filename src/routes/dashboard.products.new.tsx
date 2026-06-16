@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useProducts, fmtCOPStore, type VendorProduct } from "@/lib/products-store";
 import { useAuth } from "@/lib/auth-context";
+import { useCreateProduct } from "@/lib/db";
 import {
   UploadCloud, Link2, Image, FileText, Package, KeyRound,
   Tag, Check, Copy, ExternalLink, Facebook, Instagram,
