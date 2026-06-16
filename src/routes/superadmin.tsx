@@ -672,22 +672,15 @@ function UsersTab() {
 // ─── Security Tab ─────────────────────────────────────────────────────────────
 
 function SecurityTab() {
-  const logs = [
-    { user: "admin@pulseai.io", action: "Aprobó vendedor DevCraft Studio", ip: "192.168.1.1", time: "hace 2h", level: "info" },
-    { user: "admin@pulseai.io", action: "Bloqueó vendedor ShadowCode por actividad sospechosa", ip: "192.168.1.1", time: "hace 1 día", level: "warning" },
-    { user: "sistema", action: "Intento de login fallido ×5 para admin@pulseai.io", ip: "45.62.88.12", time: "hace 2 días", level: "danger" },
-    { user: "admin@pulseai.io", action: "Exportó backup completo de la plataforma", ip: "192.168.1.1", time: "hace 3 días", level: "info" },
-    { user: "sistema", action: "Renovación SSL automática cdn.pulseai.io", ip: "—", time: "hace 4 días", level: "ok" },
-    { user: "admin@pulseai.io", action: "Eliminó 2 productos de ShadowCode", ip: "192.168.1.1", time: "hace 5 días", level: "warning" },
-  ];
+  const logs: { user: string; action: string; ip: string; time: string; level: string }[] = [];
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: "Logins exitosos (7d)", value: "142", ok: true },
-          { label: "Intentos fallidos (7d)", value: "23", ok: false },
-          { label: "IPs bloqueadas", value: "7", ok: false },
+          { label: "Logins exitosos (7d)", value: "0", ok: true },
+          { label: "Intentos fallidos (7d)", value: "0", ok: false },
+          { label: "IPs bloqueadas", value: "0", ok: false },
         ].map(s => (
           <div key={s.label} className="p-4 rounded-xl bg-surface border border-border">
             <div className="text-[10px] font-mono text-muted-foreground mb-1">{s.label.toUpperCase()}</div>
@@ -700,7 +693,11 @@ function SecurityTab() {
         <div className="px-4 py-3 border-b border-border bg-black/10 text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
           Log de auditoría
         </div>
-        {logs.map((l, i) => (
+        {logs.length === 0 ? (
+          <div className="px-4 py-10 text-center text-sm text-muted-foreground">
+            Aún no hay eventos de auditoría registrados.
+          </div>
+        ) : logs.map((l, i) => (
           <div key={i} className="flex items-start gap-4 px-4 py-3 border-b border-border last:border-0 hover:bg-black/5">
             <div className={`size-2 rounded-full mt-2 shrink-0 ${
               l.level === "ok" ? "bg-primary" :
