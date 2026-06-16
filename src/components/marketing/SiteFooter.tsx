@@ -144,12 +144,20 @@ export function SiteFooter() {
 
             <div className="space-y-3">
               <div className="text-xs font-bold uppercase tracking-widest">Creadores</div>
-              <Link to="/vender" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
-                Publicar producto
-              </Link>
-              <Link to="/dashboard" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
-                Dashboard vendedor
-              </Link>
+              {isSeller ? (
+                <>
+                  <Link to="/dashboard" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                    Panel de vendedor
+                  </Link>
+                  <Link to="/dashboard/products" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                    Publicar producto
+                  </Link>
+                </>
+              ) : (
+                <Link to="/vender" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Conviértete en vendedor
+                </Link>
+              )}
               <Link to="/afiliados" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
                 Ganar como afiliado
               </Link>
