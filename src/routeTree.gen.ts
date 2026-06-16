@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VenderRouteImport } from './routes/vender'
 import { Route as TerminosRouteImport } from './routes/terminos'
+import { Route as SuperadminRouteImport } from './routes/superadmin'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PrivacidadRouteImport } from './routes/privacidad'
 import { Route as PerfilRouteImport } from './routes/perfil'
@@ -23,7 +24,6 @@ import { Route as HabeasDataRouteImport } from './routes/habeas-data'
 import { Route as CumplimientoRouteImport } from './routes/cumplimiento'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as AfiliadosRouteImport } from './routes/afiliados'
-import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardWebhooksRouteImport } from './routes/dashboard.webhooks'
@@ -51,6 +51,11 @@ const VenderRoute = VenderRouteImport.update({
 const TerminosRoute = TerminosRouteImport.update({
   id: '/terminos',
   path: '/terminos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperadminRoute = SuperadminRouteImport.update({
+  id: '/superadmin',
+  path: '/superadmin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -111,11 +116,6 @@ const CheckoutRoute = CheckoutRouteImport.update({
 const AfiliadosRoute = AfiliadosRouteImport.update({
   id: '/afiliados',
   path: '/afiliados',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -211,7 +211,6 @@ const ApiPublicMpWebhookRoute = ApiPublicMpWebhookRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
   '/afiliados': typeof AfiliadosRoute
   '/checkout': typeof CheckoutRoute
   '/cumplimiento': typeof CumplimientoRoute
@@ -224,6 +223,7 @@ export interface FileRoutesByFullPath {
   '/perfil': typeof PerfilRoute
   '/privacidad': typeof PrivacidadRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/superadmin': typeof SuperadminRoute
   '/terminos': typeof TerminosRoute
   '/vender': typeof VenderRoute
   '/api/mp-checkout': typeof ApiMpCheckoutRoute
@@ -246,7 +246,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
   '/afiliados': typeof AfiliadosRoute
   '/checkout': typeof CheckoutRoute
   '/cumplimiento': typeof CumplimientoRoute
@@ -259,6 +258,7 @@ export interface FileRoutesByTo {
   '/perfil': typeof PerfilRoute
   '/privacidad': typeof PrivacidadRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/superadmin': typeof SuperadminRoute
   '/terminos': typeof TerminosRoute
   '/vender': typeof VenderRoute
   '/api/mp-checkout': typeof ApiMpCheckoutRoute
@@ -282,7 +282,6 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
   '/afiliados': typeof AfiliadosRoute
   '/checkout': typeof CheckoutRoute
   '/cumplimiento': typeof CumplimientoRoute
@@ -295,6 +294,7 @@ export interface FileRoutesById {
   '/perfil': typeof PerfilRoute
   '/privacidad': typeof PrivacidadRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/superadmin': typeof SuperadminRoute
   '/terminos': typeof TerminosRoute
   '/vender': typeof VenderRoute
   '/api/mp-checkout': typeof ApiMpCheckoutRoute
@@ -319,7 +319,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/admin'
     | '/afiliados'
     | '/checkout'
     | '/cumplimiento'
@@ -332,6 +331,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/privacidad'
     | '/sitemap.xml'
+    | '/superadmin'
     | '/terminos'
     | '/vender'
     | '/api/mp-checkout'
@@ -354,7 +354,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/admin'
     | '/afiliados'
     | '/checkout'
     | '/cumplimiento'
@@ -367,6 +366,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/privacidad'
     | '/sitemap.xml'
+    | '/superadmin'
     | '/terminos'
     | '/vender'
     | '/api/mp-checkout'
@@ -389,7 +389,6 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/admin'
     | '/afiliados'
     | '/checkout'
     | '/cumplimiento'
@@ -402,6 +401,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/privacidad'
     | '/sitemap.xml'
+    | '/superadmin'
     | '/terminos'
     | '/vender'
     | '/api/mp-checkout'
@@ -425,7 +425,6 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
   AfiliadosRoute: typeof AfiliadosRoute
   CheckoutRoute: typeof CheckoutRoute
   CumplimientoRoute: typeof CumplimientoRoute
@@ -438,6 +437,7 @@ export interface RootRouteChildren {
   PerfilRoute: typeof PerfilRoute
   PrivacidadRoute: typeof PrivacidadRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  SuperadminRoute: typeof SuperadminRoute
   TerminosRoute: typeof TerminosRoute
   VenderRoute: typeof VenderRoute
   ApiMpCheckoutRoute: typeof ApiMpCheckoutRoute
@@ -472,6 +472,13 @@ declare module '@tanstack/react-router' {
       path: '/terminos'
       fullPath: '/terminos'
       preLoaderRoute: typeof TerminosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/superadmin': {
+      id: '/superadmin'
+      path: '/superadmin'
+      fullPath: '/superadmin'
+      preLoaderRoute: typeof SuperadminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -556,13 +563,6 @@ declare module '@tanstack/react-router' {
       path: '/afiliados'
       fullPath: '/afiliados'
       preLoaderRoute: typeof AfiliadosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -707,7 +707,6 @@ const DashboardProductsRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
   AfiliadosRoute: AfiliadosRoute,
   CheckoutRoute: CheckoutRoute,
   CumplimientoRoute: CumplimientoRoute,
@@ -720,6 +719,7 @@ const rootRouteChildren: RootRouteChildren = {
   PerfilRoute: PerfilRoute,
   PrivacidadRoute: PrivacidadRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  SuperadminRoute: SuperadminRoute,
   TerminosRoute: TerminosRoute,
   VenderRoute: VenderRoute,
   ApiMpCheckoutRoute: ApiMpCheckoutRoute,

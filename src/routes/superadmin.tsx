@@ -21,7 +21,7 @@ import { useIsAdmin, useAdminUsers, useAdminOrders } from "@/lib/db";
 import { useProducts } from "@/lib/products-store";
 import { fmtCOP } from "@/lib/user-store";
 
-export const Route = createFileRoute("/admin")({
+export const Route = createFileRoute("/superadmin")({
   head: () => ({ meta: [{ title: "Administración — PULSE AI" }] }),
   component: AdminPage,
 });
