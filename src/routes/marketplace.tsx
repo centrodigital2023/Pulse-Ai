@@ -516,7 +516,7 @@ function MarketplacePage() {
           <div className="text-center max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono uppercase tracking-widest mb-6">
               <Sparkles className="size-3.5" />
-              Más de 1 millón de compradores satisfechos
+              {productsCount > 0 ? `${productsCount} productos digitales verificados` : "Marketplace de productos digitales"}
             </div>
 
             <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
