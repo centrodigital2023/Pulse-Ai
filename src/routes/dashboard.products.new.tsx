@@ -582,7 +582,6 @@ function PublishSuccessPanel({ product }: { product: VendorProduct }) {
 // ─── Main Form ────────────────────────────────────────────────────────────────
 
 function NewProduct() {
-  const { addProduct } = useProducts();
   const { user } = useAuth();
   const createProduct = useCreateProduct();
 
