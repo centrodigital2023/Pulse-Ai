@@ -852,7 +852,7 @@ function NewProduct() {
             {deliveryType === "file" ? (
               <FileDropZone
                 fileName={fileName} fileSize={fileSize} fileExt={fileExt}
-                onFile={(n, s, e) => { setFileName(n); setFileSize(s); setFileExt(e); }}
+                onFile={(n, s, e, f) => { setFileName(n); setFileSize(s); setFileExt(e); setProductFile(f); }}
               />
             ) : (
               <div className="space-y-3">
