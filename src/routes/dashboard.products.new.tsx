@@ -595,10 +595,12 @@ function NewProduct() {
   const [category, setCategory] = useState("education");
   const [tags, setTags] = useState<string[]>([]);
   const [coverImage, setCoverImage] = useState("");
+  const [coverFile, setCoverFile] = useState<File | null>(null);
   const [deliveryType, setDeliveryType] = useState<"file" | "link">("file");
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState("");
   const [fileExt, setFileExt] = useState("");
+  const [productFile, setProductFile] = useState<File | null>(null);
   const [downloadUrl, setDownloadUrl] = useState("");
   const [licenseType, setLicenseType] = useState("personal");
   const [activations, setActivations] = useState(3);
