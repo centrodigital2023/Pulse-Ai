@@ -329,7 +329,27 @@ function useCountdown(initial: number) {
 function MarketplacePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const allListings = useAllListings();
+  const staticListings = useAllListings();
+  const { data: dbProducts = [] } = usePublicProducts();
+  const dbListings: MarketplaceListing[] = dbProducts.map((p) => ({
+    id: p.id,
+    name: p.name,
+    vendor: "Tienda PULSE",
+    vendorAvatar: "PS",
+    category: p.category ?? "Software",
+    price: p.price,
+    recurring: p.recurring,
+    rating: 5,
+    reviews: 0,
+    sales: 0,
+    soldToday: 0,
+    viewers: 0,
+    badge: "new",
+    tagline: p.tagline ?? "",
+    image: `https://picsum.photos/seed/${p.id}/600/400`,
+    tags: p.category ? [p.category] : ["Digital"],
+  }));
+  const allListings = [...dbListings, ...staticListings];
   const { addToCart, setPendingCheckoutItems } = useUserStore();
   const [activeCategory, setActiveCategory] = useState("all");
   const [search, setSearch] = useState("");
