@@ -26,6 +26,7 @@ const trustBadges = [
 export function SiteFooter() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const { canAccess: isSeller } = useCanAccessDashboard();
 
   const handleNewsletter = (e: React.FormEvent) => {
     e.preventDefault();
