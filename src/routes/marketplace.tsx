@@ -37,14 +37,9 @@ export const Route = createFileRoute("/marketplace")({
 });
 
 // ─── Social proof ─────────────────────────────────────────────────────────────
-
-const socialProofMessages = [
-  { name: "Carlos M.", city: "Bogotá", product: "Neural-Kit SDK", time: "hace 2 min" },
-  { name: "Ana G.", city: "Ciudad de México", product: "Masterclass IA", time: "hace 4 min" },
-  { name: "Luis P.", city: "Buenos Aires", product: "SaaS Starter Stack", time: "hace 6 min" },
-  { name: "María J.", city: "Madrid", product: "API Architecture Playbook", time: "hace 8 min" },
-  { name: "Diego R.", city: "Lima", product: "Advanced Shader Pack", time: "hace 11 min" },
-];
+// Real social proof is derived from actual recent sales. Empty until there are sales.
+type SocialProof = { name: string; city: string; product: string; time: string };
+const socialProofMessages: SocialProof[] = [];
 
 // ─── AI Search Suggestions ────────────────────────────────────────────────────
 
@@ -363,14 +358,27 @@ function MarketplacePage() {
   const countdown = useCountdown(3 * 3600 + 42 * 60 + 17);
   const searchRef = useRef<HTMLDivElement>(null);
 
+  // Real metrics derived from actual listings
+  const productsCount = allListings.length;
+  const vendorsCount = new Set(allListings.map(l => l.vendor)).size;
+  const totalReviews = allListings.reduce((s, l) => s + (l.reviews || 0), 0);
+  const totalSalesValue = allListings.reduce((s, l) => s + (l.sales || 0) * (l.price || 0), 0);
+  const fmtCompact = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
+  const categoriesWithCounts = marketplaceCategories.map(c => ({
+    ...c,
+    count: c.id === "all" ? allListings.length : allListings.filter(l => l.category === c.id).length,
+  }));
+
   // Rotate social proof
   useEffect(() => {
+    if (!socialProofMessages.length) return;
     const t = setInterval(() => setSpIndex(i => (i + 1) % socialProofMessages.length), 5000);
     return () => clearInterval(t);
   }, []);
 
   // Social proof toast on mount
   useEffect(() => {
+    if (!socialProofMessages.length) return;
     const t = setTimeout(() => {
       const msg = socialProofMessages[0];
       toast(
@@ -508,7 +516,7 @@ function MarketplacePage() {
           <div className="text-center max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono uppercase tracking-widest mb-6">
               <Sparkles className="size-3.5" />
-              Más de 1 millón de compradores satisfechos
+              {productsCount > 0 ? `${productsCount} productos digitales verificados` : "Marketplace de productos digitales"}
             </div>
 
             <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
@@ -572,13 +580,13 @@ function MarketplacePage() {
             </div>
           </div>
 
-          {/* Trust metrics */}
+          {/* Trust metrics — derived from real listings */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
             {[
-              { value: "148+", label: "Productos disponibles", icon: Package },
-              { value: "52", label: "Vendedores verificados", icon: Shield },
-              { value: "8.4k", label: "Reseñas positivas", icon: Star },
-              { value: "$2.4M", label: "En ventas totales", icon: TrendingUp },
+              { value: String(productsCount), label: "Productos disponibles", icon: Package },
+              { value: String(vendorsCount), label: "Vendedores", icon: Shield },
+              { value: fmtCompact(totalReviews), label: "Reseñas", icon: Star },
+              { value: `$${fmtCompact(totalSalesValue)}`, label: "En ventas totales", icon: TrendingUp },
             ].map(s => (
               <div key={s.label} className="text-center p-4 rounded-2xl bg-surface border border-border">
                 <s.icon className="size-5 text-primary mx-auto mb-2" />
@@ -590,25 +598,26 @@ function MarketplacePage() {
         </div>
       </section>
 
-      {/* Social proof ticker */}
-      <div className="bg-primary/5 border-b border-primary/10 px-6 py-3">
-        <div className="max-w-7xl mx-auto flex items-center gap-3">
-          <div className="size-2 rounded-full bg-primary animate-pulse shrink-0" />
-          <p className="text-sm">
-            <span className="font-bold text-primary">{socialProofMessages[spIndex].name}</span>
-            {" de "}{socialProofMessages[spIndex].city}{" acaba de comprar "}
-            <span className="text-foreground font-medium">{socialProofMessages[spIndex].product}</span>
-            {" · "}{socialProofMessages[spIndex].time}
-          </p>
-          <Users className="size-3.5 text-muted-foreground ml-auto shrink-0" />
-          <span className="text-xs text-muted-foreground hidden sm:block">+{247} activos ahora</span>
+      {/* Social proof ticker — only when there are real recent sales */}
+      {socialProofMessages.length > 0 && (
+        <div className="bg-primary/5 border-b border-primary/10 px-6 py-3">
+          <div className="max-w-7xl mx-auto flex items-center gap-3">
+            <div className="size-2 rounded-full bg-primary animate-pulse shrink-0" />
+            <p className="text-sm">
+              <span className="font-bold text-primary">{socialProofMessages[spIndex].name}</span>
+              {" de "}{socialProofMessages[spIndex].city}{" acaba de comprar "}
+              <span className="text-foreground font-medium">{socialProofMessages[spIndex].product}</span>
+              {" · "}{socialProofMessages[spIndex].time}
+            </p>
+            <Users className="size-3.5 text-muted-foreground ml-auto shrink-0" />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Category quick links */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
-          {marketplaceCategories.map(cat => (
+          {categoriesWithCounts.map(cat => (
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
@@ -723,7 +732,7 @@ function MarketplacePage() {
               </div>
 
               <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2">Categorías</div>
-              {marketplaceCategories.map(cat => (
+              {categoriesWithCounts.map(cat => (
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id)}
@@ -865,19 +874,21 @@ function MarketplacePage() {
 
       <SiteFooter />
 
-      {/* Social proof widget */}
-      <div className="fixed bottom-6 left-6 z-40 pointer-events-none">
-        <div className="bg-surface border border-border rounded-2xl p-3 shadow-2xl shadow-black/20 flex items-center gap-3 max-w-[260px]">
-          <div className="size-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary shrink-0">
-            {socialProofMessages[spIndex].name[0]}
+      {/* Social proof widget — only when there are real recent sales */}
+      {socialProofMessages.length > 0 && (
+        <div className="fixed bottom-6 left-6 z-40 pointer-events-none">
+          <div className="bg-surface border border-border rounded-2xl p-3 shadow-2xl shadow-black/20 flex items-center gap-3 max-w-[260px]">
+            <div className="size-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary shrink-0">
+              {socialProofMessages[spIndex].name[0]}
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium truncate">{socialProofMessages[spIndex].name} · {socialProofMessages[spIndex].city}</p>
+              <p className="text-[10px] text-muted-foreground truncate">compró <span className="text-primary">{socialProofMessages[spIndex].product}</span></p>
+            </div>
+            <Clock className="size-3 text-muted-foreground shrink-0" />
           </div>
-          <div className="min-w-0">
-            <p className="text-[11px] font-medium truncate">{socialProofMessages[spIndex].name} · {socialProofMessages[spIndex].city}</p>
-            <p className="text-[10px] text-muted-foreground truncate">compró <span className="text-primary">{socialProofMessages[spIndex].product}</span></p>
-          </div>
-          <Clock className="size-3 text-muted-foreground shrink-0" />
         </div>
-      </div>
+      )}
 
       {/* AI Assistant */}
       <AIAssistant />
