@@ -113,6 +113,24 @@ export function useMyProducts() {
   });
 }
 
+/** Public live products for the marketplace. Anon-readable via RLS. */
+export function usePublicProducts() {
+  return useQuery({
+    queryKey: ["public-products"],
+    queryFn: async (): Promise<DBProduct[]> => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*, product_files(*)")
+        .eq("status", "live")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as DBProduct[];
+    },
+  });
+}
+
+
+
 export interface NewProductInput {
   name: string;
   tagline: string;
@@ -159,6 +177,31 @@ export function useCreateProduct() {
         if (fErr) throw fErr;
       }
       return product.id;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["my-products"] }),
+  });
+}
+
+export function useUpdateProductStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { id: string; status: "live" | "draft" }) => {
+      const { error } = await supabase
+        .from("products")
+        .update({ status: input.status })
+        .eq("id", input.id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["my-products"] }),
+  });
+}
+
+export function useDeleteProduct() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("products").delete().eq("id", id);
+      if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["my-products"] }),
   });
