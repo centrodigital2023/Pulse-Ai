@@ -380,3 +380,133 @@ export function useAdminProducts() {
     },
   });
 }
+
+// ─── Seller dashboard stats (real data) ────────────────────────────────────────
+
+export interface SellerActivity {
+  id: string;
+  who: string;
+  action: string;
+  target: string;
+  meta: string;
+}
+
+export interface RevenuePoint {
+  month: string;
+  revenue: number;
+}
+
+export interface FunnelStage {
+  stage: string;
+  count: number;
+  pct: number;
+}
+
+export interface SellerStats {
+  revenueToday: number;
+  salesToday: number;
+  newCustomersToday: number;
+  revenueTotal: number;
+  salesTotal: number;
+  customersTotal: number;
+  productsLive: number;
+  productsTotal: number;
+  revenueSeries: RevenuePoint[];
+  activity: SellerActivity[];
+  funnel: FunnelStage[];
+}
+
+const MONTH_LABELS = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return "hace instantes";
+  if (min < 60) return `hace ${min} min`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `hace ${hr} h`;
+  const days = Math.floor(hr / 24);
+  return `hace ${days} d`;
+}
+
+/** Real-time seller dashboard metrics derived from products + paid orders. */
+export function useSellerStats() {
+  return useQuery({
+    queryKey: ["seller-stats"],
+    queryFn: async (): Promise<SellerStats> => {
+      const { data: userData } = await supabase.auth.getUser();
+      const uid = userData.user?.id;
+      const empty: SellerStats = {
+        revenueToday: 0, salesToday: 0, newCustomersToday: 0,
+        revenueTotal: 0, salesTotal: 0, customersTotal: 0,
+        productsLive: 0, productsTotal: 0,
+        revenueSeries: [], activity: [], funnel: [],
+      };
+      if (!uid) return empty;
+
+      const [{ data: products }, { data: orders }] = await Promise.all([
+        supabase.from("products").select("id, status").eq("owner_id", uid),
+        supabase.from("orders" as never).select("*").eq("status", "paid").order("created_at", { ascending: false }),
+      ]);
+
+      const productIds = new Set((products ?? []).map((p) => p.id));
+      // Keep only paid orders that belong to this seller's products.
+      const sellerOrders = ((orders ?? []) as unknown as DBOrder[]).filter(
+        (o) => o.product_id && productIds.has(o.product_id),
+      );
+
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
+      const todayMs = startOfToday.getTime();
+
+      const todayOrders = sellerOrders.filter((o) => new Date(o.created_at).getTime() >= todayMs);
+      const revenueTotal = sellerOrders.reduce((s, o) => s + Number(o.amount || 0), 0);
+      const revenueToday = todayOrders.reduce((s, o) => s + Number(o.amount || 0), 0);
+
+      const buyers = new Set(sellerOrders.map((o) => o.buyer_id || o.buyer_email).filter(Boolean));
+      const buyersToday = new Set(todayOrders.map((o) => o.buyer_id || o.buyer_email).filter(Boolean));
+
+      // Last 6 months revenue series.
+      const now = new Date();
+      const series: RevenuePoint[] = [];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const next = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+        const revenue = sellerOrders
+          .filter((o) => {
+            const t = new Date(o.created_at).getTime();
+            return t >= d.getTime() && t < next.getTime();
+          })
+          .reduce((s, o) => s + Number(o.amount || 0), 0);
+        series.push({ month: MONTH_LABELS[d.getMonth()], revenue });
+      }
+
+      const activity: SellerActivity[] = sellerOrders.slice(0, 6).map((o) => ({
+        id: o.id,
+        who: o.buyer_email?.split("@")[0] ?? "Cliente",
+        action: "compró",
+        target: o.product_name,
+        meta: `${timeAgo(o.created_at)} · $${Number(o.amount || 0).toLocaleString()}`,
+      }));
+
+      const paid = sellerOrders.length;
+      const funnel: FunnelStage[] = [
+        { stage: "Completó el pago", count: paid, pct: 100 },
+      ];
+
+      return {
+        revenueToday,
+        salesToday: todayOrders.length,
+        newCustomersToday: buyersToday.size,
+        revenueTotal,
+        salesTotal: sellerOrders.length,
+        customersTotal: buyers.size,
+        productsLive: (products ?? []).filter((p) => p.status === "live").length,
+        productsTotal: (products ?? []).length,
+        revenueSeries: series,
+        activity,
+        funnel,
+      };
+    },
+  });
+}
