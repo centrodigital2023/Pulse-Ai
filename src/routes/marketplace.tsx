@@ -580,13 +580,13 @@ function MarketplacePage() {
             </div>
           </div>
 
-          {/* Trust metrics */}
+          {/* Trust metrics — derived from real listings */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
             {[
-              { value: "148+", label: "Productos disponibles", icon: Package },
-              { value: "52", label: "Vendedores verificados", icon: Shield },
-              { value: "8.4k", label: "Reseñas positivas", icon: Star },
-              { value: "$2.4M", label: "En ventas totales", icon: TrendingUp },
+              { value: String(productsCount), label: "Productos disponibles", icon: Package },
+              { value: String(vendorsCount), label: "Vendedores", icon: Shield },
+              { value: fmtCompact(totalReviews), label: "Reseñas", icon: Star },
+              { value: `$${fmtCompact(totalSalesValue)}`, label: "En ventas totales", icon: TrendingUp },
             ].map(s => (
               <div key={s.label} className="text-center p-4 rounded-2xl bg-surface border border-border">
                 <s.icon className="size-5 text-primary mx-auto mb-2" />
@@ -598,20 +598,21 @@ function MarketplacePage() {
         </div>
       </section>
 
-      {/* Social proof ticker */}
-      <div className="bg-primary/5 border-b border-primary/10 px-6 py-3">
-        <div className="max-w-7xl mx-auto flex items-center gap-3">
-          <div className="size-2 rounded-full bg-primary animate-pulse shrink-0" />
-          <p className="text-sm">
-            <span className="font-bold text-primary">{socialProofMessages[spIndex].name}</span>
-            {" de "}{socialProofMessages[spIndex].city}{" acaba de comprar "}
-            <span className="text-foreground font-medium">{socialProofMessages[spIndex].product}</span>
-            {" · "}{socialProofMessages[spIndex].time}
-          </p>
-          <Users className="size-3.5 text-muted-foreground ml-auto shrink-0" />
-          <span className="text-xs text-muted-foreground hidden sm:block">+{247} activos ahora</span>
+      {/* Social proof ticker — only when there are real recent sales */}
+      {socialProofMessages.length > 0 && (
+        <div className="bg-primary/5 border-b border-primary/10 px-6 py-3">
+          <div className="max-w-7xl mx-auto flex items-center gap-3">
+            <div className="size-2 rounded-full bg-primary animate-pulse shrink-0" />
+            <p className="text-sm">
+              <span className="font-bold text-primary">{socialProofMessages[spIndex].name}</span>
+              {" de "}{socialProofMessages[spIndex].city}{" acaba de comprar "}
+              <span className="text-foreground font-medium">{socialProofMessages[spIndex].product}</span>
+              {" · "}{socialProofMessages[spIndex].time}
+            </p>
+            <Users className="size-3.5 text-muted-foreground ml-auto shrink-0" />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Category quick links */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
