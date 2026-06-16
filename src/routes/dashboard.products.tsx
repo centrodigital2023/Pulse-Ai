@@ -174,11 +174,18 @@ function Products() {
       title="Mis Productos"
       breadcrumb={["Dashboard", "Productos"]}
       actions={
-        <Button asChild size="sm" variant="contrast" className="gap-1.5">
-          <Link to="/dashboard/products/new">
-            <Plus className="size-4" /> Nuevo producto
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button asChild size="sm" variant="outline" className="gap-1.5">
+            <Link to="/dashboard/settings">
+              <Globe className="size-4" /> Habilitar para publicar
+            </Link>
+          </Button>
+          <Button asChild size="sm" variant="contrast" className="gap-1.5">
+            <Link to="/dashboard/products/new">
+              <Plus className="size-4" /> Nuevo producto
+            </Link>
+          </Button>
+        </div>
       }
     >
       {isLoading ? (
