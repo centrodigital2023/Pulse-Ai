@@ -165,7 +165,7 @@ export function DashboardLayout({
             ? "Verificando acceso…"
             : !user
               ? "Necesitas iniciar sesión como vendedor para acceder al panel."
-              : "Esta sección es solo para vendedores y administradores."}
+              : "Este panel es exclusivo para vendedores. Conviértete en vendedor para acceder."}
         </div>
         <Button variant="contrast" size="sm" onClick={() => navigate({ to: "/marketplace" })}>
           Volver al Marketplace
