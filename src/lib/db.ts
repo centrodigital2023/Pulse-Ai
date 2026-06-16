@@ -163,6 +163,28 @@ function humanSize(bytes: number): string {
   return `${(bytes / 1024).toFixed(0)} KB`;
 }
 
+/**
+ * Storage keys reject accents, spaces, ñ, parentheses and other non-ASCII
+ * characters with an "Invalid key" error. Normalize a filename into a safe
+ * storage key while keeping the original name for display.
+ */
+function safeStorageName(filename: string): string {
+  const dot = filename.lastIndexOf(".");
+  const base = dot > 0 ? filename.slice(0, dot) : filename;
+  const ext = dot > 0 ? filename.slice(dot + 1) : "";
+  const clean = (s: string) =>
+    s
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // strip accents
+      .replace(/[^a-zA-Z0-9._-]+/g, "-") // safe chars only
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "")
+      .toLowerCase();
+  const safeBase = clean(base) || "archivo";
+  const safeExt = clean(ext);
+  return safeExt ? `${safeBase}.${safeExt}` : safeBase;
+}
+
 export function useCreateProduct() {
   const qc = useQueryClient();
   return useMutation({
