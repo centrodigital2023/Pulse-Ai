@@ -248,6 +248,47 @@ export type Database = {
         }
         Relationships: []
       }
+      certificates: {
+        Row: {
+          code: string
+          course_id: string | null
+          id: string
+          issued_at: string
+          owner_id: string
+          title: string | null
+          url: string | null
+          user_id: string
+        }
+        Insert: {
+          code?: string
+          course_id?: string | null
+          id?: string
+          issued_at?: string
+          owner_id: string
+          title?: string | null
+          url?: string | null
+          user_id: string
+        }
+        Update: {
+          code?: string
+          course_id?: string | null
+          id?: string
+          issued_at?: string
+          owner_id?: string
+          title?: string | null
+          url?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificates_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       course_lessons: {
         Row: {
           content: string | null
@@ -567,6 +608,77 @@ export type Database = {
         }
         Relationships: []
       }
+      email_sequences: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+          status: string
+          steps: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          owner_id: string
+          status?: string
+          steps?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
+          status?: string
+          steps?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      license_activations: {
+        Row: {
+          activated_at: string
+          device_id: string | null
+          device_name: string | null
+          id: string
+          ip: string | null
+          license_id: string
+          owner_id: string
+          status: string
+        }
+        Insert: {
+          activated_at?: string
+          device_id?: string | null
+          device_name?: string | null
+          id?: string
+          ip?: string | null
+          license_id: string
+          owner_id: string
+          status?: string
+        }
+        Update: {
+          activated_at?: string
+          device_id?: string | null
+          device_name?: string | null
+          id?: string
+          ip?: string | null
+          license_id?: string
+          owner_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "license_activations_license_id_fkey"
+            columns: ["license_id"]
+            isOneToOne: false
+            referencedRelation: "license_keys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       license_keys: {
         Row: {
           activation_limit: number
@@ -653,6 +765,54 @@ export type Database = {
         }
         Relationships: []
       }
+      order_items: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string
+          owner_id: string | null
+          product_id: string | null
+          product_name: string
+          quantity: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id: string
+          owner_id?: string | null
+          product_id?: string | null
+          product_name: string
+          quantity?: number
+          unit_price?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string
+          owner_id?: string | null
+          product_id?: string | null
+          product_name?: string
+          quantity?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           amount: number
@@ -713,6 +873,86 @@ export type Database = {
         }
         Relationships: []
       }
+      organizations: {
+        Row: {
+          created_at: string
+          custom_domain: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          owner_id: string
+          plan: string
+          slug: string | null
+          updated_at: string
+          white_label: boolean
+        }
+        Insert: {
+          created_at?: string
+          custom_domain?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          owner_id: string
+          plan?: string
+          slug?: string | null
+          updated_at?: string
+          white_label?: boolean
+        }
+        Update: {
+          created_at?: string
+          custom_domain?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          owner_id?: string
+          plan?: string
+          slug?: string | null
+          updated_at?: string
+          white_label?: boolean
+        }
+        Relationships: []
+      }
+      product_assets: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string | null
+          name: string
+          owner_id: string
+          product_id: string
+          size_bytes: number | null
+          storage_path: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind?: string | null
+          name: string
+          owner_id: string
+          product_id: string
+          size_bytes?: number | null
+          storage_path?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string | null
+          name?: string
+          owner_id?: string
+          product_id?: string
+          size_bytes?: number | null
+          storage_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_assets_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_files: {
         Row: {
           created_at: string
@@ -750,6 +990,44 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "product_files_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_versions: {
+        Row: {
+          changelog: string | null
+          created_at: string
+          id: string
+          is_current: boolean
+          owner_id: string
+          product_id: string
+          version: string
+        }
+        Insert: {
+          changelog?: string | null
+          created_at?: string
+          id?: string
+          is_current?: boolean
+          owner_id: string
+          product_id: string
+          version: string
+        }
+        Update: {
+          changelog?: string | null
+          created_at?: string
+          id?: string
+          is_current?: boolean
+          owner_id?: string
+          product_id?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_versions_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
@@ -927,6 +1205,30 @@ export type Database = {
           },
         ]
       }
+      tags: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+          slug: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          owner_id: string
+          slug?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
+          slug?: string | null
+        }
+        Relationships: []
+      }
       ticket_messages: {
         Row: {
           author: string
@@ -1018,6 +1320,39 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      webhooks: {
+        Row: {
+          active: boolean
+          created_at: string
+          events: string[]
+          id: string
+          owner_id: string
+          secret: string | null
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          events?: string[]
+          id?: string
+          owner_id: string
+          secret?: string | null
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          events?: string[]
+          id?: string
+          owner_id?: string
+          secret?: string | null
+          updated_at?: string
+          url?: string
         }
         Relationships: []
       }
