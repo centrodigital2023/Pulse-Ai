@@ -285,6 +285,7 @@ export interface MarketplaceListing {
   badge?: "bestseller" | "new" | "featured" | "oferta";
   tagline: string;
   image: string;
+  images?: string[];
   tags: string[];
 }
 

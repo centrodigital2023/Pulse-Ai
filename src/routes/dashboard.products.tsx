@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Plus, Eye, Trash2, Rocket, FileText, UploadCloud, Link2, Globe, ExternalLink, BarChart3 } from "lucide-react";
+import { Plus, Trash2, Rocket, FileText, UploadCloud, Link2, Globe, ExternalLink, BarChart3 } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { fmtCOPStore } from "@/lib/products-store";
@@ -123,14 +123,21 @@ function EmptyState() {
         <UploadCloud className="size-9 text-primary/60" />
       </div>
       <h3 className="text-lg font-bold mb-2">Aún no tienes productos</h3>
-      <p className="text-sm text-muted-foreground mb-6 max-w-xs mx-auto">
+      <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
         Publica tu primer producto y empieza a vender a miles de compradores en PULSE AI.
       </p>
-      <Button asChild variant="contrast" className="gap-2">
-        <Link to="/dashboard/products/new">
-          <Rocket className="size-4" /> Publicar mi primer producto
-        </Link>
-      </Button>
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+        <Button asChild variant="contrast" className="gap-2">
+          <Link to="/dashboard/products/new">
+            <Rocket className="size-4" /> Publicar mi primer producto
+          </Link>
+        </Button>
+        <Button asChild variant="outline" className="gap-2">
+          <Link to="/dashboard/settings">
+            <Globe className="size-4" /> Habilitar para publicar
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 }

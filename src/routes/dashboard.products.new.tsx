@@ -15,7 +15,7 @@ import {
   Tag, Check, Copy, ExternalLink, Facebook, Instagram,
   MessageCircle, ArrowRight, Sparkles, Star, Eye, ShoppingCart,
   Flame, ChevronDown, X, Globe, Play, Share2, Zap, Download,
-  Music, QrCode, BarChart3, Rocket,
+  Music, QrCode, BarChart3, Rocket, Plus,
 } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard/products/new")({
@@ -144,30 +144,51 @@ function TagsInput({ tags, onChange }: { tags: string[]; onChange: (t: string[])
   );
 }
 
-// ─── Image Drop Zone ──────────────────────────────────────────────────────────
+// ─── Multi Image Zone ─────────────────────────────────────────────────────────
 
-function ImageDropZone({ image, onImage }: { image: string; onImage: (b64: string, file: File) => void }) {
+const MAX_IMAGES = 5;
+
+function readImageFile(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    if (!file.type.startsWith("image/")) { reject(new Error("Solo se aceptan imágenes")); return; }
+    if (file.size > 5 * 1024 * 1024) { reject(new Error("Máximo 5 MB por imagen")); return; }
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target?.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function ImageSlot({
+  image, index, isMain, onImage, onRemove,
+}: {
+  image?: string; index: number; isMain: boolean;
+  onImage: (b64: string) => void; onRemove: () => void;
+}) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
 
-  const read = (file: File) => {
-    if (!file.type.startsWith("image/")) { toast.error("Solo se aceptan imágenes"); return; }
-    if (file.size > 5 * 1024 * 1024) { toast.error("Máximo 5 MB por imagen"); return; }
-    const reader = new FileReader();
-    reader.onload = e => onImage(e.target?.result as string, file);
-    reader.readAsDataURL(file);
+  const handleFile = async (file: File) => {
+    try {
+      const b64 = await readImageFile(file);
+      onImage(b64);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error al leer imagen");
+    }
   };
 
   const onDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault(); setDragging(false);
     const file = e.dataTransfer.files[0];
-    if (file) read(file);
+    if (file) handleFile(file);
   }, []);
 
   return (
     <div
-      className={`relative rounded-2xl border-2 border-dashed transition-all cursor-pointer overflow-hidden ${dragging ? "border-primary bg-primary/5 scale-[1.01]" : image ? "border-transparent" : "border-border hover:border-primary/40"}`}
-      style={{ aspectRatio: "16/9" }}
+      className={`relative rounded-xl border-2 border-dashed transition-all cursor-pointer overflow-hidden
+        ${dragging ? "border-primary bg-primary/5 scale-[1.01]" : image ? "border-transparent" : "border-border hover:border-primary/40"}
+        ${isMain ? "col-span-2 row-span-2" : ""}`}
+      style={{ aspectRatio: isMain ? "16/9" : "4/3" }}
       onClick={() => inputRef.current?.click()}
       onDragOver={e => { e.preventDefault(); setDragging(true); }}
       onDragLeave={() => setDragging(false)}
@@ -178,29 +199,101 @@ function ImageDropZone({ image, onImage }: { image: string; onImage: (b64: strin
         type="file"
         accept="image/*"
         className="hidden"
-        onChange={e => { const f = e.target.files?.[0]; if (f) read(f); }}
+        onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
       />
       {image ? (
         <>
-          <img src={image} alt="Portada" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-            <div className="text-white text-sm font-medium flex items-center gap-2">
-              <Image className="size-4" /> Cambiar imagen
+          <img src={image} alt={`Imagen ${index + 1}`} className="w-full h-full object-cover" />
+          {isMain && (
+            <span className="absolute top-2 left-2 text-[9px] font-bold bg-primary text-primary-foreground px-2 py-0.5 rounded-full uppercase tracking-wide">
+              Portada
+            </span>
+          )}
+          <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+            <div className="text-white text-xs font-medium flex items-center gap-1.5">
+              <Image className="size-3.5" /> Cambiar
             </div>
           </div>
+          <button
+            type="button"
+            onClick={e => { e.stopPropagation(); onRemove(); }}
+            className="absolute top-2 right-2 size-6 rounded-full bg-black/70 flex items-center justify-center hover:bg-destructive transition-colors z-10"
+          >
+            <X className="size-3 text-white" />
+          </button>
         </>
       ) : (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center p-6">
-          <div className="size-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-            <Image className="size-6 text-primary" />
-          </div>
-          <div>
-            <div className="text-sm font-semibold mb-1">Portada del producto</div>
-            <div className="text-xs text-muted-foreground">Arrastra una imagen o haz clic para seleccionar</div>
-            <div className="text-[10px] text-muted-foreground/60 mt-1">PNG, JPG, WEBP · Máximo 5 MB · Recomendado 1280×720</div>
-          </div>
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center p-3">
+          {isMain ? (
+            <>
+              <div className="size-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                <Image className="size-5 text-primary" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold">Imagen principal</div>
+                <div className="text-[11px] text-muted-foreground">Arrastra o haz clic · 1280×720 recomendado</div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="size-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+                <Plus className="size-4 text-primary" />
+              </div>
+              <div className="text-[10px] text-muted-foreground">Imagen {index + 1}</div>
+            </>
+          )}
         </div>
       )}
+    </div>
+  );
+}
+
+function MultiImageZone({ images, onChange }: { images: string[]; onChange: (imgs: string[]) => void }) {
+  const slots = Array.from({ length: MAX_IMAGES });
+
+  const handleImage = (idx: number, b64: string) => {
+    const next = [...images];
+    next[idx] = b64;
+    onChange(next.filter(Boolean));
+  };
+
+  const handleRemove = (idx: number) => {
+    const next = images.filter((_, i) => i !== idx);
+    onChange(next);
+  };
+
+  return (
+    <div className="grid grid-cols-4 gap-2" style={{ gridTemplateRows: "auto auto" }}>
+      {slots.map((_, i) => {
+        const filled = i < images.length;
+        const isMain = i === 0;
+        if (i >= MAX_IMAGES) return null;
+        if (i === 0) {
+          return (
+            <div key={i} className="col-span-2 row-span-2">
+              <ImageSlot
+                key={i}
+                image={images[i]}
+                index={i}
+                isMain={isMain}
+                onImage={b64 => handleImage(i, b64)}
+                onRemove={() => handleRemove(i)}
+              />
+            </div>
+          );
+        }
+        if (!filled && images.length < i) return null;
+        return (
+          <ImageSlot
+            key={i}
+            image={images[i]}
+            index={i}
+            isMain={false}
+            onImage={b64 => handleImage(i, b64)}
+            onRemove={() => handleRemove(i)}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -594,8 +687,7 @@ function NewProduct() {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("education");
   const [tags, setTags] = useState<string[]>([]);
-  const [coverImage, setCoverImage] = useState("");
-  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [images, setImages] = useState<string[]>([]);
   const [deliveryType, setDeliveryType] = useState<"file" | "link">("file");
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState("");
@@ -631,7 +723,7 @@ function NewProduct() {
         recurring,
         status: "live",
         licensing_enabled: generateKey,
-        imageFile: coverFile,
+        imageFile: null,
         productFile: deliveryType === "file" ? productFile : null,
         downloadUrl: deliveryType === "link" ? downloadUrl.trim() : undefined,
         fileName: fileName.trim(),
@@ -652,7 +744,8 @@ function NewProduct() {
       description: description.trim(),
       category,
       tags,
-      coverImage,
+      coverImage: images[0] ?? "",
+      images,
       deliveryType,
       fileName, fileSize, fileExt,
       downloadUrl,
@@ -690,7 +783,7 @@ function NewProduct() {
         recurring,
         status: "draft",
         licensing_enabled: generateKey,
-        imageFile: coverFile,
+        imageFile: null,
         productFile: deliveryType === "file" ? productFile : null,
         downloadUrl: deliveryType === "link" ? downloadUrl.trim() : undefined,
         fileName: fileName.trim(),
@@ -749,14 +842,16 @@ function NewProduct() {
         {/* ─── Left: Main Form ─────────────────────────────────────────────── */}
         <div className="lg:col-span-2 space-y-5">
 
-          {/* Cover Image */}
+          {/* Images */}
           <div className="rounded-2xl bg-surface border border-border p-5 space-y-3">
-            <div className="flex items-center gap-2">
-              <Image className="size-4 text-primary" />
-              <h3 className="text-sm font-bold">Imagen de portada</h3>
-              <span className="text-[10px] text-muted-foreground">· Recomendado 1280×720</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Image className="size-4 text-primary" />
+                <h3 className="text-sm font-bold">Imágenes del producto</h3>
+              </div>
+              <span className="text-[10px] text-muted-foreground">{images.length}/{MAX_IMAGES} · La primera es la portada</span>
             </div>
-            <ImageDropZone image={coverImage} onImage={(b64, file) => { setCoverImage(b64); setCoverFile(file); }} />
+            <MultiImageZone images={images} onChange={setImages} />
           </div>
 
           {/* Product Info */}
@@ -1028,7 +1123,7 @@ function NewProduct() {
               price={price}
               originalPrice={originalPrice}
               badge={badge}
-              image={coverImage}
+              image={images[0] ?? ""}
               rating={5.0}
               tags={tags}
               vendor={user?.name || "Tu tienda"}

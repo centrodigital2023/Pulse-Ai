@@ -122,6 +122,8 @@ function ProductCard({ listing, onBuy, compact = false }: {
   const inCart = cart.some(i => i.id === listing.id);
   const discount = listing.originalPrice ? Math.round((1 - listing.price / listing.originalPrice) * 100) : 0;
   const isAIPick = AI_PICKS.includes(listing.id);
+  const galleryImages = listing.images && listing.images.length > 1 ? listing.images : [listing.image];
+  const [imgIdx, setImgIdx] = useState(0);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -146,16 +148,41 @@ function ProductCard({ listing, onBuy, compact = false }: {
 
   return (
     <div className={`bg-surface border border-border rounded-2xl overflow-hidden hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 group flex flex-col ${compact ? "min-w-[240px]" : ""}`}>
-      {/* Image */}
+      {/* Image / Carousel */}
       <div className="relative aspect-[4/3] overflow-hidden bg-black/40">
         <img
-          src={listing.image}
+          src={galleryImages[imgIdx]}
           alt={listing.name}
           loading="lazy"
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
           onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+        {galleryImages.length > 1 && (
+          <>
+            <button
+              onClick={e => { e.stopPropagation(); setImgIdx(i => (i - 1 + galleryImages.length) % galleryImages.length); }}
+              className="absolute left-2 top-1/2 -translate-y-1/2 size-6 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 flex items-center justify-center hover:bg-black/80 transition-colors z-10 opacity-0 group-hover:opacity-100"
+            >
+              <ChevronLeft className="size-3.5 text-white" />
+            </button>
+            <button
+              onClick={e => { e.stopPropagation(); setImgIdx(i => (i + 1) % galleryImages.length); }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 size-6 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 flex items-center justify-center hover:bg-black/80 transition-colors z-10 opacity-0 group-hover:opacity-100"
+            >
+              <ChevronRight className="size-3.5 text-white" />
+            </button>
+            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+              {galleryImages.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={e => { e.stopPropagation(); setImgIdx(i); }}
+                  className={`rounded-full transition-all ${i === imgIdx ? "bg-white size-1.5" : "bg-white/40 size-1"}`}
+                />
+              ))}
+            </div>
+          </>
+        )}
 
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1">

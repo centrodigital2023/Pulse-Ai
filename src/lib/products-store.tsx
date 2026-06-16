@@ -16,6 +16,7 @@ export interface VendorProduct {
   category: string;
   tags: string[];
   coverImage: string;
+  images?: string[];
   deliveryType: "file" | "link";
   fileName?: string;
   fileSize?: string;
@@ -123,7 +124,8 @@ function toMarketplaceListing(p: VendorProduct): MarketplaceListing {
     viewers: p.viewers,
     badge: p.badge ?? "new",
     tagline: p.tagline,
-    image: p.coverImage || `https://picsum.photos/seed/${p.id}/600/400`,
+    image: (p.images?.[0]) || p.coverImage || `https://picsum.photos/seed/${p.id}/600/400`,
+    images: p.images && p.images.length > 0 ? p.images : undefined,
     tags: p.tags.length > 0 ? p.tags : ["Digital", "Descarga"],
   };
 }
