@@ -61,9 +61,11 @@ const navGroups = [
 function NavContent({
   isActive,
   onNavigate,
+  isAdmin,
 }: {
   isActive: (url: string) => boolean;
   onNavigate?: () => void;
+  isAdmin?: boolean;
 }) {
   return (
     <>
