@@ -145,6 +145,7 @@ export function DashboardLayout({
   const navigate = useNavigate();
   const { user, isLoading: authLoading, logout } = useAuth();
   const { canAccess, isLoading: roleLoading } = useCanAccessDashboard();
+  const { isAdmin } = useIsAdmin();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const checking = authLoading || roleLoading;
