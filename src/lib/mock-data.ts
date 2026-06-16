@@ -158,22 +158,9 @@ export interface Affiliate {
   joined: string;
 }
 
-export const affiliates: Affiliate[] = [
-  { id: "af1", name: "Daniel Kim", email: "daniel@devblog.io", initials: "DK", referrals: 4820, conversions: 312, revenue: 46488, commission: 9297, pending: 1240, paid: 8057, rate: 20, status: "active", joined: "Jan 15, 2024" },
-  { id: "af2", name: "Lucia Torres", email: "lucia@techcast.fm", initials: "LT", referrals: 3100, conversions: 198, revenue: 29502, commission: 4425, pending: 890, paid: 3535, rate: 15, status: "active", joined: "Feb 08, 2024" },
-  { id: "af3", name: "James O'Brien", email: "james@codeflow.dev", initials: "JO", referrals: 2240, conversions: 141, revenue: 21009, commission: 4201, pending: 720, paid: 3481, rate: 20, status: "active", joined: "Mar 20, 2024" },
-  { id: "af4", name: "Amara Diallo", email: "amara@techinfluence.co", initials: "AD", referrals: 1580, conversions: 88, revenue: 13112, commission: 2622, pending: 0, paid: 2622, rate: 20, status: "active", joined: "Apr 11, 2024" },
-  { id: "af5", name: "Robert Nguyen", email: "robert@devtools.io", initials: "RN", referrals: 920, conversions: 41, revenue: 6109, commission: 916, pending: 916, paid: 0, rate: 15, status: "pending", joined: "Jun 01, 2024" },
-];
+export const affiliates: Affiliate[] = [];
 
-export const affiliateCommissionSeries = [
-  { month: "Jan", paid: 2100, pending: 400 },
-  { month: "Feb", paid: 3800, pending: 900 },
-  { month: "Mar", paid: 5200, pending: 1100 },
-  { month: "Apr", paid: 6900, pending: 1400 },
-  { month: "May", paid: 8800, pending: 2100 },
-  { month: "Jun", paid: 10900, pending: 2770 },
-];
+export const affiliateCommissionSeries: { month: string; paid: number; pending: number }[] = [];
 
 // ─── Courses ──────────────────────────────────────────────────────────────────
 
