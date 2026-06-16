@@ -459,6 +459,13 @@ function VendorsTab() {
 // ─── Dashboard Tab ────────────────────────────────────────────────────────────
 
 function DashboardTab() {
+  const { data: users = [] } = useAdminUsers();
+  const { data: orders = [] } = useAdminOrders();
+
+  const sellers = users.filter(u => u.isSeller).length;
+  const paidOrders = orders.filter(o => o.status === "paid");
+  const gmv = paidOrders.reduce((s, o) => s + Number(o.amount || 0), 0);
+
   return (
     <div className="space-y-8">
       {/* System health */}
@@ -484,15 +491,15 @@ function DashboardTab() {
         </div>
       </div>
 
-      {/* Platform metrics */}
+      {/* Platform metrics — real data */}
       <div>
         <h2 className="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-widest font-mono">Métricas globales</h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { icon: Users, label: "USUARIOS TOTALES", value: `${customers.length * 1000}+`, delta: "+12.4% este mes" },
-            { icon: DollarSign, label: "GMV TOTAL", value: "$2.4M", delta: "+18.2% este mes" },
-            { icon: Package, label: "PRODUCTOS", value: products.length.toString(), delta: "Activos en marketplace" },
-            { icon: TrendingUp, label: "VENDORS ACTIVOS", value: marketplaceVendors.filter(v => v.status === "active").length.toString(), delta: "+2 nuevos este mes" },
+            { icon: Users, label: "USUARIOS REGISTRADOS", value: users.length.toString(), delta: "Cuentas en la plataforma" },
+            { icon: DollarSign, label: "GMV (PAGADO)", value: fmtCOP(gmv), delta: `${paidOrders.length} compras pagadas` },
+            { icon: Package, label: "ÓRDENES TOTALES", value: orders.length.toString(), delta: `${orders.length - paidOrders.length} pendientes/fallidas` },
+            { icon: TrendingUp, label: "VENDEDORES", value: sellers.toString(), delta: "Con rol de creador" },
           ].map(m => (
             <div key={m.label} className="p-4 rounded-xl bg-surface border border-border">
               <div className="flex items-center gap-2 mb-2">
@@ -505,6 +512,7 @@ function DashboardTab() {
           ))}
         </div>
       </div>
+
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Alerts */}
