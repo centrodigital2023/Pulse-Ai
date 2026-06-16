@@ -756,7 +756,7 @@ function NewProduct() {
               <h3 className="text-sm font-bold">Imagen de portada</h3>
               <span className="text-[10px] text-muted-foreground">· Recomendado 1280×720</span>
             </div>
-            <ImageDropZone image={coverImage} onImage={setCoverImage} />
+            <ImageDropZone image={coverImage} onImage={(b64, file) => { setCoverImage(b64); setCoverFile(file); }} />>
           </div>
 
           {/* Product Info */}
