@@ -79,11 +79,10 @@ export function useMyRoles() {
   return { ...query, isLoading: authLoading || query.isLoading };
 }
 
-/** True only for sellers/creators — dashboard is vendor-only. Admins go to /superadmin. */
+/** True only for sellers/creators — the vendor dashboard is exclusive to sellers. */
 export function useCanAccessDashboard() {
   const { data: roles = [], isLoading } = useMyRoles();
-  // Admins can also access the vendor dashboard.
-  const canAccess = roles.includes("creator") || roles.includes("admin");
+  const canAccess = roles.includes("creator");
   return { canAccess, isLoading };
 }
 
