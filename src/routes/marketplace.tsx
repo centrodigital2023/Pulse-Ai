@@ -358,6 +358,17 @@ function MarketplacePage() {
   const countdown = useCountdown(3 * 3600 + 42 * 60 + 17);
   const searchRef = useRef<HTMLDivElement>(null);
 
+  // Real metrics derived from actual listings
+  const productsCount = allListings.length;
+  const vendorsCount = new Set(allListings.map(l => l.vendor)).size;
+  const totalReviews = allListings.reduce((s, l) => s + (l.reviews || 0), 0);
+  const totalSalesValue = allListings.reduce((s, l) => s + (l.sales || 0) * (l.price || 0), 0);
+  const fmtCompact = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
+  const categoriesWithCounts = marketplaceCategories.map(c => ({
+    ...c,
+    count: c.id === "all" ? allListings.length : allListings.filter(l => l.category === c.id).length,
+  }));
+
   // Rotate social proof
   useEffect(() => {
     if (!socialProofMessages.length) return;
