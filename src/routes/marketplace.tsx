@@ -37,14 +37,9 @@ export const Route = createFileRoute("/marketplace")({
 });
 
 // ─── Social proof ─────────────────────────────────────────────────────────────
-
-const socialProofMessages = [
-  { name: "Carlos M.", city: "Bogotá", product: "Neural-Kit SDK", time: "hace 2 min" },
-  { name: "Ana G.", city: "Ciudad de México", product: "Masterclass IA", time: "hace 4 min" },
-  { name: "Luis P.", city: "Buenos Aires", product: "SaaS Starter Stack", time: "hace 6 min" },
-  { name: "María J.", city: "Madrid", product: "API Architecture Playbook", time: "hace 8 min" },
-  { name: "Diego R.", city: "Lima", product: "Advanced Shader Pack", time: "hace 11 min" },
-];
+// Real social proof is derived from actual recent sales. Empty until there are sales.
+type SocialProof = { name: string; city: string; product: string; time: string };
+const socialProofMessages: SocialProof[] = [];
 
 // ─── AI Search Suggestions ────────────────────────────────────────────────────
 
