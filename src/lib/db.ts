@@ -255,3 +255,80 @@ export function useMyOrders() {
     },
   });
 }
+
+// ─── Admin (superadmin panel) ──────────────────────────────────────────────────
+
+export interface AdminUser {
+  id: string;
+  name: string | null;
+  email: string | null;
+  avatar_url: string | null;
+  created_at: string;
+  roles: AppRole[];
+  isSeller: boolean;
+  isAdmin: boolean;
+}
+
+/** All platform users with their roles. Readable only by admins (RLS). */
+export function useAdminUsers() {
+  return useQuery({
+    queryKey: ["admin-users"],
+    queryFn: async (): Promise<AdminUser[]> => {
+      const [{ data: profiles, error: pErr }, { data: roles, error: rErr }] = await Promise.all([
+        supabase.from("profiles").select("id, name, email, avatar_url, created_at").order("created_at", { ascending: false }),
+        supabase.from("user_roles").select("user_id, role"),
+      ]);
+      if (pErr) throw pErr;
+      if (rErr) throw rErr;
+      const roleMap = new Map<string, AppRole[]>();
+      (roles ?? []).forEach((r: { user_id: string; role: string }) => {
+        const list = roleMap.get(r.user_id) ?? [];
+        list.push(r.role as AppRole);
+        roleMap.set(r.user_id, list);
+      });
+      return (profiles ?? []).map((p) => {
+        const userRoles = roleMap.get(p.id) ?? [];
+        return {
+          id: p.id,
+          name: (p as { name: string | null }).name,
+          email: (p as { email: string | null }).email,
+          avatar_url: (p as { avatar_url: string | null }).avatar_url,
+          created_at: (p as { created_at: string }).created_at,
+          roles: userRoles,
+          isSeller: userRoles.includes("creator"),
+          isAdmin: userRoles.includes("admin"),
+        };
+      });
+    },
+  });
+}
+
+/** All orders across the platform. Readable only by admins (RLS). */
+export function useAdminOrders() {
+  return useQuery({
+    queryKey: ["admin-orders"],
+    queryFn: async (): Promise<DBOrder[]> => {
+      const { data, error } = await supabase
+        .from("orders" as never)
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as unknown as DBOrder[];
+    },
+  });
+}
+
+/** All products across the platform. Readable by admins via owner override + live. */
+export function useAdminProducts() {
+  return useQuery({
+    queryKey: ["admin-products"],
+    queryFn: async (): Promise<DBProduct[]> => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*, product_files(*)")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as DBProduct[];
+    },
+  });
+}
