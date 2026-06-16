@@ -146,7 +146,7 @@ function TagsInput({ tags, onChange }: { tags: string[]; onChange: (t: string[])
 
 // ─── Image Drop Zone ──────────────────────────────────────────────────────────
 
-function ImageDropZone({ image, onImage }: { image: string; onImage: (b64: string) => void }) {
+function ImageDropZone({ image, onImage }: { image: string; onImage: (b64: string, file: File) => void }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
 
@@ -154,7 +154,7 @@ function ImageDropZone({ image, onImage }: { image: string; onImage: (b64: strin
     if (!file.type.startsWith("image/")) { toast.error("Solo se aceptan imágenes"); return; }
     if (file.size > 5 * 1024 * 1024) { toast.error("Máximo 5 MB por imagen"); return; }
     const reader = new FileReader();
-    reader.onload = e => onImage(e.target?.result as string);
+    reader.onload = e => onImage(e.target?.result as string, file);
     reader.readAsDataURL(file);
   };
 
