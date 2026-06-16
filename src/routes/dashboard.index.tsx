@@ -6,7 +6,7 @@ import {
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { useSellerStats } from "@/lib/db";
 import {
-  TrendingUp, ArrowUpRight, Users, DollarSign, Star, Package,
+  TrendingUp, Users, DollarSign, Star, Package,
   ChevronRight, Flame, Sparkles,
 } from "lucide-react";
 
