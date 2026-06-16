@@ -314,7 +314,14 @@ function VenderPage() {
       if (prodError) {
         console.error("Product save failed", prodError);
       } else if (product && (form.productFile || form.productImage)) {
-        const files = [];
+        const files: {
+          product_id: string;
+          name: string;
+          kind: "code" | "doc" | "video" | "audio" | "image";
+          size: string;
+          meta: string;
+          storage_path: string | null;
+        }[] = [];
         if (form.productFile) {
           files.push({
             product_id: product.id,
