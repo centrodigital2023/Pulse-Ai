@@ -163,6 +163,28 @@ function humanSize(bytes: number): string {
   return `${(bytes / 1024).toFixed(0)} KB`;
 }
 
+/**
+ * Storage keys reject accents, spaces, ñ, parentheses and other non-ASCII
+ * characters with an "Invalid key" error. Normalize a filename into a safe
+ * storage key while keeping the original name for display.
+ */
+function safeStorageName(filename: string): string {
+  const dot = filename.lastIndexOf(".");
+  const base = dot > 0 ? filename.slice(0, dot) : filename;
+  const ext = dot > 0 ? filename.slice(dot + 1) : "";
+  const clean = (s: string) =>
+    s
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // strip accents
+      .replace(/[^a-zA-Z0-9._-]+/g, "-") // safe chars only
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "")
+      .toLowerCase();
+  const safeBase = clean(base) || "archivo";
+  const safeExt = clean(ext);
+  return safeExt ? `${safeBase}.${safeExt}` : safeBase;
+}
+
 export function useCreateProduct() {
   const qc = useQueryClient();
   return useMutation({
@@ -189,12 +211,12 @@ export function useCreateProduct() {
 
       // Upload cover image to storage (kept as an "image" file record).
       if (input.imageFile) {
-        const ext = input.imageFile.name.split(".").pop() || "jpg";
+        const ext = safeStorageName(input.imageFile.name).split(".").pop() || "jpg";
         const path = `${uid}/${product.id}/cover.${ext}`;
         const { error: upErr } = await supabase.storage
           .from("product-images")
-          .upload(path, input.imageFile, { upsert: true });
-        if (upErr) throw upErr;
+          .upload(path, input.imageFile, { upsert: true, contentType: input.imageFile.type || undefined });
+        if (upErr) throw new Error(`No se pudo subir la imagen de portada: ${upErr.message}`);
         await supabase.from("product_files").insert({
           product_id: product.id,
           name: input.imageFile.name,
@@ -207,12 +229,13 @@ export function useCreateProduct() {
 
       // Upload the deliverable: real file OR external link record.
       if (input.productFile) {
-        const ext = input.productFile.name.split(".").pop() || "file";
-        const path = `${uid}/${product.id}/${input.productFile.name}`;
+        const safeName = safeStorageName(input.productFile.name);
+        const ext = safeName.split(".").pop() || "file";
+        const path = `${uid}/${product.id}/${safeName}`;
         const { error: upErr } = await supabase.storage
           .from("product-files")
-          .upload(path, input.productFile, { upsert: true });
-        if (upErr) throw upErr;
+          .upload(path, input.productFile, { upsert: true, contentType: input.productFile.type || undefined });
+        if (upErr) throw new Error(`No se pudo subir el archivo del producto: ${upErr.message}`);
         const { error: fErr } = await supabase.from("product_files").insert({
           product_id: product.id,
           name: input.productFile.name,
