@@ -583,6 +583,7 @@ function PublishSuccessPanel({ product }: { product: VendorProduct }) {
 function NewProduct() {
   const { addProduct } = useProducts();
   const { user } = useAuth();
+  const createProduct = useCreateProduct();
 
   const [publishedProduct, setPublishedProduct] = useState<VendorProduct | null>(null);
   const [saving, setSaving] = useState(false);
