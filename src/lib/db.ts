@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth-context";
 import type { FileKind } from "@/lib/mock-data";
 
 export interface DBProductFile {
@@ -59,11 +60,12 @@ export interface DBLicense {
 export type AppRole = "admin" | "creator" | "user";
 
 export function useMyRoles() {
-  return useQuery({
-    queryKey: ["my-roles"],
+  const { user, isLoading: authLoading } = useAuth();
+  const uid = user?.id ?? null;
+  const query = useQuery({
+    queryKey: ["my-roles", uid],
+    enabled: !authLoading,
     queryFn: async (): Promise<AppRole[]> => {
-      const { data: userData } = await supabase.auth.getUser();
-      const uid = userData.user?.id;
       if (!uid) return [];
       const { data, error } = await supabase
         .from("user_roles")
@@ -73,16 +75,19 @@ export function useMyRoles() {
       return (data ?? []).map((r) => r.role as AppRole);
     },
   });
+  // Stay in "loading" state until auth resolves so role checks don't run prematurely.
+  return { ...query, isLoading: authLoading || query.isLoading };
 }
 
-/** True only for sellers/creators — dashboard is vendor-only. Admins go to /admin. */
+/** True only for sellers/creators — dashboard is vendor-only. Admins go to /superadmin. */
 export function useCanAccessDashboard() {
   const { data: roles = [], isLoading } = useMyRoles();
-  const canAccess = roles.includes("creator");
+  // Admins can also access the vendor dashboard.
+  const canAccess = roles.includes("creator") || roles.includes("admin");
   return { canAccess, isLoading };
 }
 
-/** True for superadmin (admin role) — gives access to /admin panel. */
+/** True for superadmin (admin role) — gives access to /superadmin panel. */
 export function useIsAdmin() {
   const { data: roles = [], isLoading } = useMyRoles();
   return { isAdmin: roles.includes("admin"), isLoading };
