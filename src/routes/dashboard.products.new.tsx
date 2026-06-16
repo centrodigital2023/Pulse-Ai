@@ -146,7 +146,7 @@ function TagsInput({ tags, onChange }: { tags: string[]; onChange: (t: string[])
 
 // ─── Image Drop Zone ──────────────────────────────────────────────────────────
 
-function ImageDropZone({ image, onImage }: { image: string; onImage: (b64: string) => void }) {
+function ImageDropZone({ image, onImage }: { image: string; onImage: (b64: string, file: File) => void }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
 
@@ -154,7 +154,7 @@ function ImageDropZone({ image, onImage }: { image: string; onImage: (b64: strin
     if (!file.type.startsWith("image/")) { toast.error("Solo se aceptan imágenes"); return; }
     if (file.size > 5 * 1024 * 1024) { toast.error("Máximo 5 MB por imagen"); return; }
     const reader = new FileReader();
-    reader.onload = e => onImage(e.target?.result as string);
+    reader.onload = e => onImage(e.target?.result as string, file);
     reader.readAsDataURL(file);
   };
 
@@ -211,7 +211,7 @@ function FileDropZone({
   fileName, fileSize, fileExt, onFile,
 }: {
   fileName: string; fileSize: string; fileExt: string;
-  onFile: (name: string, size: string, ext: string) => void;
+  onFile: (name: string, size: string, ext: string, file: File | null) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -222,7 +222,7 @@ function FileDropZone({
     const size = file.size > 1024 * 1024 * 1024
       ? `${(file.size / (1024 * 1024 * 1024)).toFixed(2)} GB`
       : `${mb} MB`;
-    onFile(file.name, size, ext);
+    onFile(file.name, size, ext, file);
     toast.success(`"${file.name}" listo para subir`);
   };
 
@@ -243,7 +243,7 @@ function FileDropZone({
           <div className="text-[11px] text-muted-foreground">{fileSize} · Listo para distribuir vía CDN</div>
         </div>
         <button
-          onClick={() => { onFile("", "", ""); }}
+          onClick={() => { onFile("", "", "", null); }}
           className="text-muted-foreground hover:text-destructive transition-colors shrink-0"
         >
           <X className="size-4" />
@@ -595,10 +595,12 @@ function NewProduct() {
   const [category, setCategory] = useState("education");
   const [tags, setTags] = useState<string[]>([]);
   const [coverImage, setCoverImage] = useState("");
+  const [coverFile, setCoverFile] = useState<File | null>(null);
   const [deliveryType, setDeliveryType] = useState<"file" | "link">("file");
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState("");
   const [fileExt, setFileExt] = useState("");
+  const [productFile, setProductFile] = useState<File | null>(null);
   const [downloadUrl, setDownloadUrl] = useState("");
   const [licenseType, setLicenseType] = useState("personal");
   const [activations, setActivations] = useState(3);
@@ -629,9 +631,10 @@ function NewProduct() {
         recurring,
         status: "live",
         licensing_enabled: generateKey,
-        files: fileName
-          ? [{ name: fileName, kind: "doc", size: fileSize || "—" }]
-          : [],
+        imageFile: coverFile,
+        productFile: deliveryType === "file" ? productFile : null,
+        downloadUrl: deliveryType === "link" ? downloadUrl.trim() : undefined,
+        fileName: fileName.trim(),
       });
     } catch (e) {
       setSaving(false);
@@ -687,9 +690,10 @@ function NewProduct() {
         recurring,
         status: "draft",
         licensing_enabled: generateKey,
-        files: fileName
-          ? [{ name: fileName, kind: "doc", size: fileSize || "—" }]
-          : [],
+        imageFile: coverFile,
+        productFile: deliveryType === "file" ? productFile : null,
+        downloadUrl: deliveryType === "link" ? downloadUrl.trim() : undefined,
+        fileName: fileName.trim(),
       });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "No se pudo guardar el borrador");
@@ -752,7 +756,7 @@ function NewProduct() {
               <h3 className="text-sm font-bold">Imagen de portada</h3>
               <span className="text-[10px] text-muted-foreground">· Recomendado 1280×720</span>
             </div>
-            <ImageDropZone image={coverImage} onImage={setCoverImage} />
+            <ImageDropZone image={coverImage} onImage={(b64, file) => { setCoverImage(b64); setCoverFile(file); }} />
           </div>
 
           {/* Product Info */}
@@ -848,7 +852,7 @@ function NewProduct() {
             {deliveryType === "file" ? (
               <FileDropZone
                 fileName={fileName} fileSize={fileSize} fileExt={fileExt}
-                onFile={(n, s, e) => { setFileName(n); setFileSize(s); setFileExt(e); }}
+                onFile={(n, s, e, f) => { setFileName(n); setFileSize(s); setFileExt(e); setProductFile(f); }}
               />
             ) : (
               <div className="space-y-3">
