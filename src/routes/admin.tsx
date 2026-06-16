@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { marketplaceVendors, type MarketplaceVendor, customers, products } from "@/lib/mock-data";
 import { useAuth } from "@/lib/auth-context";
-import { useIsAdmin } from "@/lib/db";
+import { useIsAdmin, useAdminUsers, useAdminOrders } from "@/lib/db";
 import { useProducts } from "@/lib/products-store";
 import { fmtCOP } from "@/lib/user-store";
 
