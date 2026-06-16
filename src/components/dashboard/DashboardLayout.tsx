@@ -256,6 +256,14 @@ export function DashboardLayout({
                 <DropdownMenuItem onClick={() => navigate({ to: "/library" })}>
                   <Library className="size-4 mr-2" /> Mi biblioteca
                 </DropdownMenuItem>
+                {isAdmin && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate({ to: "/superadmin" })} className="text-destructive focus:text-destructive">
+                      <Shield className="size-4 mr-2" /> Panel SuperAdmin
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
                   <LogOut className="size-4 mr-2" /> Cerrar sesión
