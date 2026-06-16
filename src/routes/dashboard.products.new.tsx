@@ -211,7 +211,7 @@ function FileDropZone({
   fileName, fileSize, fileExt, onFile,
 }: {
   fileName: string; fileSize: string; fileExt: string;
-  onFile: (name: string, size: string, ext: string) => void;
+  onFile: (name: string, size: string, ext: string, file: File | null) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -222,7 +222,7 @@ function FileDropZone({
     const size = file.size > 1024 * 1024 * 1024
       ? `${(file.size / (1024 * 1024 * 1024)).toFixed(2)} GB`
       : `${mb} MB`;
-    onFile(file.name, size, ext);
+    onFile(file.name, size, ext, file);
     toast.success(`"${file.name}" listo para subir`);
   };
 
