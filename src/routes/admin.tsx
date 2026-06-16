@@ -15,9 +15,9 @@ import {
   ToggleLeft, ToggleRight, ArrowUpRight, ArrowDownRight, Zap,
   FileText, Building2,
 } from "lucide-react";
-import { marketplaceVendors, type MarketplaceVendor, customers, products } from "@/lib/mock-data";
+import { marketplaceVendors, type MarketplaceVendor } from "@/lib/mock-data";
 import { useAuth } from "@/lib/auth-context";
-import { useIsAdmin } from "@/lib/db";
+import { useIsAdmin, useAdminUsers, useAdminOrders } from "@/lib/db";
 import { useProducts } from "@/lib/products-store";
 import { fmtCOP } from "@/lib/user-store";
 
@@ -459,6 +459,13 @@ function VendorsTab() {
 // ─── Dashboard Tab ────────────────────────────────────────────────────────────
 
 function DashboardTab() {
+  const { data: users = [] } = useAdminUsers();
+  const { data: orders = [] } = useAdminOrders();
+
+  const sellers = users.filter(u => u.isSeller).length;
+  const paidOrders = orders.filter(o => o.status === "paid");
+  const gmv = paidOrders.reduce((s, o) => s + Number(o.amount || 0), 0);
+
   return (
     <div className="space-y-8">
       {/* System health */}
@@ -484,15 +491,15 @@ function DashboardTab() {
         </div>
       </div>
 
-      {/* Platform metrics */}
+      {/* Platform metrics — real data */}
       <div>
         <h2 className="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-widest font-mono">Métricas globales</h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { icon: Users, label: "USUARIOS TOTALES", value: `${customers.length * 1000}+`, delta: "+12.4% este mes" },
-            { icon: DollarSign, label: "GMV TOTAL", value: "$2.4M", delta: "+18.2% este mes" },
-            { icon: Package, label: "PRODUCTOS", value: products.length.toString(), delta: "Activos en marketplace" },
-            { icon: TrendingUp, label: "VENDORS ACTIVOS", value: marketplaceVendors.filter(v => v.status === "active").length.toString(), delta: "+2 nuevos este mes" },
+            { icon: Users, label: "USUARIOS REGISTRADOS", value: users.length.toString(), delta: "Cuentas en la plataforma" },
+            { icon: DollarSign, label: "GMV (PAGADO)", value: fmtCOP(gmv), delta: `${paidOrders.length} compras pagadas` },
+            { icon: Package, label: "ÓRDENES TOTALES", value: orders.length.toString(), delta: `${orders.length - paidOrders.length} pendientes/fallidas` },
+            { icon: TrendingUp, label: "VENDEDORES", value: sellers.toString(), delta: "Con rol de creador" },
           ].map(m => (
             <div key={m.label} className="p-4 rounded-xl bg-surface border border-border">
               <div className="flex items-center gap-2 mb-2">
@@ -505,6 +512,7 @@ function DashboardTab() {
           ))}
         </div>
       </div>
+
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Alerts */}
@@ -587,52 +595,76 @@ function DashboardTab() {
   );
 }
 
-// ─── Users Tab ────────────────────────────────────────────────────────────────
+// ─── Users Tab (real platform users) ──────────────────────────────────────────
 
 function UsersTab() {
+  const { data: users = [], isLoading } = useAdminUsers();
+  const [search, setSearch] = useState("");
+
+  const q = search.toLowerCase();
+  const filtered = users.filter(u =>
+    !q || (u.name ?? "").toLowerCase().includes(q) || (u.email ?? "").toLowerCase().includes(q)
+  );
+
+  const sellerCount = users.filter(u => u.isSeller).length;
+  const adminCount = users.filter(u => u.isAdmin).length;
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-          <Input placeholder="Buscar usuario por nombre o email..." className="bg-surface pl-9" />
-        </div>
-        <Button variant="outline" size="sm" className="gap-2">
-          <Filter className="size-4" /> Filtrar
-        </Button>
-      </div>
-      <div className="rounded-xl bg-surface border border-border divide-y divide-border overflow-hidden">
-        {customers.map(c => (
-          <div key={c.id} className="flex items-center gap-4 p-4 hover:bg-black/5 transition-colors">
-            <div className="size-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-[10px] font-bold text-primary shrink-0">
-              {c.initials}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium">{c.name}</div>
-              <div className="text-[11px] text-muted-foreground">{c.email} · {c.location}</div>
-            </div>
-            <div className="hidden md:block text-xs font-mono">
-              <span className="text-primary font-bold">${c.spent}</span>
-              <span className="text-muted-foreground"> gastado</span>
-            </div>
-            <span className={`px-2 py-0.5 rounded text-[10px] font-mono border ${
-              c.segment === "vip" ? "bg-primary/10 text-primary border-primary/20" :
-              c.segment === "at_risk" ? "bg-destructive/10 text-destructive border-destructive/20" :
-              "bg-secondary text-muted-foreground border-border"
-            }`}>
-              {c.segment.toUpperCase().replace("_", " ")}
-            </span>
-            <div className="flex items-center gap-2 ml-auto">
-              <Button variant="outline" size="sm" className="text-xs" onClick={() => toast(`Ver perfil de ${c.name}`)}>
-                Ver perfil
-              </Button>
-              <Button variant="outline" size="sm" className="text-xs text-destructive border-destructive/30 hover:bg-destructive/10" onClick={() => toast.error(`Suspendiendo ${c.name}...`)}>
-                <Ban className="size-3.5" />
-              </Button>
-            </div>
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { label: "Usuarios totales", value: users.length, cls: "" },
+          { label: "Vendedores", value: sellerCount, cls: "text-primary" },
+          { label: "Administradores", value: adminCount, cls: "text-destructive" },
+        ].map(s => (
+          <div key={s.label} className="p-4 rounded-xl bg-surface border border-border">
+            <div className="text-[10px] font-mono text-muted-foreground mb-1">{s.label.toUpperCase()}</div>
+            <div className={`text-3xl font-extrabold ${s.cls}`}>{s.value}</div>
           </div>
         ))}
       </div>
+
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          <Input placeholder="Buscar usuario por nombre o email..." value={search} onChange={e => setSearch(e.target.value)} className="bg-surface pl-9" />
+        </div>
+      </div>
+
+      {isLoading ? (
+        <div className="text-center py-16 text-sm text-muted-foreground animate-pulse">Cargando usuarios…</div>
+      ) : filtered.length === 0 ? (
+        <div className="text-center py-16 border border-dashed border-border rounded-2xl">
+          <Users className="size-10 text-muted-foreground/20 mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground">{users.length === 0 ? "Aún no hay usuarios registrados" : `Sin resultados para "${search}"`}</p>
+        </div>
+      ) : (
+        <div className="rounded-xl bg-surface border border-border divide-y divide-border overflow-hidden">
+          {filtered.map(u => {
+            const initials = (u.name ?? u.email ?? "US").trim().split(/\s+/).map(n => n[0]).join("").toUpperCase().slice(0, 2);
+            return (
+              <div key={u.id} className="flex items-center gap-4 p-4 hover:bg-black/5 transition-colors">
+                <div className="size-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-[10px] font-bold text-primary shrink-0 overflow-hidden">
+                  {u.avatar_url ? <img src={u.avatar_url} alt="" className="size-full object-cover" /> : initials}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium truncate">{u.name ?? "Sin nombre"}</div>
+                  <div className="text-[11px] text-muted-foreground truncate">{u.email}</div>
+                </div>
+                <div className="hidden md:block text-[10px] text-muted-foreground font-mono">
+                  {new Date(u.created_at).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })}
+                </div>
+                <div className="flex items-center gap-1.5">
+                  {u.isAdmin && <span className="px-2 py-0.5 rounded text-[10px] font-bold border bg-destructive/10 text-destructive border-destructive/20">ADMIN</span>}
+                  {u.isSeller && <span className="px-2 py-0.5 rounded text-[10px] font-bold border bg-primary/10 text-primary border-primary/20">VENDEDOR</span>}
+                  {!u.isAdmin && !u.isSeller && <span className="px-2 py-0.5 rounded text-[10px] font-bold border bg-secondary text-muted-foreground border-border">COMPRADOR</span>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
