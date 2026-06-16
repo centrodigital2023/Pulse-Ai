@@ -164,6 +164,31 @@ export function useCreateProduct() {
   });
 }
 
+export function useUpdateProductStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { id: string; status: "live" | "draft" }) => {
+      const { error } = await supabase
+        .from("products")
+        .update({ status: input.status })
+        .eq("id", input.id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["my-products"] }),
+  });
+}
+
+export function useDeleteProduct() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("products").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["my-products"] }),
+  });
+}
+
 // ─── Customers ───────────────────────────────────────────────────────────────
 
 export function useMyCustomers() {
