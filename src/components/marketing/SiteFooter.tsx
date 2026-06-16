@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
 import { Camera, Globe, AtSign, Music, Play, Share2, MessageCircle, Shield, Lock, CreditCard, Zap, Send } from "lucide-react";
 import { toast } from "sonner";
+import { useCanAccessDashboard } from "@/lib/db";
 
 const socialLinks = [
   { label: "WhatsApp", href: "https://wa.me/573147444715", icon: MessageCircle, color: "#25D366" },
