@@ -243,7 +243,7 @@ function FileDropZone({
           <div className="text-[11px] text-muted-foreground">{fileSize} · Listo para distribuir vía CDN</div>
         </div>
         <button
-          onClick={() => { onFile("", "", ""); }}
+          onClick={() => { onFile("", "", "", null); }}
           className="text-muted-foreground hover:text-destructive transition-colors shrink-0"
         >
           <X className="size-4" />
