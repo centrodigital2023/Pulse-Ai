@@ -195,7 +195,7 @@ export function DashboardLayout({
         <div className="h-14 flex items-center px-4 border-b border-border shrink-0">
           <Logo />
         </div>
-        <NavContent isActive={isActive} />
+        <NavContent isActive={isActive} isAdmin={isAdmin} />
       </aside>
 
       <div className="flex-1 min-w-0 flex flex-col">
