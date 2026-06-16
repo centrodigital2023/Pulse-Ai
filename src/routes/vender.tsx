@@ -206,6 +206,8 @@ function VenderPage() {
   const { user, signUp } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { data: roles = [], isLoading: rolesLoading } = useMyRoles();
+  const isAlreadySeller = roles.includes("creator") || roles.includes("admin");
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState<FormData>({
@@ -215,6 +217,27 @@ function VenderPage() {
     productName: "", productDesc: "", productPrice: "", productCategory: "Software & SaaS",
     productFile: null, productImage: null,
   });
+
+  // Prefill known data from the authenticated profile so the user never
+  // re-types what we already have.
+  useEffect(() => {
+    if (user) {
+      setForm(f => ({
+        ...f,
+        name: f.name || user.name || "",
+        email: f.email || user.email || "",
+      }));
+    }
+  }, [user]);
+
+  // Intelligent shortcut: if the visitor is already a seller, skip the whole
+  // onboarding and take them straight to the "active account" screen instead
+  // of forcing them through the steps again.
+  useEffect(() => {
+    if (!rolesLoading && isAlreadySeller) {
+      setStep(4);
+    }
+  }, [rolesLoading, isAlreadySeller]);
 
   const set = (k: keyof FormData, v: string | File | null) =>
     setForm(f => ({ ...f, [k]: v }));
