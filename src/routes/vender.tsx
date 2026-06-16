@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
@@ -203,6 +204,7 @@ function BenefitsSidebar() {
 function VenderPage() {
   const { user, signUp } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState<FormData>({
@@ -216,7 +218,31 @@ function VenderPage() {
   const set = (k: keyof FormData, v: string | File | null) =>
     setForm(f => ({ ...f, [k]: v }));
 
-  // Real seller registration: create account if needed, then grant the seller (creator) role.
+  // Upload a file to a storage bucket under the user's folder. Returns the storage path or null.
+  const uploadFile = async (bucket: string, uid: string, prefix: string, file: File | null) => {
+    if (!file) return null;
+    const safeName = file.name.replace(/[^\w.\-]/g, "_");
+    const path = `${uid}/${prefix}-${Date.now()}-${safeName}`;
+    const { error } = await supabase.storage.from(bucket).upload(path, file, { upsert: true });
+    if (error) {
+      console.error(`Upload to ${bucket} failed`, error);
+      return null;
+    }
+    return path;
+  };
+
+  const kindFromFile = (file: File | null): "code" | "doc" | "video" | "audio" | "image" => {
+    if (!file) return "code";
+    const t = file.type;
+    if (t.startsWith("image/")) return "image";
+    if (t.startsWith("video/")) return "video";
+    if (t.startsWith("audio/")) return "audio";
+    if (t.includes("pdf") || t.includes("word") || t.includes("text")) return "doc";
+    return "code";
+  };
+
+  // Real seller registration: create account, grant the seller role,
+  // and PERSIST the store, verification docs and first product so nothing is lost.
   const submitSellerApplication = async () => {
     if (!validateStep()) return;
     setSubmitting(true);
@@ -224,7 +250,6 @@ function VenderPage() {
       if (!user) {
         const { error } = await signUp(form.name, form.email, form.password);
         if (error) {
-          // If the account already exists, ask them to sign in instead.
           toast.error(error.includes("registered") || error.includes("already")
             ? "Ya existe una cuenta con ese email. Inicia sesión y vuelve a enviar."
             : error);
@@ -234,20 +259,109 @@ function VenderPage() {
         // Wait briefly for the session to be established after sign up.
         await new Promise(r => setTimeout(r, 800));
       }
+
+      // Make sure we have an authenticated session before writing anything.
+      const { data: userData } = await supabase.auth.getUser();
+      const uid = userData.user?.id;
+      if (!uid) {
+        toast.error("Confirma tu correo e inicia sesión para completar el registro.");
+        setSubmitting(false);
+        return;
+      }
+
+      // 1) Grant the seller (creator) role.
       const { error: rpcError } = await supabase.rpc("become_seller" as never);
       if (rpcError) {
         toast.error("No pudimos activar tu cuenta de vendedor. Inicia sesión y reintenta.");
         setSubmitting(false);
         return;
       }
+
+      // 2) Upload verification documents (private bucket).
+      await Promise.all([
+        uploadFile("verifications", uid, "cedula-front", form.cedulaFront),
+        uploadFile("verifications", uid, "cedula-back", form.cedulaBack),
+        uploadFile("verifications", uid, "recibo", form.recibo),
+      ]);
+
+      // 3) Save the store / organization branding.
+      const slug = form.storeName.toLowerCase().trim().replace(/[^\w]+/g, "-").replace(/^-|-$/g, "");
+      const { error: orgError } = await supabase.from("organizations").upsert(
+        { owner_id: uid, name: form.storeName, slug: slug ? `${slug}-${uid.slice(0, 6)}` : null },
+        { onConflict: "owner_id" },
+      );
+      if (orgError) console.error("Org save failed", orgError);
+
+      // 4) Upload the first product's files and persist the product.
+      const [productPath, imagePath] = await Promise.all([
+        uploadFile("product-files", uid, "product", form.productFile),
+        uploadFile("product-images", uid, "cover", form.productImage),
+      ]);
+
+      const { data: product, error: prodError } = await supabase
+        .from("products")
+        .insert({
+          owner_id: uid,
+          name: form.productName,
+          tagline: form.productDesc || null,
+          category: form.productCategory,
+          price: Number(form.productPrice) || 0,
+          status: "draft",
+        })
+        .select("id")
+        .single();
+
+      if (prodError) {
+        console.error("Product save failed", prodError);
+      } else if (product && (form.productFile || form.productImage)) {
+        const files: {
+          product_id: string;
+          name: string;
+          kind: "code" | "doc" | "video" | "audio" | "image";
+          size: string;
+          meta: string;
+          storage_path: string | null;
+        }[] = [];
+        if (form.productFile) {
+          files.push({
+            product_id: product.id,
+            name: form.productFile.name,
+            kind: kindFromFile(form.productFile),
+            size: `${(form.productFile.size / 1024 / 1024).toFixed(2)} MB`,
+            meta: "Archivo del producto",
+            storage_path: productPath,
+          });
+        }
+        if (form.productImage) {
+          files.push({
+            product_id: product.id,
+            name: form.productImage.name,
+            kind: "image" as const,
+            size: `${(form.productImage.size / 1024).toFixed(0)} KB`,
+            meta: "Imagen de portada",
+            storage_path: imagePath,
+          });
+        }
+        if (files.length) {
+          const { error: fErr } = await supabase.from("product_files").insert(files);
+          if (fErr) console.error("Product files save failed", fErr);
+        }
+      }
+
+      // 5) Refresh cached role/products so the dashboard recognizes the seller right away.
+      await queryClient.invalidateQueries({ queryKey: ["my-roles"] });
+      await queryClient.invalidateQueries({ queryKey: ["my-products"] });
+
       setStep(4);
-      toast.success("¡Cuenta de vendedor activada! Ya tienes acceso al panel.");
-    } catch {
+      toast.success("¡Cuenta de vendedor activada y datos guardados!");
+    } catch (e) {
+      console.error(e);
       toast.error("Ocurrió un error. Inténtalo de nuevo.");
     } finally {
       setSubmitting(false);
     }
   };
+
 
 
   const validateStep = () => {
