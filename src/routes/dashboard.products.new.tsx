@@ -690,9 +690,10 @@ function NewProduct() {
         recurring,
         status: "draft",
         licensing_enabled: generateKey,
-        files: fileName
-          ? [{ name: fileName, kind: "doc", size: fileSize || "—" }]
-          : [],
+        imageFile: coverFile,
+        productFile: deliveryType === "file" ? productFile : null,
+        downloadUrl: deliveryType === "link" ? downloadUrl.trim() : undefined,
+        fileName: fileName.trim(),
       });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "No se pudo guardar el borrador");
