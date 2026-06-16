@@ -621,7 +621,24 @@ function NewProduct() {
   const handlePublish = async () => {
     if (!validate()) return;
     setSaving(true);
-    await new Promise(r => setTimeout(r, 800));
+    try {
+      await createProduct.mutateAsync({
+        name: name.trim(),
+        tagline: tagline.trim(),
+        category,
+        price,
+        recurring,
+        status: "live",
+        licensing_enabled: generateKey,
+        files: fileName
+          ? [{ name: fileName, kind: "doc", size: fileSize || "—" }]
+          : [],
+      });
+    } catch (e) {
+      setSaving(false);
+      toast.error(e instanceof Error ? e.message : "No se pudo publicar el producto");
+      return;
+    }
 
     const product = addProduct({
       vendorId: user?.id || "demo",
@@ -653,8 +670,25 @@ function NewProduct() {
     toast.success(`🚀 "${product.name}" publicado en el Marketplace`);
   };
 
-  const handleDraft = () => {
+  const handleDraft = async () => {
     if (!name.trim()) { toast.error("Agrega un nombre primero"); return; }
+    try {
+      await createProduct.mutateAsync({
+        name: name.trim(),
+        tagline: tagline.trim(),
+        category,
+        price,
+        recurring,
+        status: "draft",
+        licensing_enabled: generateKey,
+        files: fileName
+          ? [{ name: fileName, kind: "doc", size: fileSize || "—" }]
+          : [],
+      });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo guardar el borrador");
+      return;
+    }
     addProduct({
       vendorId: user?.id || "demo",
       vendorName: user?.name || "Mi Tienda",
