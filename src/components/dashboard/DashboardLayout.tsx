@@ -4,7 +4,7 @@ import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, Package, Users, KeyRound, Webhook, Mail,
   Library, BarChart3, TrendingUp, Zap, BookOpen, Store, Bot,
-  Settings, ChevronRight, Bell, Search, Lock, Menu, LogOut, User as UserIcon,
+  Settings, ChevronRight, Bell, Search, Lock, Menu, LogOut, User as UserIcon, Shield,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ import {
   DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/lib/auth-context";
-import { useCanAccessDashboard } from "@/lib/db";
+import { useCanAccessDashboard, useIsAdmin } from "@/lib/db";
 
 const navGroups = [
   {
@@ -61,9 +61,11 @@ const navGroups = [
 function NavContent({
   isActive,
   onNavigate,
+  isAdmin,
 }: {
   isActive: (url: string) => boolean;
   onNavigate?: () => void;
+  isAdmin?: boolean;
 }) {
   return (
     <>
@@ -97,6 +99,16 @@ function NavContent({
         ))}
       </nav>
       <div className="p-2 border-t border-border space-y-0.5 shrink-0">
+        {isAdmin && (
+          <Link
+            to="/superadmin"
+            onClick={onNavigate}
+            className="flex items-center gap-2.5 h-9 px-3 rounded-md text-sm font-bold text-destructive bg-destructive/5 border border-destructive/20 hover:bg-destructive/10 transition-colors"
+          >
+            <Shield className="size-4" />
+            Panel SuperAdmin
+          </Link>
+        )}
         <Link
           to="/library"
           onClick={onNavigate}
@@ -133,6 +145,7 @@ export function DashboardLayout({
   const navigate = useNavigate();
   const { user, isLoading: authLoading, logout } = useAuth();
   const { canAccess, isLoading: roleLoading } = useCanAccessDashboard();
+  const { isAdmin } = useIsAdmin();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const checking = authLoading || roleLoading;
@@ -182,7 +195,7 @@ export function DashboardLayout({
         <div className="h-14 flex items-center px-4 border-b border-border shrink-0">
           <Logo />
         </div>
-        <NavContent isActive={isActive} />
+        <NavContent isActive={isActive} isAdmin={isAdmin} />
       </aside>
 
       <div className="flex-1 min-w-0 flex flex-col">
@@ -199,7 +212,7 @@ export function DashboardLayout({
                   <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
                   <Logo />
                 </div>
-                <NavContent isActive={isActive} onNavigate={() => setMobileOpen(false)} />
+                <NavContent isActive={isActive} isAdmin={isAdmin} onNavigate={() => setMobileOpen(false)} />
               </SheetContent>
             </Sheet>
             <div className="min-w-0">
@@ -243,6 +256,14 @@ export function DashboardLayout({
                 <DropdownMenuItem onClick={() => navigate({ to: "/library" })}>
                   <Library className="size-4 mr-2" /> Mi biblioteca
                 </DropdownMenuItem>
+                {isAdmin && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate({ to: "/superadmin" })} className="text-destructive focus:text-destructive">
+                      <Shield className="size-4 mr-2" /> Panel SuperAdmin
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
                   <LogOut className="size-4 mr-2" /> Cerrar sesión
