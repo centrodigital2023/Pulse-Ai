@@ -14,7 +14,7 @@ import {
   DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/lib/auth-context";
-import { useCanAccessDashboard } from "@/lib/db";
+import { useCanAccessDashboard, useIsAdmin } from "@/lib/db";
 
 const navGroups = [
   {
