@@ -138,7 +138,29 @@ export interface NewProductInput {
   recurring: boolean;
   status: "live" | "draft";
   licensing_enabled: boolean;
-  files: { name: string; kind: FileKind; size: string }[];
+  /** Optional cover image to upload to the product-images bucket. */
+  imageFile?: File | null;
+  /** Optional downloadable file to upload to the product-files bucket. */
+  productFile?: File | null;
+  /** External download/access URL when the seller delivers via a link. */
+  downloadUrl?: string;
+  /** Display name shown to the buyer when delivering via external link. */
+  fileName?: string;
+}
+
+function fileKindFromExt(ext: string): FileKind {
+  const e = ext.toLowerCase();
+  if (["mp4", "webm", "mov", "mkv", "avi"].includes(e)) return "video";
+  if (["mp3", "wav", "m4a", "aac", "ogg"].includes(e)) return "audio";
+  if (["png", "jpg", "jpeg", "webp", "gif", "svg"].includes(e)) return "image";
+  if (["pdf", "doc", "docx", "epub", "mobi", "txt"].includes(e)) return "doc";
+  return "code";
+}
+
+function humanSize(bytes: number): string {
+  if (bytes >= 1024 ** 3) return `${(bytes / 1024 ** 3).toFixed(2)} GB`;
+  if (bytes >= 1024 ** 2) return `${(bytes / 1024 ** 2).toFixed(1)} MB`;
+  return `${(bytes / 1024).toFixed(0)} KB`;
 }
 
 export function useCreateProduct() {
@@ -148,6 +170,7 @@ export function useCreateProduct() {
       const { data: userData } = await supabase.auth.getUser();
       const uid = userData.user?.id;
       if (!uid) throw new Error("Debes iniciar sesión para crear productos.");
+
       const { data: product, error } = await supabase
         .from("products")
         .insert({
@@ -163,18 +186,55 @@ export function useCreateProduct() {
         .select("id")
         .single();
       if (error) throw error;
-      if (input.files.length) {
-        const { error: fErr } = await supabase.from("product_files").insert(
-          input.files.map((f) => ({
-            product_id: product.id,
-            name: f.name,
-            kind: f.kind,
-            size: f.size,
-            meta: "Subido al CDN",
-          })),
-        );
+
+      // Upload cover image to storage (kept as an "image" file record).
+      if (input.imageFile) {
+        const ext = input.imageFile.name.split(".").pop() || "jpg";
+        const path = `${uid}/${product.id}/cover.${ext}`;
+        const { error: upErr } = await supabase.storage
+          .from("product-images")
+          .upload(path, input.imageFile, { upsert: true });
+        if (upErr) throw upErr;
+        await supabase.from("product_files").insert({
+          product_id: product.id,
+          name: input.imageFile.name,
+          kind: "image",
+          size: humanSize(input.imageFile.size),
+          meta: "Portada",
+          storage_path: path,
+        });
+      }
+
+      // Upload the deliverable: real file OR external link record.
+      if (input.productFile) {
+        const ext = input.productFile.name.split(".").pop() || "file";
+        const path = `${uid}/${product.id}/${input.productFile.name}`;
+        const { error: upErr } = await supabase.storage
+          .from("product-files")
+          .upload(path, input.productFile, { upsert: true });
+        if (upErr) throw upErr;
+        const { error: fErr } = await supabase.from("product_files").insert({
+          product_id: product.id,
+          name: input.productFile.name,
+          kind: fileKindFromExt(ext),
+          size: humanSize(input.productFile.size),
+          meta: "Almacenado de forma segura",
+          storage_path: path,
+        });
+        if (fErr) throw fErr;
+      } else if (input.downloadUrl) {
+        const displayName = input.fileName || "Acceso al producto";
+        const ext = displayName.split(".").pop() || "";
+        const { error: fErr } = await supabase.from("product_files").insert({
+          product_id: product.id,
+          name: displayName,
+          kind: ext ? fileKindFromExt(ext) : "code",
+          size: "Link externo",
+          meta: input.downloadUrl,
+        });
         if (fErr) throw fErr;
       }
+
       return product.id;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["my-products"] }),
