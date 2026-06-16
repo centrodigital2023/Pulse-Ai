@@ -281,33 +281,11 @@ export const aiInsights: AiInsight[] = [];
 
 // ─── Analytics extras ─────────────────────────────────────────────────────────
 
-export const geographicData = [
-  { country: "United States", code: "US", revenue: 148200, customers: 412, pct: 36 },
-  { country: "United Kingdom", code: "GB", revenue: 62400, customers: 178, pct: 15 },
-  { country: "Germany", code: "DE", revenue: 48100, customers: 142, pct: 12 },
-  { country: "Japan", code: "JP", revenue: 34800, customers: 98, pct: 8 },
-  { country: "Canada", code: "CA", revenue: 29200, customers: 84, pct: 7 },
-  { country: "India", code: "IN", revenue: 24100, customers: 76, pct: 6 },
-  { country: "Colombia", code: "CO", revenue: 18900, customers: 54, pct: 5 },
-  { country: "Other", code: "XX", revenue: 47140, customers: 138, pct: 11 },
-];
+export const geographicData: { country: string; code: string; revenue: number; customers: number; pct: number }[] = [];
 
-export const cohortData = [
-  { cohort: "Jan 2024", month0: 100, month1: 78, month2: 62, month3: 55, month4: 49, month5: 44 },
-  { cohort: "Feb 2024", month0: 100, month1: 82, month2: 68, month3: 61, month4: 55, month5: 50 },
-  { cohort: "Mar 2024", month0: 100, month1: 79, month2: 65, month3: 58, month4: 53, month5: 0 },
-  { cohort: "Apr 2024", month0: 100, month1: 84, month2: 70, month3: 64, month4: 0, month5: 0 },
-  { cohort: "May 2024", month0: 100, month1: 81, month2: 67, month3: 0, month4: 0, month5: 0 },
-  { cohort: "Jun 2024", month0: 100, month1: 85, month2: 0, month3: 0, month4: 0, month5: 0 },
-];
+export const cohortData: { cohort: string; month0: number; month1: number; month2: number; month3: number; month4: number; month5: number }[] = [];
 
-export const revenueByProduct = [
-  { name: "AI Masterclass", revenue: 128400 },
-  { name: "Neural-Kit SDK", revenue: 84230 },
-  { name: "Design System", revenue: 63800 },
-  { name: "Shader Pack", revenue: 41200 },
-  { name: "SaaS Starter", revenue: 17400 },
-];
+export const revenueByProduct: { name: string; revenue: number }[] = [];
 
 // ─── Pricing plans ────────────────────────────────────────────────────────────
 
