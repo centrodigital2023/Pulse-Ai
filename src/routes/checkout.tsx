@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/lib/auth-context";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { useUserStore } from "@/lib/user-store";
-import { Button } from "@/components/ui/button";
+import { usePaymentSettings } from "@/lib/payment-settings";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -50,22 +50,8 @@ const PSE_BANKS = [
   "Bancoomeva", "Banco AV Villas", "Finandina", "Nequi (PSE)",
 ];
 
-const PRODUCT = {
-  id: "pulse-ai-masterclass",
-  name: "Complete AI Engineering Masterclass",
-  description: "40 videos HD · Código fuente · Certificado · Licencia profesional",
-  priceCOP: 299000,
-  priceDisplay: "$299.000",
-  image: "https://picsum.photos/seed/checkout1/120/120",
-  rating: 5.0,
-  reviews: 211,
-  soldToday: 47,
-};
-
-const ORDER_BUMPS = [
-  { id: "ob1", name: "Neural-Kit SDK v2.0", price: 99000, display: "$99.000", original: "$149.000" },
-  { id: "ob2", name: "Sesión Mentoring 1:1", price: 79000, display: "$79.000", original: "$129.000" },
-];
+// ORDER_BUMPS: se poblarán desde los productos reales del vendedor (futuro)
+const ORDER_BUMPS: { id: string; name: string; price: number; display: string; original: string }[] = [];
 
 function fmtCOP(n: number) {
   return "$" + n.toLocaleString("es-CO");
@@ -397,7 +383,7 @@ function DaviplataForm({ price }: { price: number }) {
 }
 
 function EfectyForm({ email }: { email: string }) {
-  const code = `PLS-${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
+  const code = `PLS-${Math.random().toString(36).slice(2, 10).toUpperCase()}`;
   return (
     <div className="space-y-4">
       <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-4">
@@ -433,12 +419,13 @@ function EfectyForm({ email }: { email: string }) {
 function Checkout() {
   const { user } = useAuth();
   const { pendingCheckoutItems, addOrder, clearCart } = useUserStore();
+  const { settings } = usePaymentSettings();
   const navigate = useNavigate();
   const [showAuth, setShowAuth] = useState(!user);
   const [payMethod, setPayMethod] = useState<PayMethod>("card");
   const [card, setCard] = useState<CardState>({ number: "", name: "", expiry: "", cvv: "" });
   const [showCardBack, setShowCardBack] = useState(false);
-  const [cuota, setCuota] = useState(3);
+  const [cuota, setCuota] = useState<number>(settings.defaultInstallments);
   const [selectedBumps, setSelectedBumps] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -446,11 +433,15 @@ function Checkout() {
   const [step, setStep] = useState<"payment" | "processing" | "done">("payment");
   const [processingMsg, setProcessingMsg] = useState("Iniciando transacción segura...");
 
-  // Use real cart items if coming from /perfil, otherwise show demo product
-  const checkoutItems = pendingCheckoutItems.length > 0 ? pendingCheckoutItems : [];
-  const itemsSubtotal = checkoutItems.length > 0
-    ? checkoutItems.reduce((sum, i) => sum + i.price, 0)
-    : PRODUCT.priceCOP;
+  const checkoutItems = pendingCheckoutItems;
+  const itemsSubtotal = checkoutItems.reduce((sum, i) => sum + i.price, 0);
+
+  // Redirect if cart is empty and not in processing/done
+  useEffect(() => {
+    if (checkoutItems.length === 0 && step === "payment") {
+      navigate({ to: "/marketplace" });
+    }
+  }, [checkoutItems.length, step, navigate]);
 
   const toggleBump = (id: string) =>
     setSelectedBumps(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
@@ -499,23 +490,21 @@ function Checkout() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: user?.id,
-          planId: checkoutItems[0]?.id ?? PRODUCT.id,
+          planId: checkoutItems[0]?.id,
           price: total,
-          planName: checkoutItems[0]?.name ?? PRODUCT.name,
+          planName: checkoutItems[0]?.name ?? "",
           userEmail: user?.email,
           paymentMethod: payMethod,
           installments: payMethod === "card" ? cuota : 1,
           bumps: selectedBumps,
           items: [
-            ...(checkoutItems.length > 0
-              ? checkoutItems.map((i) => ({
-                  id: i.id,
-                  name: i.name,
-                  price: i.price,
-                  image: i.image,
-                  vendor: i.vendor,
-                }))
-              : [{ id: PRODUCT.id, name: PRODUCT.name, price: PRODUCT.priceCOP, image: PRODUCT.image }]),
+            ...checkoutItems.map((i) => ({
+              id: i.id,
+              name: i.name,
+              price: i.price,
+              image: i.image,
+              vendor: i.vendor,
+            })),
             ...ORDER_BUMPS.filter((b) => selectedBumps.includes(b.id)).map((b) => ({
               id: b.id,
               name: b.name,
@@ -623,33 +612,22 @@ function Checkout() {
           </div>
 
           <div className="rounded-2xl bg-surface border border-border p-5 text-left space-y-3">
-            {checkoutItems.length > 0 ? (
-              <div className="space-y-3 max-h-48 overflow-y-auto">
-                {checkoutItems.map(item => (
-                  <div key={item.id} className="flex items-start gap-3">
-                    <img
-                      src={item.image} alt={item.name}
-                      className="size-12 rounded-xl object-cover border border-border shrink-0"
-                      onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-sm line-clamp-1">{item.name}</div>
-                      <div className="text-[10px] text-muted-foreground">{item.vendor}</div>
-                      <div className="text-primary font-bold text-sm mt-0.5">{fmtCOP(item.price)}</div>
-                    </div>
+            <div className="space-y-3 max-h-48 overflow-y-auto">
+              {checkoutItems.map(item => (
+                <div key={item.id} className="flex items-start gap-3">
+                  <img
+                    src={item.image} alt={item.name}
+                    className="size-12 rounded-xl object-cover border border-border shrink-0"
+                    onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-sm line-clamp-1">{item.name}</div>
+                    <div className="text-[10px] text-muted-foreground">{item.vendor}</div>
+                    <div className="text-primary font-bold text-sm mt-0.5">{fmtCOP(item.price)}</div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex items-start gap-3">
-                <img src={PRODUCT.image} alt="" className="size-14 rounded-xl object-cover border border-border shrink-0" />
-                <div>
-                  <div className="font-semibold text-sm">{PRODUCT.name}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{PRODUCT.description}</div>
-                  <div className="text-primary font-bold mt-1">{fmtCOP(total)}</div>
                 </div>
-              </div>
-            )}
+              ))}
+            </div>
             <div className="border-t border-border pt-3 space-y-1.5">
               {[
                 "✅ Acceso inmediato habilitado en Mis Compras",
@@ -679,13 +657,17 @@ function Checkout() {
     );
   }
 
-  const payTabs: { id: PayMethod; label: string; icon: React.ReactNode; color: string }[] = [
+  const ALL_PAY_TABS: { id: PayMethod; label: string; icon: React.ReactNode; color: string }[] = [
     { id: "card", label: "Tarjeta", icon: <CreditCard className="size-4" />, color: "" },
     { id: "pse", label: "PSE", icon: <Globe className="size-4" />, color: "text-blue-400" },
     { id: "nequi", label: "Nequi", icon: <Smartphone className="size-4" />, color: "text-purple-400" },
     { id: "daviplata", label: "Daviplata", icon: <Smartphone className="size-4" />, color: "text-red-400" },
     { id: "efecty", label: "Efecty", icon: <Shield className="size-4" />, color: "text-yellow-400" },
   ];
+  const payTabs = ALL_PAY_TABS.filter(t => settings.enabledMethods[t.id]);
+  const usdEquiv = settings.showUsdEquivalent && settings.usdRate > 0
+    ? (total / settings.usdRate).toFixed(2)
+    : null;
 
   return (
     <>
@@ -873,8 +855,8 @@ function Checkout() {
             <div className="rounded-2xl bg-surface border border-border p-5">
               <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-4">Resumen del pedido</div>
 
-              {/* Cart items or demo product */}
-              {checkoutItems.length > 0 ? (
+              {/* Cart items */}
+              {checkoutItems.length > 0 && (
                 <div className="space-y-3 pb-4 border-b border-border max-h-56 overflow-y-auto">
                   {checkoutItems.map(item => (
                     <div key={item.id} className="flex items-start gap-3">
@@ -890,18 +872,6 @@ function Checkout() {
                       <div className="text-sm font-bold text-primary shrink-0">{fmtCOP(item.price)}</div>
                     </div>
                   ))}
-                </div>
-              ) : (
-                <div className="flex items-start gap-3 pb-4 border-b border-border">
-                  <img src={PRODUCT.image} alt={PRODUCT.name} className="size-16 rounded-xl object-cover border border-border shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-sm leading-tight">{PRODUCT.name}</div>
-                    <div className="text-[11px] text-muted-foreground mt-1">{PRODUCT.description}</div>
-                    <div className="flex items-center gap-0.5 mt-1.5">
-                      {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="size-3 fill-yellow-400 text-yellow-400" />)}
-                      <span className="text-[10px] text-muted-foreground ml-1">({PRODUCT.reviews})</span>
-                    </div>
-                  </div>
                 </div>
               )}
 
@@ -922,11 +892,14 @@ function Checkout() {
               </div>
 
               <div className="pt-3 flex justify-between items-center">
-                <span className="font-bold">Total</span>
+                <span className="font-bold">Total <span className="text-[10px] font-normal text-muted-foreground">COP</span></span>
                 <div className="text-right">
                   <div className="text-2xl font-extrabold tracking-tight">{fmtCOP(total)}</div>
                   {payMethod === "card" && cuota > 1 && (
                     <div className="text-[11px] text-muted-foreground">{cuota}x {fmtCOP(Math.ceil(total / cuota))}/mes</div>
+                  )}
+                  {usdEquiv && (
+                    <div className="text-[11px] text-muted-foreground/70 mt-0.5">≈ USD ${usdEquiv} (referencial)</div>
                   )}
                 </div>
               </div>

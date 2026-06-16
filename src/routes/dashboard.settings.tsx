@@ -6,14 +6,25 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Globe, Bell, CreditCard, Key, Palette, Building } from "lucide-react";
+import { Shield, Globe, Bell, CreditCard, Key, Palette, Building, DollarSign, Smartphone, Banknote } from "lucide-react";
+import { usePaymentSettings, type PayMethod, type DefaultInstallments } from "@/lib/payment-settings";
 
 export const Route = createFileRoute("/dashboard/settings")({
   head: () => ({ meta: [{ title: "Ajustes — PULSE AI Dashboard" }] }),
   component: Settings,
 });
 
+const PAY_METHODS: { id: PayMethod; label: string; desc: string; icon: React.ReactNode }[] = [
+  { id: "card", label: "Tarjeta débito / crédito", desc: "Visa, Mastercard, Amex — con soporte de cuotas", icon: <CreditCard className="size-4 text-primary" /> },
+  { id: "pse", label: "PSE — Débito bancario", desc: "Todos los bancos colombianos en tiempo real", icon: <Globe className="size-4 text-blue-400" /> },
+  { id: "nequi", label: "Nequi", desc: "Notificación push a la app del comprador", icon: <Smartphone className="size-4 text-purple-400" /> },
+  { id: "daviplata", label: "Daviplata", desc: "Confirmación por SMS, sin necesidad de app", icon: <Smartphone className="size-4 text-red-400" /> },
+  { id: "efecty", label: "Efecty / Baloto / Apostar", desc: "Pago en efectivo — acceso en máx. 2 horas", icon: <Banknote className="size-4 text-yellow-400" /> },
+];
+
 function Settings() {
+  const { settings, updateSettings, toggleMethod, setDefaultInstallments } = usePaymentSettings();
+
   return (
     <DashboardLayout
       title="Ajustes de la Plataforma"
@@ -133,49 +144,144 @@ function Settings() {
 
         {/* Payments */}
         <TabsContent value="payments" className="space-y-6">
+
+          {/* Procesador principal */}
           <div className="rounded-xl bg-surface border border-border p-6 space-y-4">
-            <h3 className="text-sm font-semibold">Métodos de Pago</h3>
-            {[
-              { name: "Stripe", desc: "Tarjetas internacionales, Apple Pay, Google Pay", connected: true },
-              { name: "PayPal", desc: "PayPal, transferencias", connected: true },
-              { name: "Mercado Pago", desc: "América Latina — PSE, Nequi, Wompi", connected: false },
-              { name: "PayU", desc: "Colombia, México, Perú, Brasil", connected: false },
-            ].map((pm) => (
-              <div key={pm.name} className="flex items-center justify-between p-4 rounded-lg bg-black/20 border border-border">
+            <div className="flex items-center gap-2 mb-1">
+              <CreditCard className="size-4 text-primary" />
+              <h3 className="text-sm font-semibold">Procesador de Pago</h3>
+            </div>
+            <div className="flex items-center justify-between p-4 rounded-xl bg-primary/5 border border-primary/20">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-xl bg-[#009EE3] flex items-center justify-center text-white text-xs font-black shrink-0">MP</div>
                 <div>
-                  <div className="text-sm font-medium">{pm.name}</div>
-                  <div className="text-[10px] text-muted-foreground">{pm.desc}</div>
+                  <div className="text-sm font-semibold">Mercado Pago</div>
+                  <div className="text-[10px] text-muted-foreground">Tarjetas · PSE · Nequi · Daviplata · Efecty · Wallet · QR</div>
                 </div>
+              </div>
+              <span className="text-[10px] font-mono text-primary font-bold bg-primary/10 px-2 py-1 rounded">ACTIVO</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Para activar pagos reales, agrega tu <code className="text-primary font-mono">MERCADOPAGO_ACCESS_TOKEN</code> en las variables de entorno del servidor.
+            </p>
+          </div>
+
+          {/* Métodos visibles en checkout */}
+          <div className="rounded-xl bg-surface border border-border p-6 space-y-1">
+            <h3 className="text-sm font-semibold mb-1">Métodos Visibles en el Checkout</h3>
+            <p className="text-xs text-muted-foreground mb-4">Controla qué métodos de pago pueden elegir tus compradores.</p>
+            {PAY_METHODS.map(pm => (
+              <div key={pm.id} className="flex items-center justify-between py-3 border-b border-border/50 last:border-0">
                 <div className="flex items-center gap-3">
-                  <span className={`text-[10px] font-mono ${pm.connected ? "text-primary" : "text-muted-foreground"}`}>
-                    {pm.connected ? "CONECTADO" : "DESCONECTADO"}
-                  </span>
-                  <Button variant={pm.connected ? "outline" : "contrast"} size="sm" className="h-7 text-[10px]"
-                    onClick={() => toast.success(pm.connected ? `${pm.name} desconectado` : `${pm.name} conectado`)}>
-                    {pm.connected ? "Desconectar" : "Conectar"}
-                  </Button>
+                  {pm.icon}
+                  <div>
+                    <div className="text-sm">{pm.label}</div>
+                    <div className="text-[10px] text-muted-foreground">{pm.desc}</div>
+                  </div>
                 </div>
+                <Switch
+                  checked={settings.enabledMethods[pm.id]}
+                  onCheckedChange={() => {
+                    toggleMethod(pm.id as PayMethod);
+                    toast.success(`${pm.label} ${settings.enabledMethods[pm.id] ? "desactivado" : "activado"}`);
+                  }}
+                />
               </div>
             ))}
           </div>
 
+          {/* Cuotas por defecto */}
           <div className="rounded-xl bg-surface border border-border p-6 space-y-4">
-            <h3 className="text-sm font-semibold">Configuración de Pagos</h3>
+            <h3 className="text-sm font-semibold">Cuotas por Defecto (Tarjeta)</h3>
+            <p className="text-xs text-muted-foreground">Número de cuotas pre-seleccionado cuando el comprador elige tarjeta crédito.</p>
+            <div className="grid grid-cols-4 gap-2">
+              {([1, 3, 6, 12] as DefaultInstallments[]).map(n => (
+                <button
+                  key={n}
+                  onClick={() => { setDefaultInstallments(n); toast.success(`Cuotas por defecto: ${n === 1 ? "1 pago" : `${n}x`}`); }}
+                  className={`py-3 rounded-xl border text-sm font-bold transition-all ${
+                    settings.defaultInstallments === n
+                      ? "bg-primary/10 border-primary/40 text-primary"
+                      : "border-border text-muted-foreground hover:border-primary/20"
+                  }`}
+                >
+                  {n === 1 ? "1 pago" : `${n}x`}
+                </button>
+              ))}
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              Mercado Pago permite hasta <strong>36 cuotas</strong> según el banco y el monto. El máximo enviado a MP siempre es 12.
+            </p>
+          </div>
+
+          {/* Moneda y divisas */}
+          <div className="rounded-xl bg-surface border border-border p-6 space-y-4">
+            <div className="flex items-center gap-2 mb-1">
+              <DollarSign className="size-4 text-primary" />
+              <h3 className="text-sm font-semibold">Moneda y Divisas</h3>
+            </div>
+
+            {/* COP principal — siempre fijo */}
+            <div className="flex items-center justify-between p-4 rounded-xl bg-surface border border-border">
+              <div>
+                <div className="text-sm font-medium">Peso Colombiano — COP</div>
+                <div className="text-[10px] text-muted-foreground">Moneda base de todos los precios y cobros. No modificable.</div>
+              </div>
+              <span className="text-[10px] font-mono font-bold text-primary bg-primary/10 px-2 py-1 rounded">FIJO</span>
+            </div>
+
+            {/* USD equivalente */}
+            <div className="flex items-center justify-between py-3 border-b border-border">
+              <div>
+                <div className="text-sm">Mostrar equivalente en USD</div>
+                <div className="text-[10px] text-muted-foreground">Muestra el monto en dólares de referencia junto al precio en COP</div>
+              </div>
+              <Switch
+                checked={settings.showUsdEquivalent}
+                onCheckedChange={v => { updateSettings({ showUsdEquivalent: v }); toast.success(v ? "Equivalente USD activado" : "Equivalente USD desactivado"); }}
+              />
+            </div>
+
+            {settings.showUsdEquivalent && (
+              <div className="space-y-2">
+                <Label className="text-xs font-medium">Tasa de cambio — COP por 1 USD (TRM referencial)</Label>
+                <div className="flex items-center gap-3">
+                  <Input
+                    type="number"
+                    value={settings.usdRate}
+                    onChange={e => updateSettings({ usdRate: Number(e.target.value) })}
+                    className="bg-black/20 font-mono w-36"
+                    min={1000}
+                    max={10000}
+                  />
+                  <span className="text-sm text-muted-foreground">COP = 1 USD</span>
+                  <span className="text-xs text-muted-foreground">≈ ${(1 / settings.usdRate).toFixed(6)} USD por COP</span>
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  Actualiza esta tasa según la TRM del día. El cobro real siempre se hace en COP — el USD es solo referencial para el comprador.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Opciones adicionales */}
+          <div className="rounded-xl bg-surface border border-border p-6 space-y-4">
+            <h3 className="text-sm font-semibold">Opciones de Facturación</h3>
             {[
-              { label: "Facturación automática de suscripciones", desc: "Cobrar automáticamente al vencimiento", checked: true },
-              { label: "Reintentar pagos fallidos", desc: "3 intentos con 24h de diferencia", checked: true },
-              { label: "Reembolsos automáticos (14 días)", desc: "Política de garantía de devolución", checked: false },
-              { label: "Facturas PDF automáticas", desc: "Enviar factura al correo del comprador", checked: true },
-            ].map((s) => (
+              { label: "Facturas PDF automáticas", desc: "Envía la factura al email del comprador tras cada pago", checked: true },
+              { label: "Reintentar pagos fallidos", desc: "Hasta 3 intentos automáticos con 24h de diferencia", checked: true },
+              { label: "Reembolsos automáticos (7 días)", desc: "Política de garantía — devolución sin intervención manual", checked: false },
+            ].map(s => (
               <div key={s.label} className="flex items-center justify-between py-3 border-b border-border/50 last:border-0">
                 <div>
                   <div className="text-sm">{s.label}</div>
                   <div className="text-[10px] text-muted-foreground">{s.desc}</div>
                 </div>
-                <Switch defaultChecked={s.checked} onCheckedChange={(v) => toast.success(v ? `${s.label} activado` : `${s.label} desactivado`)} />
+                <Switch defaultChecked={s.checked} onCheckedChange={v => toast.success(v ? `${s.label} activado` : `${s.label} desactivado`)} />
               </div>
             ))}
           </div>
+
         </TabsContent>
 
         {/* Security */}

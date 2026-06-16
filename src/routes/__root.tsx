@@ -16,6 +16,7 @@ import { AuthProvider } from "@/lib/auth-context";
 import { WhatsAppFloat } from "@/components/ui/WhatsAppFloat";
 import { ProductsProvider } from "@/lib/products-store";
 import { UserStoreProvider } from "@/lib/user-store";
+import { PaymentSettingsProvider } from "@/lib/payment-settings";
 import { AnalyticsScripts, AnalyticsNoScript } from "@/components/Analytics";
 import { CommandPalette } from "@/components/CommandPalette";
 
@@ -208,10 +209,12 @@ function RootComponent() {
       <AuthProvider>
         <ProductsProvider>
           <UserStoreProvider>
-            <CommandPalette />
-            <Outlet />
-            <WhatsAppFloat />
-            <Toaster />
+            <PaymentSettingsProvider>
+              <CommandPalette />
+              <Outlet />
+              <WhatsAppFloat />
+              <Toaster />
+            </PaymentSettingsProvider>
           </UserStoreProvider>
         </ProductsProvider>
       </AuthProvider>
