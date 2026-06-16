@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
-import { marketplaceListings, type MarketplaceListing } from "@/lib/mock-data";
+import type { MarketplaceListing } from "@/lib/mock-data";
 
 const STORE_KEY = "pulse_products_v1";
 
@@ -130,8 +130,7 @@ function toMarketplaceListing(p: VendorProduct): MarketplaceListing {
 
 export function useAllListings(): MarketplaceListing[] {
   const { products } = useProducts();
-  const live = products.filter(p => p.status === "live").map(toMarketplaceListing);
-  return [...live, ...marketplaceListings];
+  return products.filter(p => p.status === "live").map(toMarketplaceListing);
 }
 
 export function fmtCOPStore(n: number) {

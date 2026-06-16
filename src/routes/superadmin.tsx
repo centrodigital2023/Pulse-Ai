@@ -107,7 +107,7 @@ function VendorPanel({ vendor, onClose, onAction }: {
           </div>
           <div className="p-3 rounded-xl bg-surface border border-border">
             <div className="text-[10px] font-mono text-muted-foreground mb-1">COMISIONES</div>
-            <div className="text-xl font-bold">${vendor.commission.toLocaleString()}</div>
+            <div className="text-xl font-bold">${(vendor.commission ?? 0).toLocaleString()}</div>
           </div>
           <div className="p-3 rounded-xl bg-surface border border-border">
             <div className="text-[10px] font-mono text-muted-foreground mb-1">PRODUCTOS</div>

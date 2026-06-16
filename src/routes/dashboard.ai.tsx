@@ -3,8 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { aiInsights } from "@/lib/mock-data";
-import { Bot, Send, TrendingUp, AlertTriangle, Lightbulb, Sparkles, ArrowRight } from "lucide-react";
+import { Bot, Send, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard/ai")({
   head: () => ({ meta: [{ title: "AI Assistant — PULSE AI Dashboard" }] }),
@@ -41,17 +40,6 @@ function getResponse(msg: string): string {
   return mockResponses[msg] || "Estoy analizando tu consulta... En una implementación completa, accedería en tiempo real a todas tus métricas, patrones de comportamiento de usuarios, historial de ventas y datos de productos para darte una respuesta precisa y accionable. Esta es una demo del AI Assistant de PULSE AI.";
 }
 
-const insightIcon = {
-  opportunity: Lightbulb,
-  risk: AlertTriangle,
-  trend: TrendingUp,
-} as const;
-
-const insightColor = {
-  opportunity: "text-primary bg-primary/10 border-primary/20",
-  risk: "text-destructive bg-destructive/10 border-destructive/20",
-  trend: "text-blue-400 bg-blue-400/10 border-blue-400/20",
-} as const;
 
 function AiAssistant() {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
@@ -164,33 +152,17 @@ function AiAssistant() {
             <Sparkles className="size-4 text-primary" />
             <h3 className="text-sm font-semibold">Insights en Tiempo Real</h3>
           </div>
-          {aiInsights.map((insight) => {
-            const Icon = insightIcon[insight.kind];
-            return (
-              <div key={insight.id} className={`rounded-xl border p-4 ${insightColor[insight.kind]}`}>
-                <div className="flex items-start gap-2 mb-2">
-                  <Icon className="size-4 mt-0.5 shrink-0" />
-                  <div className="text-xs font-semibold">{insight.title}</div>
-                </div>
-                <p className="text-[11px] opacity-80 leading-relaxed mb-3">{insight.body}</p>
-                <button
-                  onClick={() => toast.success(`Acción iniciada: ${insight.action}`)}
-                  className="text-[10px] font-medium flex items-center gap-1 hover:gap-2 transition-all"
-                >
-                  {insight.action} <ArrowRight className="size-3" />
-                </button>
-                <div className="mt-2 flex items-center gap-1.5">
-                  <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded ${
-                    insight.impact === "high" ? "bg-destructive/20" :
-                    insight.impact === "medium" ? "bg-yellow-500/20" :
-                    "bg-muted/20"
-                  }`}>
-                    {insight.impact === "high" ? "ALTO IMPACTO" : insight.impact === "medium" ? "IMPACTO MEDIO" : "BAJO IMPACTO"}
-                  </span>
-                </div>
+          <div className="flex flex-col items-center justify-center py-8 gap-3 text-center">
+            <div className="size-10 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center">
+              <Sparkles className="size-5 text-muted-foreground" />
+            </div>
+            <div>
+              <div className="text-sm font-semibold">Insights se generan solos</div>
+              <div className="text-xs text-muted-foreground mt-1 max-w-[180px]">
+                El motor de IA detectará oportunidades y alertas cuando tengas datos reales.
               </div>
-            );
-          })}
+            </div>
+          </div>
         </div>
       </div>
     </DashboardLayout>

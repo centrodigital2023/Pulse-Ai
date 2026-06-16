@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { webhookEvents, webhookLog } from "@/lib/mock-data";
+import { webhookEvents } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/dashboard/webhooks")({
   head: () => ({ meta: [{ title: "Webhooks — PULSE AI Dashboard" }] }),
@@ -38,25 +38,9 @@ function Webhooks() {
 
         <div className="rounded-xl bg-surface border border-border p-6">
           <h3 className="text-sm font-semibold mb-4">Entregas recientes</h3>
-          <div className="space-y-2">
-            {webhookLog.map((w) => (
-              <div key={w.id} className="flex items-center justify-between rounded-md bg-black/20 border border-border px-3 py-2.5">
-                <div className="min-w-0">
-                  <code className="text-xs font-mono text-foreground">{w.event}</code>
-                  <div className="text-[10px] text-muted-foreground truncate">{w.url}</div>
-                </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-[10px] text-muted-foreground">{w.time}</span>
-                  <span
-                    className={`px-2 py-0.5 rounded text-[10px] font-mono ${
-                      w.status === "delivered" ? "bg-primary/20 text-primary" : "bg-destructive/20 text-destructive"
-                    }`}
-                  >
-                    {w.status.toUpperCase()}
-                  </span>
-                </div>
-              </div>
-            ))}
+          <div className="flex flex-col items-center justify-center py-10 gap-3 text-center text-muted-foreground">
+            <code className="text-[11px] font-mono bg-black/20 border border-border rounded px-3 py-1.5">Sin entregas aún</code>
+            <p className="text-xs max-w-[220px]">Cada vez que un evento ocurra, el log aparecerá aquí con el estado HTTP de la entrega.</p>
           </div>
         </div>
       </div>

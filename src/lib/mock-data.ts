@@ -1,8 +1,12 @@
-// Mock data for PULSE AI platform demo.
-// Replace with backend queries when wired up.
+// PULSE AI — platform data types and static configuration.
+// All demo/mock arrays have been cleared. Connect to real Supabase queries.
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export type ProductStatus = "live" | "draft";
 export type FileKind = "code" | "doc" | "video" | "audio" | "image";
+
+// ─── Product (seller dashboard) ───────────────────────────────────────────────
 
 export interface ProductFile {
   id: string;
@@ -31,7 +35,7 @@ export interface Product {
 
 export const products: Product[] = [];
 
-// ─── Metrics ────────────────────────────────────────────────────────────────
+// ─── Dashboard metrics ────────────────────────────────────────────────────────
 
 export interface Metric {
   label: string;
@@ -40,32 +44,43 @@ export interface Metric {
   positive: boolean;
 }
 
-export const metrics: Metric[] = [];
+export const metrics: Metric[] = [
+  { label: "Ingresos Netos", value: "$0", delta: "Sin datos aún", positive: true },
+  { label: "Clientes Totales", value: "0", delta: "Sin datos aún", positive: true },
+  { label: "Conversión", value: "0%", delta: "Sin datos aún", positive: true },
+  { label: "Churn", value: "0%", delta: "Sin datos aún", positive: true },
+];
 
 export const revenueSeries: { month: string; revenue: number; mrr: number }[] = [];
 
-export const funnel: { stage: string; count: number; pct: number }[] = [];
+export const funnel: { stage: string; count: number; pct: number }[] = [
+  { stage: "Visitantes únicos", count: 0, pct: 100 },
+  { stage: "Vieron un producto", count: 0, pct: 0 },
+  { stage: "Iniciaron checkout", count: 0, pct: 0 },
+  { stage: "Compraron", count: 0, pct: 0 },
+];
 
-// ─── Customers / CRM ─────────────────────────────────────────────────────────
+// ─── Customers ────────────────────────────────────────────────────────────────
 
 export interface Customer {
   id: string;
   name: string;
   email: string;
-  initials: string;
+  avatar: string;
+  initials?: string;
+  location: string;
+  segment: string;
   spent: number;
   products: number;
   activations: number;
-  lastIp: string;
-  location: string;
-  joined: string;
-  segment: "vip" | "regular" | "at_risk";
   ltv: number;
+  joinDate: string;
+  lastActivity: string;
 }
 
 export const customers: Customer[] = [];
 
-// ─── License Keys ────────────────────────────────────────────────────────────
+// ─── License keys ─────────────────────────────────────────────────────────────
 
 export interface LicenseKey {
   id: string;
@@ -76,35 +91,31 @@ export interface LicenseKey {
   limit: number;
   status: "active" | "expired" | "revoked";
   type: "personal" | "professional" | "enterprise" | "white_label";
-  expiresAt: string;
+  issued: string;
+  expires: string | null;
 }
 
 export const licenseKeys: LicenseKey[] = [];
 
-// ─── Webhooks ────────────────────────────────────────────────────────────────
+// ─── Webhooks ─────────────────────────────────────────────────────────────────
 
 export interface WebhookEntry {
   id: string;
   event: string;
-  url: string;
-  status: "delivered" | "failed";
-  time: string;
+  endpoint: string;
+  status: number;
+  latency: number;
+  ts: string;
 }
 
 export const webhookEvents = [
-  "order.created",
-  "order.refunded",
-  "subscription.created",
-  "subscription.cancelled",
-  "license.activated",
-  "license.revoked",
-  "download.completed",
-  "affiliate.conversion",
+  "order.paid", "order.refunded", "license.activated", "license.revoked",
+  "product.published", "affiliate.conversion", "subscription.renewed", "subscription.cancelled",
 ];
 
 export const webhookLog: WebhookEntry[] = [];
 
-// ─── Activity ────────────────────────────────────────────────────────────────
+// ─── Activity feed ────────────────────────────────────────────────────────────
 
 export interface Activity {
   id: string;
@@ -116,29 +127,33 @@ export interface Activity {
 
 export const activity: Activity[] = [];
 
-// ─── Library ─────────────────────────────────────────────────────────────────
+// ─── Library items ────────────────────────────────────────────────────────────
 
 export interface LibraryItem {
   id: string;
-  product: string;
-  order: string;
-  date: string;
-  files: ProductFile[];
-  licenseKey?: string;
-  hasVideo: boolean;
-  progress?: number;
-  certificate?: boolean;
+  productId: string;
+  name: string;
+  vendor: string;
+  category: string;
+  image: string;
+  progress: number;
+  orderId: string;
+  orderDate: string;
+  files: { id: string; name: string; kind: FileKind; size: string; downloads: number }[];
+}
+
+export function fileKindLabel(kind: FileKind): string {
+  const map: Record<FileKind, string> = {
+    code: "Código fuente",
+    doc: "Documento",
+    video: "Video",
+    audio: "Audio",
+    image: "Imagen / Diseño",
+  };
+  return map[kind] ?? kind;
 }
 
 export const libraryItems: LibraryItem[] = [];
-
-export function fileKindLabel(kind: FileKind): string {
-  if (kind === "code") return "ZIP";
-  if (kind === "doc") return "PDF";
-  if (kind === "audio") return "MP3";
-  if (kind === "image") return "IMG";
-  return "MP4";
-}
 
 // ─── Affiliates ───────────────────────────────────────────────────────────────
 
@@ -146,21 +161,20 @@ export interface Affiliate {
   id: string;
   name: string;
   email: string;
-  initials: string;
-  referrals: number;
-  conversions: number;
-  revenue: number;
-  commission: number;
-  pending: number;
-  paid: number;
-  rate: number;
-  status: "active" | "pending" | "suspended";
-  joined: string;
+  avatar: string;
+  tier: "bronze" | "silver" | "gold" | "platinum";
+  earnings: number;
+  pendingEarnings: number;
+  sales: number;
+  clicks: number;
+  conversionRate: number;
+  joinDate: string;
+  lastActivity: string;
 }
 
 export const affiliates: Affiliate[] = [];
 
-export const affiliateCommissionSeries: { month: string; paid: number; pending: number }[] = [];
+export const affiliateCommissionSeries: { month: string; earnings: number; sales: number }[] = [];
 
 // ─── Courses ──────────────────────────────────────────────────────────────────
 
@@ -168,8 +182,8 @@ export interface CourseLesson {
   id: string;
   title: string;
   duration: string;
-  kind: "video" | "quiz" | "assignment" | "text";
-  published: boolean;
+  kind: "video" | "text" | "quiz";
+  free: boolean;
 }
 
 export interface CourseModule {
@@ -180,69 +194,79 @@ export interface CourseModule {
 
 export interface Course {
   id: string;
+  productId: string;
   title: string;
-  subtitle: string;
-  status: "live" | "draft";
+  description: string;
+  thumbnail: string;
+  totalDuration: string;
+  totalLessons: number;
   students: number;
-  completionRate: number;
   rating: number;
   modules: CourseModule[];
 }
 
 export const courses: Course[] = [];
 
-// ─── Automation ───────────────────────────────────────────────────────────────
+// ─── Automation flows ─────────────────────────────────────────────────────────
+
+export interface AutomationStep {
+  id: string;
+  type: "email" | "wait" | "condition" | "tag";
+  label: string;
+  config: Record<string, string | number | boolean>;
+}
 
 export interface AutomationFlow {
   id: string;
   name: string;
   trigger: string;
-  status: "active" | "paused" | "draft";
-  enrolled: number;
-  completed: number;
-  revenue: number;
+  status: "active" | "draft" | "paused";
+  contacts: number;
+  sent: number;
+  openRate: number;
+  clickRate: number;
   steps: AutomationStep[];
-}
-
-export interface AutomationStep {
-  id: string;
-  kind: "email" | "wait" | "condition" | "tag" | "webhook";
-  label: string;
-  meta: string;
 }
 
 export const automationFlows: AutomationFlow[] = [];
 
-// ─── Marketplace ──────────────────────────────────────────────────────────────
+// ─── Marketplace vendors (admin view) ─────────────────────────────────────────
 
 export interface MarketplaceVendor {
   id: string;
   name: string;
-  handle: string;
   initials: string;
-  email: string;
-  phone: string;
   country: string;
+  category: string;
   products: number;
   revenue: number;
-  commission: number;
   rating: number;
-  status: "active" | "pending" | "suspended" | "blocked";
-  joined: string;
-  verified: boolean;
-  description: string;
+  sales: number;
+  status: "active" | "pending" | "blocked" | "suspended";
+  joinDate: string;
+  email: string;
+  handle?: string;
+  verified?: boolean;
+  commission?: number;
+  phone?: string;
+  joined?: string;
+  description?: string;
 }
 
 export const marketplaceVendors: MarketplaceVendor[] = [];
 
+// ─── Marketplace categories (real UX config — not demo data) ─────────────────
+
 export const marketplaceCategories = [
-  { id: "all", label: "Todos los productos", count: 0, emoji: "🛒" },
-  { id: "software", label: "Software & SaaS", count: 0, emoji: "💻" },
-  { id: "education", label: "Cursos & Educación", count: 0, emoji: "🎓" },
-  { id: "resources", label: "Plantillas & Recursos", count: 0, emoji: "🎨" },
-  { id: "books", label: "eBooks & Guías", count: 0, emoji: "📚" },
-  { id: "services", label: "Servicios", count: 0, emoji: "⚡" },
+  { id: "all",       label: "Todos los productos",   count: 0, emoji: "🛒" },
+  { id: "software",  label: "Software & SaaS",        count: 0, emoji: "💻" },
+  { id: "education", label: "Cursos & Educación",     count: 0, emoji: "🎓" },
+  { id: "resources", label: "Plantillas & Recursos",  count: 0, emoji: "🎨" },
+  { id: "books",     label: "eBooks & Guías",          count: 0, emoji: "📚" },
+  { id: "services",  label: "Servicios",              count: 0, emoji: "⚡" },
 ];
+
+// ─── Marketplace listings (populated by sellers via products-store) ───────────
 
 export interface MarketplaceListing {
   id: string;
@@ -266,7 +290,7 @@ export interface MarketplaceListing {
 
 export const marketplaceListings: MarketplaceListing[] = [];
 
-// ─── AI Insights ──────────────────────────────────────────────────────────────
+// ─── AI Insights (generated live by Supabase edge functions) ──────────────────
 
 export interface AiInsight {
   id: string;
@@ -279,92 +303,90 @@ export interface AiInsight {
 
 export const aiInsights: AiInsight[] = [];
 
-// ─── Analytics extras ─────────────────────────────────────────────────────────
+// ─── Analytics extras (computed from real orders in db.ts) ───────────────────
 
 export const geographicData: { country: string; code: string; revenue: number; customers: number; pct: number }[] = [];
-
 export const cohortData: { cohort: string; month0: number; month1: number; month2: number; month3: number; month4: number; month5: number }[] = [];
-
 export const revenueByProduct: { name: string; revenue: number }[] = [];
 
-// ─── Pricing plans ────────────────────────────────────────────────────────────
+// ─── Pricing plans (real platform pricing — not demo data) ───────────────────
 
 export const pricingPlans = [
   {
     id: "starter",
     name: "Starter",
     price: 29,
-    description: "Perfect for solo creators just getting started.",
+    description: "Perfecto para creadores que están comenzando.",
     highlight: false,
     features: [
-      "Up to 5 products",
-      "1 GB storage",
-      "Basic analytics",
-      "Email support",
-      "Standard checkout",
-      "License key generation",
-      "Buyer library",
+      "Hasta 5 productos",
+      "1 GB de almacenamiento",
+      "Analytics básicos",
+      "Soporte por email",
+      "Checkout estándar",
+      "Generación de licencias",
+      "Biblioteca del comprador",
     ],
-    cta: "Start for free",
+    cta: "Empezar gratis",
   },
   {
     id: "professional",
-    name: "Professional",
+    name: "Profesional",
     price: 99,
-    description: "For growing digital entrepreneurs.",
+    description: "Para emprendedores digitales en crecimiento.",
     highlight: false,
     features: [
-      "Up to 25 products",
-      "50 GB storage",
-      "Advanced analytics",
-      "Priority support",
-      "Order bumps & upsells",
-      "Affiliate program",
-      "Email automation (5 flows)",
-      "Course builder",
-      "Custom domain",
+      "Hasta 25 productos",
+      "50 GB de almacenamiento",
+      "Analytics avanzados",
+      "Soporte prioritario",
+      "Order bumps y upsells",
+      "Programa de afiliados",
+      "Automatización de emails (5 flujos)",
+      "Constructor de cursos",
+      "Dominio personalizado",
     ],
-    cta: "Start free trial",
+    cta: "Iniciar prueba gratis",
   },
   {
     id: "business",
     name: "Business",
     price: 299,
-    description: "Scale your digital business.",
+    description: "Escala tu negocio digital sin límites.",
     highlight: true,
     features: [
-      "Unlimited products",
-      "500 GB storage",
-      "Executive analytics",
-      "Priority + chat support",
-      "Full marketing automation",
-      "Unlimited affiliates",
-      "AI sales assistant",
-      "Multi-vendor marketplace",
+      "Productos ilimitados",
+      "500 GB de almacenamiento",
+      "Analytics ejecutivos",
+      "Soporte prioritario + chat",
+      "Automatización de marketing completa",
+      "Afiliados ilimitados",
+      "Asistente de ventas IA",
+      "Marketplace multi-vendor",
       "White-label branding",
-      "API access",
-      "Webhooks & integrations",
+      "Acceso API",
+      "Webhooks e integraciones",
     ],
-    cta: "Start free trial",
+    cta: "Iniciar prueba gratis",
   },
   {
     id: "enterprise",
     name: "Enterprise",
     price: 999,
-    description: "Corporate infrastructure with dedicated support.",
+    description: "Infraestructura corporativa con soporte dedicado.",
     highlight: false,
     features: [
-      "Everything in Business",
-      "10 TB+ storage",
-      "Dedicated infrastructure",
+      "Todo lo de Business",
+      "10 TB+ de almacenamiento",
+      "Infraestructura dedicada",
       "SLA 99.99% uptime",
       "SSO & SAML",
-      "RBAC & audit log",
-      "Custom AI training",
-      "Dedicated success manager",
-      "Custom contract & billing",
-      "On-premise option",
+      "RBAC y auditoría completa",
+      "IA personalizada",
+      "Gerente de éxito dedicado",
+      "Contrato y facturación personalizada",
+      "Opción on-premise",
     ],
-    cta: "Contact sales",
+    cta: "Contactar a ventas",
   },
 ];

@@ -286,6 +286,34 @@ export interface DBOrder {
   created_at: string;
 }
 
+// ─── Public platform stats (landing page counters) ───────────────────────────
+
+export interface PublicStats {
+  totalProducts: number;
+  totalOrders: number;
+  totalCreators: number;
+}
+
+/** Unauthenticated aggregate counts for landing page animated counters. */
+export function usePublicStats() {
+  return useQuery({
+    queryKey: ["public-stats"],
+    staleTime: 1000 * 60 * 5, // refresh every 5 minutes
+    queryFn: async (): Promise<PublicStats> => {
+      const [{ count: products }, { count: orders }, { count: creators }] = await Promise.all([
+        supabase.from("products").select("id", { count: "exact", head: true }).eq("status", "live"),
+        supabase.from("orders" as never).select("id", { count: "exact", head: true }).eq("status", "paid"),
+        supabase.from("user_roles").select("id", { count: "exact", head: true }).eq("role", "creator"),
+      ]);
+      return {
+        totalProducts: products ?? 0,
+        totalOrders: orders ?? 0,
+        totalCreators: creators ?? 0,
+      };
+    },
+  });
+}
+
 /** Paid purchases for the signed-in buyer. RLS scopes rows to auth.uid(). */
 export function useMyOrders() {
   return useQuery({
