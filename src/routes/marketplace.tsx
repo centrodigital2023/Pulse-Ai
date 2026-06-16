@@ -9,6 +9,7 @@ import { AuthModal } from "@/components/auth/AuthModal";
 import { AIAssistant } from "@/components/ai/AIAssistant";
 import { marketplaceCategories, type MarketplaceListing } from "@/lib/mock-data";
 import { useAllListings } from "@/lib/products-store";
+import { usePublicProducts } from "@/lib/db";
 import { useUserStore } from "@/lib/user-store";
 import {
   Search, Star, ShoppingCart, ChevronLeft, ChevronRight,
