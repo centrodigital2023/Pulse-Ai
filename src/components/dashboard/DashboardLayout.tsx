@@ -212,7 +212,7 @@ export function DashboardLayout({
                   <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
                   <Logo />
                 </div>
-                <NavContent isActive={isActive} onNavigate={() => setMobileOpen(false)} />
+                <NavContent isActive={isActive} isAdmin={isAdmin} onNavigate={() => setMobileOpen(false)} />
               </SheetContent>
             </Sheet>
             <div className="min-w-0">
