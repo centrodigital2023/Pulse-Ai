@@ -113,6 +113,24 @@ export function useMyProducts() {
   });
 }
 
+/** Public live products for the marketplace. Anon-readable via RLS. */
+export function usePublicProducts() {
+  return useQuery({
+    queryKey: ["public-products"],
+    queryFn: async (): Promise<DBProduct[]> => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*, product_files(*)")
+        .eq("status", "live")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as DBProduct[];
+    },
+  });
+}
+
+
+
 export interface NewProductInput {
   name: string;
   tagline: string;
