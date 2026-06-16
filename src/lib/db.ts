@@ -79,10 +79,38 @@ export function useMyRoles() {
   return { ...query, isLoading: authLoading || query.isLoading };
 }
 
-/** True only for sellers/creators — the vendor dashboard is exclusive to sellers. */
+/**
+ * Vendor dashboard access. Any authenticated user can sell: if they are logged
+ * in but not yet a creator, we auto-promote them via the become_seller RPC so
+ * they can publish products without a separate sign-up step.
+ */
 export function useCanAccessDashboard() {
-  const { data: roles = [], isLoading } = useMyRoles();
-  const canAccess = roles.includes("creator");
+  const { user, isLoading: authLoading } = useAuth();
+  const { data: roles = [], isLoading: rolesLoading } = useMyRoles();
+  const queryClient = useQueryClient();
+  const promoting = useRef(false);
+
+  const isCreator = roles.includes("creator");
+  const needsPromotion = !!user && !rolesLoading && !isCreator;
+
+  useEffect(() => {
+    if (!needsPromotion || promoting.current) return;
+    promoting.current = true;
+    (async () => {
+      try {
+        const { error } = await supabase.rpc("become_seller");
+        if (error) throw error;
+        await queryClient.invalidateQueries({ queryKey: ["my-roles"] });
+      } catch (e) {
+        console.error("become_seller failed", e);
+      } finally {
+        promoting.current = false;
+      }
+    })();
+  }, [needsPromotion, queryClient]);
+
+  const canAccess = isCreator;
+  const isLoading = authLoading || rolesLoading || needsPromotion;
   return { canAccess, isLoading };
 }
 
