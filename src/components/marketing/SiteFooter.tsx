@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
 import { Camera, Globe, AtSign, Music, Play, Share2, MessageCircle, Shield, Lock, CreditCard, Zap, Send } from "lucide-react";
 import { toast } from "sonner";
+import { useCanAccessDashboard } from "@/lib/db";
 
 const socialLinks = [
   { label: "WhatsApp", href: "https://wa.me/573147444715", icon: MessageCircle, color: "#25D366" },
@@ -25,6 +26,7 @@ const trustBadges = [
 export function SiteFooter() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const { canAccess: isSeller } = useCanAccessDashboard();
 
   const handleNewsletter = (e: React.FormEvent) => {
     e.preventDefault();
@@ -142,12 +144,20 @@ export function SiteFooter() {
 
             <div className="space-y-3">
               <div className="text-xs font-bold uppercase tracking-widest">Creadores</div>
-              <Link to="/vender" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
-                Publicar producto
-              </Link>
-              <Link to="/dashboard" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
-                Dashboard vendedor
-              </Link>
+              {isSeller ? (
+                <>
+                  <Link to="/dashboard" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                    Panel de vendedor
+                  </Link>
+                  <Link to="/dashboard/products" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                    Publicar producto
+                  </Link>
+                </>
+              ) : (
+                <Link to="/vender" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Conviértete en vendedor
+                </Link>
+              )}
               <Link to="/afiliados" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
                 Ganar como afiliado
               </Link>
