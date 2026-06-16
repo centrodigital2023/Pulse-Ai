@@ -22,12 +22,37 @@ const lessonIcon = {
 } as const;
 
 function Courses() {
-  const [selectedId, setSelectedId] = useState(courses[0].id);
-  const [expandedModules, setExpandedModules] = useState<string[]>([courses[0].modules[0].id]);
-  const course = courses.find((c) => c.id === selectedId)!;
+  const [selectedId, setSelectedId] = useState(courses[0]?.id ?? "");
+  const [expandedModules, setExpandedModules] = useState<string[]>(
+    courses[0]?.modules[0]?.id ? [courses[0].modules[0].id] : [],
+  );
+  const course = courses.find((c) => c.id === selectedId);
 
   const toggleModule = (id: string) =>
     setExpandedModules((prev) => prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]);
+
+  if (courses.length === 0 || !course) {
+    return (
+      <DashboardLayout
+        title="Constructor de Cursos"
+        breadcrumb={["Dashboard", "Cursos"]}
+        actions={
+          <Button variant="contrast" size="sm" onClick={() => toast.success("Nuevo curso creado")}>
+            <Plus className="size-4" /> Nuevo curso
+          </Button>
+        }
+      >
+        <div className="rounded-xl bg-surface border border-border p-12 text-center">
+          <GraduationCap className="size-12 text-primary/30 mx-auto mb-4" />
+          <h3 className="font-semibold text-lg mb-2">Aún no tienes cursos</h3>
+          <p className="text-sm text-muted-foreground mb-4">Crea tu primer curso con módulos, lecciones y certificados automáticos.</p>
+          <Button variant="contrast" onClick={() => toast.success("Nuevo curso creado")}>
+            <Plus className="size-4" /> Crear mi primer curso
+          </Button>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout
