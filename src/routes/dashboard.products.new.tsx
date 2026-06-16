@@ -631,9 +631,10 @@ function NewProduct() {
         recurring,
         status: "live",
         licensing_enabled: generateKey,
-        files: fileName
-          ? [{ name: fileName, kind: "doc", size: fileSize || "—" }]
-          : [],
+        imageFile: coverFile,
+        productFile: deliveryType === "file" ? productFile : null,
+        downloadUrl: deliveryType === "link" ? downloadUrl.trim() : undefined,
+        fileName: fileName.trim(),
       });
     } catch (e) {
       setSaving(false);
