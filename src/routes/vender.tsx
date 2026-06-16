@@ -626,9 +626,14 @@ function VenderPage() {
         <Check className="size-10 text-primary" />
       </div>
       <div>
-        <h2 className="text-2xl font-bold mb-2">¡Tu cuenta de vendedor está activa!</h2>
+        <h2 className="text-2xl font-bold mb-2">
+          {isAlreadySeller ? "¡Bienvenido de vuelta, vendedor!" : "¡Tu cuenta de vendedor está activa!"}
+        </h2>
         <p className="text-muted-foreground max-w-sm mx-auto">
-          Hola <strong>{form.name.split(" ")[0]}</strong>, ya eres vendedor en PULSE AI. Entra a tu panel para publicar tu primer producto y empezar a vender hoy mismo.
+          Hola <strong>{(form.name || "vendedor").split(" ")[0]}</strong>,{" "}
+          {isAlreadySeller
+            ? "tu cuenta de vendedor ya está activa. Entra a tu panel para gestionar tu tienda y tus productos."
+            : "ya eres vendedor en PULSE AI. Entra a tu panel para publicar tu primer producto y empezar a vender hoy mismo."}
         </p>
       </div>
 
