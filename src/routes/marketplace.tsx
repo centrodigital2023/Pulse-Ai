@@ -617,7 +617,7 @@ function MarketplacePage() {
       {/* Category quick links */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
-          {marketplaceCategories.map(cat => (
+          {categoriesWithCounts.map(cat => (
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
@@ -732,7 +732,7 @@ function MarketplacePage() {
               </div>
 
               <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2">Categorías</div>
-              {marketplaceCategories.map(cat => (
+              {categoriesWithCounts.map(cat => (
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id)}
