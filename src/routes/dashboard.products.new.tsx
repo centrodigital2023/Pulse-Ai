@@ -695,20 +695,6 @@ function NewProduct() {
       toast.error(e instanceof Error ? e.message : "No se pudo guardar el borrador");
       return;
     }
-    addProduct({
-      vendorId: user?.id || "demo",
-      vendorName: user?.name || "Mi Tienda",
-      vendorInitials: user?.initials || "MT",
-      name: name.trim(),
-      tagline: tagline.trim(),
-      description: description.trim(),
-      category, tags, coverImage, deliveryType,
-      fileName, fileSize, fileExt, downloadUrl,
-      licenseType, activations, generateKey,
-      price, originalPrice: originalPrice > price ? originalPrice : undefined,
-      currency: "COP", recurring, badge,
-      status: "draft",
-    });
     toast("Borrador guardado");
   };
 
