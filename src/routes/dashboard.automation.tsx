@@ -28,12 +28,36 @@ const stepColor = {
 } as const;
 
 function Automation() {
-  const [selected, setSelected] = useState(automationFlows[0].id);
-  const flow = automationFlows.find((f) => f.id === selected)!;
+  const [selected, setSelected] = useState(automationFlows[0]?.id ?? "");
+  const flow = automationFlows.find((f) => f.id === selected);
 
   const toggle = () => {
+    if (!flow) return;
     toast.success(flow.status === "active" ? "Flujo pausado" : "Flujo activado");
   };
+
+  if (automationFlows.length === 0 || !flow) {
+    return (
+      <DashboardLayout
+        title="Automatización de Marketing"
+        breadcrumb={["Dashboard", "Automatización"]}
+        actions={
+          <Button variant="contrast" size="sm" onClick={() => toast.success("Nuevo flujo creado")}>
+            <Plus className="size-4" /> Nuevo flujo
+          </Button>
+        }
+      >
+        <div className="rounded-xl bg-surface border border-border p-12 text-center">
+          <Zap className="size-12 text-primary/30 mx-auto mb-4" />
+          <h3 className="font-semibold text-lg mb-2">Aún no tienes flujos de automatización</h3>
+          <p className="text-sm text-muted-foreground mb-4">Crea secuencias de emails, esperas y condiciones para automatizar tu marketing.</p>
+          <Button variant="contrast" onClick={() => toast.success("Nuevo flujo creado")}>
+            <Plus className="size-4" /> Crear mi primer flujo
+          </Button>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout
