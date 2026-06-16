@@ -15,7 +15,7 @@ import {
   ToggleLeft, ToggleRight, ArrowUpRight, ArrowDownRight, Zap,
   FileText, Building2,
 } from "lucide-react";
-import { marketplaceVendors, type MarketplaceVendor, customers, products } from "@/lib/mock-data";
+import { marketplaceVendors, type MarketplaceVendor } from "@/lib/mock-data";
 import { useAuth } from "@/lib/auth-context";
 import { useIsAdmin, useAdminUsers, useAdminOrders } from "@/lib/db";
 import { useProducts } from "@/lib/products-store";
