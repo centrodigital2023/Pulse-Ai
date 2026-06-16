@@ -874,19 +874,21 @@ function MarketplacePage() {
 
       <SiteFooter />
 
-      {/* Social proof widget */}
-      <div className="fixed bottom-6 left-6 z-40 pointer-events-none">
-        <div className="bg-surface border border-border rounded-2xl p-3 shadow-2xl shadow-black/20 flex items-center gap-3 max-w-[260px]">
-          <div className="size-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary shrink-0">
-            {socialProofMessages[spIndex].name[0]}
+      {/* Social proof widget — only when there are real recent sales */}
+      {socialProofMessages.length > 0 && (
+        <div className="fixed bottom-6 left-6 z-40 pointer-events-none">
+          <div className="bg-surface border border-border rounded-2xl p-3 shadow-2xl shadow-black/20 flex items-center gap-3 max-w-[260px]">
+            <div className="size-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary shrink-0">
+              {socialProofMessages[spIndex].name[0]}
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium truncate">{socialProofMessages[spIndex].name} · {socialProofMessages[spIndex].city}</p>
+              <p className="text-[10px] text-muted-foreground truncate">compró <span className="text-primary">{socialProofMessages[spIndex].product}</span></p>
+            </div>
+            <Clock className="size-3 text-muted-foreground shrink-0" />
           </div>
-          <div className="min-w-0">
-            <p className="text-[11px] font-medium truncate">{socialProofMessages[spIndex].name} · {socialProofMessages[spIndex].city}</p>
-            <p className="text-[10px] text-muted-foreground truncate">compró <span className="text-primary">{socialProofMessages[spIndex].product}</span></p>
-          </div>
-          <Clock className="size-3 text-muted-foreground shrink-0" />
         </div>
-      </div>
+      )}
 
       {/* AI Assistant */}
       <AIAssistant />
