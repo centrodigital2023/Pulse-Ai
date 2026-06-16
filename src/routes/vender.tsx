@@ -1,9 +1,10 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
+import { useMyRoles } from "@/lib/db";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -205,6 +206,8 @@ function VenderPage() {
   const { user, signUp } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { data: roles = [], isLoading: rolesLoading } = useMyRoles();
+  const isAlreadySeller = roles.includes("creator") || roles.includes("admin");
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState<FormData>({
@@ -214,6 +217,27 @@ function VenderPage() {
     productName: "", productDesc: "", productPrice: "", productCategory: "Software & SaaS",
     productFile: null, productImage: null,
   });
+
+  // Prefill known data from the authenticated profile so the user never
+  // re-types what we already have.
+  useEffect(() => {
+    if (user) {
+      setForm(f => ({
+        ...f,
+        name: f.name || user.name || "",
+        email: f.email || user.email || "",
+      }));
+    }
+  }, [user]);
+
+  // Intelligent shortcut: if the visitor is already a seller, skip the whole
+  // onboarding and take them straight to the "active account" screen instead
+  // of forcing them through the steps again.
+  useEffect(() => {
+    if (!rolesLoading && isAlreadySeller) {
+      setStep(4);
+    }
+  }, [rolesLoading, isAlreadySeller]);
 
   const set = (k: keyof FormData, v: string | File | null) =>
     setForm(f => ({ ...f, [k]: v }));
@@ -602,9 +626,14 @@ function VenderPage() {
         <Check className="size-10 text-primary" />
       </div>
       <div>
-        <h2 className="text-2xl font-bold mb-2">¡Tu cuenta de vendedor está activa!</h2>
+        <h2 className="text-2xl font-bold mb-2">
+          {isAlreadySeller ? "¡Bienvenido de vuelta, vendedor!" : "¡Tu cuenta de vendedor está activa!"}
+        </h2>
         <p className="text-muted-foreground max-w-sm mx-auto">
-          Hola <strong>{form.name.split(" ")[0]}</strong>, ya eres vendedor en PULSE AI. Entra a tu panel para publicar tu primer producto y empezar a vender hoy mismo.
+          Hola <strong>{(form.name || "vendedor").split(" ")[0]}</strong>,{" "}
+          {isAlreadySeller
+            ? "tu cuenta de vendedor ya está activa. Entra a tu panel para gestionar tu tienda y tus productos."
+            : "ya eres vendedor en PULSE AI. Entra a tu panel para publicar tu primer producto y empezar a vender hoy mismo."}
         </p>
       </div>
 
