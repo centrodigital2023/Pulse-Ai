@@ -639,7 +639,8 @@ function NewProduct() {
       return;
     }
 
-    const product = addProduct({
+    const product: VendorProduct = {
+      id: `vp-${Date.now()}`,
       vendorId: user?.id || "demo",
       vendorName: user?.name || "Mi Tienda",
       vendorInitials: user?.initials || "MT",
@@ -662,7 +663,13 @@ function NewProduct() {
       badge,
       status: "live",
       publishedAt: new Date().toISOString(),
-    });
+      createdAt: new Date().toISOString(),
+      sales: 0,
+      reviews: 0,
+      rating: 5.0,
+      soldToday: 0,
+      viewers: 0,
+    };
 
     setSaving(false);
     setPublishedProduct(product);
