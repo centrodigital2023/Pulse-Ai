@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useProducts, fmtCOPStore, type VendorProduct } from "@/lib/products-store";
 import { useAuth } from "@/lib/auth-context";
+import { useCreateProduct } from "@/lib/db";
 import {
   UploadCloud, Link2, Image, FileText, Package, KeyRound,
   Tag, Check, Copy, ExternalLink, Facebook, Instagram,
@@ -583,6 +584,7 @@ function PublishSuccessPanel({ product }: { product: VendorProduct }) {
 function NewProduct() {
   const { addProduct } = useProducts();
   const { user } = useAuth();
+  const createProduct = useCreateProduct();
 
   const [publishedProduct, setPublishedProduct] = useState<VendorProduct | null>(null);
   const [saving, setSaving] = useState(false);
@@ -619,7 +621,24 @@ function NewProduct() {
   const handlePublish = async () => {
     if (!validate()) return;
     setSaving(true);
-    await new Promise(r => setTimeout(r, 800));
+    try {
+      await createProduct.mutateAsync({
+        name: name.trim(),
+        tagline: tagline.trim(),
+        category,
+        price,
+        recurring,
+        status: "live",
+        licensing_enabled: generateKey,
+        files: fileName
+          ? [{ name: fileName, kind: "doc", size: fileSize || "—" }]
+          : [],
+      });
+    } catch (e) {
+      setSaving(false);
+      toast.error(e instanceof Error ? e.message : "No se pudo publicar el producto");
+      return;
+    }
 
     const product = addProduct({
       vendorId: user?.id || "demo",
@@ -651,8 +670,25 @@ function NewProduct() {
     toast.success(`🚀 "${product.name}" publicado en el Marketplace`);
   };
 
-  const handleDraft = () => {
+  const handleDraft = async () => {
     if (!name.trim()) { toast.error("Agrega un nombre primero"); return; }
+    try {
+      await createProduct.mutateAsync({
+        name: name.trim(),
+        tagline: tagline.trim(),
+        category,
+        price,
+        recurring,
+        status: "draft",
+        licensing_enabled: generateKey,
+        files: fileName
+          ? [{ name: fileName, kind: "doc", size: fileSize || "—" }]
+          : [],
+      });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo guardar el borrador");
+      return;
+    }
     addProduct({
       vendorId: user?.id || "demo",
       vendorName: user?.name || "Mi Tienda",
