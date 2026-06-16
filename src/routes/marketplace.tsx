@@ -360,12 +360,14 @@ function MarketplacePage() {
 
   // Rotate social proof
   useEffect(() => {
+    if (!socialProofMessages.length) return;
     const t = setInterval(() => setSpIndex(i => (i + 1) % socialProofMessages.length), 5000);
     return () => clearInterval(t);
   }, []);
 
   // Social proof toast on mount
   useEffect(() => {
+    if (!socialProofMessages.length) return;
     const t = setTimeout(() => {
       const msg = socialProofMessages[0];
       toast(
