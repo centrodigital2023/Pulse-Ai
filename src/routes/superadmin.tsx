@@ -13,7 +13,7 @@ import {
   Mail, Phone, MapPin, Calendar, Star, ExternalLink,
   RefreshCw, User, Wallet, CreditCard, Percent, Bell,
   ToggleLeft, ToggleRight, ArrowUpRight, ArrowDownRight, Zap,
-  FileText, Building2, LayoutDashboard,
+  FileText, Building2,
 } from "lucide-react";
 import { marketplaceVendors, type MarketplaceVendor } from "@/lib/mock-data";
 import { useAuth } from "@/lib/auth-context";
