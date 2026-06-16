@@ -99,6 +99,16 @@ function NavContent({
         ))}
       </nav>
       <div className="p-2 border-t border-border space-y-0.5 shrink-0">
+        {isAdmin && (
+          <Link
+            to="/superadmin"
+            onClick={onNavigate}
+            className="flex items-center gap-2.5 h-9 px-3 rounded-md text-sm font-bold text-destructive bg-destructive/5 border border-destructive/20 hover:bg-destructive/10 transition-colors"
+          >
+            <Shield className="size-4" />
+            Panel SuperAdmin
+          </Link>
+        )}
         <Link
           to="/library"
           onClick={onNavigate}
