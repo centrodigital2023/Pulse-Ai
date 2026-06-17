@@ -369,7 +369,8 @@ function MarketplacePage() {
     viewers: 0,
     badge: "new",
     tagline: p.tagline ?? "",
-    image: `https://picsum.photos/seed/${p.id}/600/400`,
+    image: p.cover_url ?? `https://picsum.photos/seed/${p.id}/600/400`,
+    images: p.cover_url ? [p.cover_url] : undefined,
     tags: p.category ? [p.category] : ["Digital"],
   }));
   const allListings = [...dbListings, ...staticListings];
