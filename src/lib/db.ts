@@ -28,6 +28,8 @@ export interface DBProduct {
   licensing_enabled: boolean;
   created_at: string;
   product_files: DBProductFile[];
+  /** Resolved cover image URL (signed) for the marketplace. */
+  cover_url?: string | null;
 }
 
 export interface DBCustomer {
