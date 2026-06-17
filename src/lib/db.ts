@@ -154,7 +154,25 @@ export function usePublicProducts() {
         .eq("status", "live")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as DBProduct[];
+      const products = (data ?? []) as DBProduct[];
+
+      // Resolve the seller's uploaded cover image into a signed URL so it
+      // shows on the marketplace exactly as published.
+      await Promise.all(
+        products.map(async (p) => {
+          const cover =
+            p.product_files?.find((f) => f.kind === "image" && f.meta === "Portada") ??
+            p.product_files?.find((f) => f.kind === "image");
+          if (cover?.storage_path) {
+            const { data: signed } = await supabase.storage
+              .from("product-images")
+              .createSignedUrl(cover.storage_path, 60 * 60 * 24 * 7);
+            p.cover_url = signed?.signedUrl ?? null;
+          }
+        }),
+      );
+
+      return products;
     },
   });
 }
