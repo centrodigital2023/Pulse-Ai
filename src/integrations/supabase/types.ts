@@ -1361,36 +1361,7 @@ export type Database = {
       }
     }
     Views: {
-      webhooks_admin: {
-        Row: {
-          active: boolean | null
-          created_at: string | null
-          events: string[] | null
-          id: string | null
-          owner_id: string | null
-          updated_at: string | null
-          url: string | null
-        }
-        Insert: {
-          active?: boolean | null
-          created_at?: string | null
-          events?: string[] | null
-          id?: string | null
-          owner_id?: string | null
-          updated_at?: string | null
-          url?: string | null
-        }
-        Update: {
-          active?: boolean | null
-          created_at?: string | null
-          events?: string[] | null
-          id?: string | null
-          owner_id?: string | null
-          updated_at?: string | null
-          url?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       become_seller: { Args: never; Returns: undefined }
