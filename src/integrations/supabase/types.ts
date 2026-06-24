@@ -961,6 +961,7 @@ export type Database = {
           kind: Database["public"]["Enums"]["file_kind"]
           meta: string | null
           name: string
+          owner_id: string | null
           product_id: string
           size: string | null
           storage_path: string | null
@@ -972,6 +973,7 @@ export type Database = {
           kind?: Database["public"]["Enums"]["file_kind"]
           meta?: string | null
           name: string
+          owner_id?: string | null
           product_id: string
           size?: string | null
           storage_path?: string | null
@@ -983,6 +985,7 @@ export type Database = {
           kind?: Database["public"]["Enums"]["file_kind"]
           meta?: string | null
           name?: string
+          owner_id?: string | null
           product_id?: string
           size?: string | null
           storage_path?: string | null
