@@ -961,6 +961,7 @@ export type Database = {
           kind: Database["public"]["Enums"]["file_kind"]
           meta: string | null
           name: string
+          owner_id: string | null
           product_id: string
           size: string | null
           storage_path: string | null
@@ -972,6 +973,7 @@ export type Database = {
           kind?: Database["public"]["Enums"]["file_kind"]
           meta?: string | null
           name: string
+          owner_id?: string | null
           product_id: string
           size?: string | null
           storage_path?: string | null
@@ -983,6 +985,7 @@ export type Database = {
           kind?: Database["public"]["Enums"]["file_kind"]
           meta?: string | null
           name?: string
+          owner_id?: string | null
           product_id?: string
           size?: string | null
           storage_path?: string | null
@@ -1358,7 +1361,36 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      webhooks_admin: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          events: string[] | null
+          id: string | null
+          owner_id: string | null
+          updated_at: string | null
+          url: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          events?: string[] | null
+          id?: string | null
+          owner_id?: string | null
+          updated_at?: string | null
+          url?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          events?: string[] | null
+          id?: string | null
+          owner_id?: string | null
+          updated_at?: string | null
+          url?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       become_seller: { Args: never; Returns: undefined }
