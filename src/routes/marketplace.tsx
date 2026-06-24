@@ -354,25 +354,50 @@ function MarketplacePage() {
   const navigate = useNavigate();
   const staticListings = useAllListings();
   const { data: dbProducts = [] } = usePublicProducts();
-  const dbListings: MarketplaceListing[] = dbProducts.map((p) => ({
-    id: p.id,
-    name: p.name,
-    vendor: "Tienda PULSE",
-    vendorAvatar: "PS",
-    category: p.category ?? "Software",
-    price: p.price,
-    recurring: p.recurring,
-    rating: 5,
-    reviews: 0,
-    sales: 0,
-    soldToday: 0,
-    viewers: 0,
-    badge: "new",
-    tagline: p.tagline ?? "",
-    image: p.cover_url ?? `https://picsum.photos/seed/${p.id}/600/400`,
-    images: p.cover_url ? [p.cover_url] : undefined,
-    tags: p.category ? [p.category] : ["Digital"],
-  }));
+  const fetchPremium = useServerFn(getPremiumImages);
+  const { data: premium } = useQuery({
+    queryKey: ["premium-images"],
+    staleTime: 1000 * 60 * 60,
+    queryFn: () => fetchPremium(),
+  });
+
+  // Deterministic premium cover picked from Pexels for the product's category.
+  const premiumCover = (id: string, category: string | null): string | undefined => {
+    const pool =
+      (category && premium?.byCategory[category]) ||
+      premium?.byCategory.all ||
+      [];
+    if (pool.length === 0) return undefined;
+    let h = 0;
+    for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+    return pool[h % pool.length];
+  };
+
+  const dbListings: MarketplaceListing[] = dbProducts.map((p) => {
+    const cover =
+      p.cover_url ??
+      premiumCover(p.id, p.category) ??
+      `https://picsum.photos/seed/${p.id}/600/400`;
+    return {
+      id: p.id,
+      name: p.name,
+      vendor: "Tienda PULSE",
+      vendorAvatar: "PS",
+      category: p.category ?? "Software",
+      price: p.price,
+      recurring: p.recurring,
+      rating: 5,
+      reviews: 0,
+      sales: 0,
+      soldToday: 0,
+      viewers: 0,
+      badge: "new",
+      tagline: p.tagline ?? "",
+      image: cover,
+      images: p.cover_url ? [p.cover_url] : undefined,
+      tags: p.category ? [p.category] : ["Digital"],
+    };
+  });
   const allListings = [...dbListings, ...staticListings];
   const { addToCart, setPendingCheckoutItems } = useUserStore();
   const [activeCategory, setActiveCategory] = useState("all");
