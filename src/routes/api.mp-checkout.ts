@@ -66,10 +66,12 @@ export const Route = createFileRoute("/api/mp-checkout")({
             status: "pending",
           }));
 
+          // Non-blocking: if the order can't be persisted (e.g. missing
+          // service role key) the buyer can still pay. The webhook reconciles
+          // the order on confirmation via external_reference / group_ref.
           const { error: insertError } = await supabaseAdmin.from("orders").insert(rows);
           if (insertError) {
-            console.error("[MP Checkout] order insert failed", insertError);
-            return Response.json({ error: "No se pudo registrar la orden" }, { status: 500 });
+            console.error("[MP Checkout] order insert failed (continuing)", insertError);
           }
 
           if (!accessToken) {
@@ -77,11 +79,13 @@ export const Route = createFileRoute("/api/mp-checkout")({
             return Response.json({ demo: true, initPoint: null, groupRef });
           }
 
-          // Build a stable site URL from the incoming request origin
+          // Prefer the configured public site URL for back_urls so Mercado
+          // Pago doesn't reject localhost / preview origins. Fall back to the
+          // request origin only when no site URL is configured.
           const origin =
+            process.env.MERCADOPAGO_SITE_URL ||
             request.headers.get("origin") ||
             new URL(request.url).origin ||
-            process.env.MERCADOPAGO_SITE_URL ||
             "https://package-pal-55.lovable.app";
 
           // Dynamic import so the module is only loaded server-side
