@@ -79,11 +79,13 @@ export const Route = createFileRoute("/api/mp-checkout")({
             return Response.json({ demo: true, initPoint: null, groupRef });
           }
 
-          // Build a stable site URL from the incoming request origin
+          // Prefer the configured public site URL for back_urls so Mercado
+          // Pago doesn't reject localhost / preview origins. Fall back to the
+          // request origin only when no site URL is configured.
           const origin =
+            process.env.MERCADOPAGO_SITE_URL ||
             request.headers.get("origin") ||
             new URL(request.url).origin ||
-            process.env.MERCADOPAGO_SITE_URL ||
             "https://package-pal-55.lovable.app";
 
           // Dynamic import so the module is only loaded server-side
