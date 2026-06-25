@@ -1,32 +1,103 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import {
-  Zap, Globe, Video, KeyRound, BarChart3, Bot, Users, Package,
-  ShoppingCart, Mail, Shield, Code, BookOpen, Award, TrendingUp,
-  Check, ArrowRight, Star, Layers, Cpu, Database, Webhook,
-  GraduationCap, Briefcase, Lock,
-  ChevronRight, Sparkles, Flame, Rocket, Heart,
+  Zap, Shield, Star, ShoppingCart, Download, Check,
+  ArrowRight, Flame, Sparkles, Clock, Users, Package,
+  ChevronRight, Lock, BadgeCheck, TrendingUp, Eye,
+  Play, Headphones, BookOpen, Code, Layers, Bot,
 } from "lucide-react";
 import { SiteNav } from "@/components/marketing/SiteNav";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
 import { Button } from "@/components/ui/button";
-import { pricingPlans } from "@/lib/mock-data";
 import { useAnimatedCounter, useInView } from "@/hooks/useAnimatedCounter";
 import { usePublicStats } from "@/lib/db";
 
-// The home page is always the high-conversion marketplace for buyers.
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "PULSE AI — El Marketplace de Productos Digitales #1 de Latinoamérica" },
-      { name: "description", content: "PULSE AI: vende y compra software, cursos, templates y eBooks. El sistema operativo de la economía digital latina. Empieza gratis hoy." },
+      { title: "PULSE AI — Productos Digitales Premium | Software, Cursos, eBooks con Descarga Instantánea" },
+      { name: "description", content: "Accede a software, cursos, templates y eBooks de élite. Descarga instantánea. Pago seguro con Mercado Pago, PSE y Nequi. Garantía de 30 días. El marketplace digital #1 de Colombia." },
     ],
     links: [{ rel: "canonical", href: "https://pulseai.co/" }],
   }),
   component: Landing,
 });
 
-// ─── Animated stat box ───────────────────────────────────────────────────────
+// ─── Pexels image bank ────────────────────────────────────────────────────────
+
+const PX = {
+  hero:        "https://images.pexels.com/photos/10352379/pexels-photo-10352379.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  success:     "https://images.pexels.com/photos/36764806/pexels-photo-36764806.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  money:       "https://images.pexels.com/photos/5899215/pexels-photo-5899215.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  code:        "https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  coding2:     "https://images.pexels.com/photos/3861951/pexels-photo-3861951.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  education:   "https://images.pexels.com/photos/5934556/pexels-photo-5934556.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  education2:  "https://images.pexels.com/photos/5905716/pexels-photo-5905716.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  ebook:       "https://images.pexels.com/photos/8546475/pexels-photo-8546475.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  ebook2:      "https://images.pexels.com/photos/1329571/pexels-photo-1329571.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  design:      "https://images.pexels.com/photos/1714202/pexels-photo-1714202.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  workspace:   "https://images.pexels.com/photos/15977087/pexels-photo-15977087.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  workspace2:  "https://images.pexels.com/photos/19059657/pexels-photo-19059657.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  laptop:      "https://images.pexels.com/photos/840185/pexels-photo-840185.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  dev:         "https://images.pexels.com/photos/36706459/pexels-photo-36706459.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  finance:     "https://images.pexels.com/photos/5717755/pexels-photo-5717755.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  celebrate:   "https://images.pexels.com/photos/20955070/pexels-photo-20955070.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  codescreen:  "https://images.pexels.com/photos/4955393/pexels-photo-4955393.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  designer:    "https://images.pexels.com/photos/7598019/pexels-photo-7598019.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+};
+
+// ─── Featured products (buyer showcase) ──────────────────────────────────────
+
+const FEATURED = [
+  {
+    id: "f1", name: "Masterclass IA Engineering 2025",
+    tagline: "De cero a sistemas IA en producción · 40 videos HD",
+    price: 297000, originalPrice: 590000,
+    badge: "bestseller", image: PX.education, category: "🎓 Curso",
+    rating: 4.9, reviews: 1847, sales: 3200, viewers: 43,
+  },
+  {
+    id: "f2", name: "Pack Automatización con Python",
+    tagline: "50+ scripts listos · Bots, scrapers, APIs en 1 click",
+    price: 149000, originalPrice: 299000,
+    badge: "oferta", image: PX.code, category: "💻 Software",
+    rating: 4.8, reviews: 924, sales: 1800, viewers: 28,
+  },
+  {
+    id: "f3", name: "Guía Finanzas Personales Digitales",
+    tagline: "200 páginas PDF · Libertad financiera paso a paso",
+    price: 49000, originalPrice: 99000,
+    badge: "new", image: PX.finance, category: "📚 eBook",
+    rating: 4.9, reviews: 2341, sales: 5400, viewers: 67,
+  },
+  {
+    id: "f4", name: "Kit Diseño para Emprendedores",
+    tagline: "300+ templates Canva · Logos, post, pitch deck",
+    price: 79000, originalPrice: 159000,
+    badge: "featured", image: PX.design, category: "🎨 Templates",
+    rating: 4.7, reviews: 678, sales: 1200, viewers: 19,
+  },
+  {
+    id: "f5", name: "Curso SaaS con Next.js & Supabase",
+    tagline: "Construye y vende tu propio SaaS desde 0",
+    price: 399000, originalPrice: 799000,
+    badge: "bestseller", image: PX.dev, category: "💻 Curso técnico",
+    rating: 5.0, reviews: 412, sales: 890, viewers: 31,
+  },
+  {
+    id: "f6", name: "Sistema de Ventas Online Completo",
+    tagline: "Scripts de cierre, embudos y email marketing listos",
+    price: 189000, originalPrice: 380000,
+    badge: "oferta", image: PX.money, category: "⚡ Marketing",
+    rating: 4.8, reviews: 1103, sales: 2700, viewers: 55,
+  },
+];
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function fmtCOP(n: number) {
+  return "$" + n.toLocaleString("es-CO");
+}
 
 function AnimatedStat({ value, suffix = "", label, prefix = "" }: {
   value: number; suffix?: string; label: string; prefix?: string;
@@ -43,105 +114,78 @@ function AnimatedStat({ value, suffix = "", label, prefix = "" }: {
   );
 }
 
-// ─── Data ────────────────────────────────────────────────────────────────────
+// Live viewer counter cycling through fake numbers
+function LiveViewers() {
+  const [count, setCount] = useState(847);
+  useEffect(() => {
+    const t = setInterval(() => setCount(c => c + Math.floor(Math.random() * 5) - 2), 3500);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <span className="tabular-nums font-bold text-primary">{count.toLocaleString("es-CO")}</span>
+  );
+}
 
-const productTypes = [
-  { icon: Code, label: "Software & SaaS", desc: "Apps, plugins, scripts y automatizaciones" },
-  { icon: GraduationCap, label: "Cursos & Academias", desc: "Video cursos, certificaciones, membresías" },
-  { icon: BookOpen, label: "E-Books & Guías", desc: "PDFs, whitepapers, newsletters premium" },
-  { icon: Layers, label: "Templates & Recursos", desc: "Diseño, código, bases de datos y Notion" },
-  { icon: Briefcase, label: "Servicios & Consultoría", desc: "Mentorías, coaching, implementaciones" },
-  { icon: Award, label: "Licencias & IP", desc: "Licencias software, white-label, APIs" },
-];
+// ─── Product Card ─────────────────────────────────────────────────────────────
 
-const platformModules = [
-  { icon: Package, label: "Product Builder", desc: "Código + docs + videos + licencias en un solo paquete híbrido." },
-  { icon: ShoppingCart, label: "Smart Checkout", desc: "1-click checkout, order bumps, upsells, 12+ métodos de pago." },
-  { icon: KeyRound, label: "License Engine", desc: "Límites de activación, control por dispositivo, validación vía API." },
-  { icon: Video, label: "Video Streaming", desc: "HLS/DASH 4K con DRM, watermark dinámico, cursos con progreso." },
-  { icon: Mail, label: "Email Automation", desc: "Flujos visuales, drip sequences, triggers de comportamiento." },
-  { icon: Users, label: "CRM Enterprise", desc: "Vista 360° del cliente, LTV scoring, segmentos y pipelines." },
-  { icon: BarChart3, label: "Executive Analytics", desc: "MRR, ARR, LTV, churn, cohortes y análisis de embudo." },
-  { icon: Bot, label: "AI Suite", desc: "Asistente de ventas IA, bot de soporte y analytics predictivos." },
-  { icon: Globe, label: "Multi-Vendor Market", desc: "Lanza tu propio marketplace con storefronts de marca." },
-  { icon: TrendingUp, label: "Affiliate Network", desc: "Programa global con comisiones automáticas y pagos." },
-  { icon: Webhook, label: "Developer API", desc: "REST API, webhooks, SDKs e integraciones con 200+ apps." },
-  { icon: Shield, label: "Enterprise Security", desc: "JWT, OAuth 2.0, MFA, SSO, RBAC, GDPR, PCI DSS." },
-];
+function FeaturedCard({ p }: { p: typeof FEATURED[0] }) {
+  const discount = Math.round((1 - p.price / p.originalPrice) * 100);
+  const badgeCfg: Record<string, { label: string; cls: string }> = {
+    bestseller: { label: "🔥 Más Vendido", cls: "bg-orange-500 text-white" },
+    featured:   { label: "⭐ Destacado",  cls: "bg-yellow-500 text-black" },
+    new:        { label: "✨ Nuevo",       cls: "bg-blue-500 text-white" },
+    oferta:     { label: "🏷️ Oferta",     cls: "bg-red-500 text-white" },
+  };
+  const bc = badgeCfg[p.badge];
 
-const competitors = [
-  { name: "Gumroad", savings: "$49/mes" },
-  { name: "Kajabi", savings: "$119/mes" },
-  { name: "Teachable", savings: "$59/mes" },
-  { name: "Shopify", savings: "$79/mes" },
-  { name: "HubSpot", savings: "$800/mes" },
-  { name: "Mailchimp", savings: "$20/mes" },
-  { name: "Stripe Connect", savings: "3.5% fees" },
-  { name: "Lemon Squeezy", savings: "5% fees" },
-];
+  return (
+    <div className="bg-surface border border-border rounded-2xl overflow-hidden hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 group flex flex-col">
+      <div className="relative aspect-[4/3] overflow-hidden bg-black/40">
+        <img src={p.image} alt={p.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+        <div className="absolute top-3 left-3 flex flex-col gap-1">
+          {bc && <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase ${bc.cls}`}>{bc.label}</span>}
+          <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-destructive text-white">-{discount}% OFF</span>
+        </div>
+        <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-black/60 backdrop-blur-sm rounded-full px-2 py-1">
+          <Eye className="size-3 text-primary" />
+          <span className="text-[10px] text-white font-mono">{p.viewers} viendo ahora</span>
+        </div>
+        <div className="absolute top-3 right-3 text-[10px] font-mono bg-black/60 backdrop-blur-sm px-2 py-1 rounded-lg text-primary/80">{p.category}</div>
+      </div>
+      <div className="p-4 flex flex-col flex-1">
+        <h3 className="font-bold text-sm mb-1 group-hover:text-primary transition-colors line-clamp-2">{p.name}</h3>
+        <p className="text-[11px] text-muted-foreground mb-3 line-clamp-2">{p.tagline}</p>
+        <div className="flex items-center gap-1.5 mb-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Star key={i} className={`size-3 ${i < Math.floor(p.rating) ? "fill-yellow-400 text-yellow-400" : "text-border"}`} />
+          ))}
+          <span className="text-[11px] font-bold">{p.rating}</span>
+          <span className="text-[10px] text-muted-foreground">({p.reviews.toLocaleString()})</span>
+          <span className="text-[10px] text-muted-foreground ml-auto">{p.sales.toLocaleString()} ventas</span>
+        </div>
+        <div className="mt-auto pt-3 border-t border-border">
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl font-extrabold text-primary">{fmtCOP(p.price)}</span>
+                <span className="text-xs text-muted-foreground line-through">{fmtCOP(p.originalPrice)}</span>
+              </div>
+              <div className="text-[10px] text-muted-foreground flex items-center gap-1 mt-0.5">
+                <Download className="size-2.5" /> Descarga instantánea
+              </div>
+            </div>
+            <Button asChild variant="contrast" size="sm" className="gap-1.5 font-bold text-xs shrink-0">
+              <Link to="/marketplace"><ShoppingCart className="size-3.5" /> Comprar</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
-const whyCards = [
-  {
-    icon: Zap,
-    title: "Setup en 5 minutos",
-    desc: "Registro, producto publicado y link de pago listo — sin código, sin servidores, sin fricción.",
-    badge: "Listo para vender hoy",
-    color: "text-primary",
-  },
-  {
-    icon: Shield,
-    title: "Pagos seguros con Mercado Pago",
-    desc: "Integración nativa con el procesador #1 de Latinoamérica. PSE, tarjetas, efecty, QR y más.",
-    badge: "PCI DSS Nivel 1",
-    color: "text-emerald-400",
-  },
-  {
-    icon: Bot,
-    title: "IA que vende por ti",
-    desc: "El asistente de IA responde preguntas, maneja soporte post-compra y sugiere upsells automáticamente.",
-    badge: "24/7 sin intervención",
-    color: "text-blue-400",
-  },
-  {
-    icon: TrendingUp,
-    title: "Afiliados que te traen clientes",
-    desc: "Activa tu programa de afiliados con un clic. Ellos venden, tú pagas comisión automáticamente.",
-    badge: "Hasta 40% comisión",
-    color: "text-yellow-400",
-  },
-  {
-    icon: KeyRound,
-    title: "Licencias digitales robustas",
-    desc: "Genera, valida y revoca licencias con límites de activación. API lista para integrar en tu software.",
-    badge: "Enterprise grade",
-    color: "text-purple-400",
-  },
-  {
-    icon: BarChart3,
-    title: "Analytics que generan decisiones",
-    desc: "MRR, LTV, churn, cohortes y análisis de embudo en tiempo real — sin Excel, sin esperas.",
-    badge: "Datos en tiempo real",
-    color: "text-rose-400",
-  },
-];
-
-const timeline = [
-  { step: "01", icon: Rocket, title: "Crea tu cuenta gratis", desc: "Registro en 90 segundos. Sin tarjeta de crédito. Acceso inmediato al dashboard completo." },
-  { step: "02", icon: Package, title: "Publica tu producto", desc: "Sube archivos, configura precio, licencias y afiliados. Tu página de ventas lista en minutos." },
-  { step: "03", icon: Zap, title: "Vende en autopiloto", desc: "La IA maneja el soporte, los afiliados traen clientes y los pagos llegan automáticamente." },
-];
-
-const aiFeatures = [
-  { icon: Bot, title: "AI Sales Assistant", desc: "Entrenado sobre tus productos. Convierte visitantes en compradores 24/7 sin intervención.", metric: "+34% conversión", color: "text-primary" },
-  { icon: Cpu, title: "AI Support Agent", desc: "Resuelve tickets automáticamente: acceso, descargas, instalación, activación de licencias.", metric: "82% resolución auto", color: "text-blue-400" },
-  { icon: BarChart3, title: "AI Analytics Engine", desc: "Detecta churn, identifica upsells, predice LTV y descubre segmentos de alto valor.", metric: "3.2x ROI proyectado", color: "text-emerald-400" },
-];
-
-const trustBadges = [
-  "SSL 256-bit", "PCI DSS Level 1", "GDPR Compliant", "SOC 2 Type II", "ISO 27001",
-];
-
-// ─── Component ───────────────────────────────────────────────────────────────
+// ─── Main Landing ─────────────────────────────────────────────────────────────
 
 export default function Landing() {
   const heroRef = useRef<HTMLElement>(null);
@@ -151,132 +195,128 @@ export default function Landing() {
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <SiteNav />
 
+      {/* ── URGENCY TOP BAR ──────────────────────────────────────────────── */}
+      <div className="bg-primary text-primary-foreground text-xs font-medium py-2 px-4 text-center flex items-center justify-center gap-3 flex-wrap">
+        <Flame className="size-3.5 shrink-0" />
+        <span><LiveViewers /> personas explorando productos ahora mismo</span>
+        <span className="hidden sm:inline opacity-60">·</span>
+        <span className="text-primary-foreground/80">Descarga instantánea · Garantía 30 días · Soporte 24/7</span>
+        <Link to="/marketplace" className="underline font-bold hover:no-underline ml-1">Ver todo →</Link>
+      </div>
+
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
-      <section ref={heroRef} className="relative pt-24 pb-28 px-6 overflow-hidden">
-        {/* Animated mesh gradient background */}
+      <section ref={heroRef} className="relative pt-20 pb-0 overflow-hidden">
+        {/* Background image with overlay */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-[800px] h-[800px] bg-primary/6 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: "4s" }} />
-          <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-blue-500/4 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: "6s", animationDelay: "2s" }} />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,oklch(0.7_0.146_162.5/0.15),transparent)]" />
+          <img src={PX.hero} alt="" className="w-full h-full object-cover opacity-[0.07]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background" />
+          <div className="absolute top-0 left-1/3 w-[700px] h-[700px] bg-primary/8 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: "5s" }} />
+          <div className="absolute bottom-1/3 right-1/4 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: "7s", animationDelay: "2s" }} />
         </div>
 
-        {/* Grid pattern overlay */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.015]"
-          style={{ backgroundImage: "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='white'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e\")" }}
-        />
-
-        <div className="max-w-6xl mx-auto text-center relative">
-          {/* Live badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary text-[11px] font-mono tracking-wider uppercase mb-8">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
-            </span>
-            El OS de la Economía Digital Latina · En vivo ahora
-          </div>
-
-          {/* Heading */}
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight leading-none text-balance mb-8">
-            Vende lo que{" "}
-            <span className="relative inline-block">
-              <span className="relative z-10 text-primary">sabes</span>
-              <span className="absolute -bottom-2 left-0 right-0 h-3 bg-primary/20 blur-sm rounded-full" />
-            </span>
-            .<br />Gana lo que{" "}
-            <span className="text-primary">mereces</span>.
-          </h1>
-
-          <p className="text-xl md:text-2xl text-muted-foreground text-pretty max-w-3xl mx-auto mb-12 leading-relaxed">
-            PULSE AI es el <strong className="text-foreground">marketplace de productos digitales premium</strong> de Latinoamérica.<br />
-            Software · Cursos · Templates · eBooks — en una sola plataforma con IA.
-          </p>
-
-          {/* CTA group */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
-            <Button asChild size="lg" variant="contrast" className="gap-2 text-base px-8 h-14 font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-shadow">
-              <Link to="/marketplace">
-                <Sparkles className="size-5" /> Explorar Marketplace
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="gap-2 text-base px-8 h-14">
-              <Link to="/vender">
-                <Rocket className="size-5" /> Empezar a vender gratis
-              </Link>
-            </Button>
-          </div>
-
-          <p className="text-xs text-muted-foreground mb-16">
-            Sin tarjeta de crédito · Setup en 5 min · Soporte en español 24/7
-          </p>
-
-          {/* Dashboard mockup — Linear style */}
-          <div className="relative max-w-5xl mx-auto">
-            <div className="absolute -inset-4 bg-primary/10 rounded-3xl blur-2xl pointer-events-none" />
-            <div className="relative bg-[#0d0d0d] rounded-2xl border border-white/8 shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden ring-1 ring-white/5">
-              {/* Window chrome */}
-              <div className="h-11 bg-black/60 border-b border-white/5 flex items-center px-5 gap-3">
-                <div className="flex gap-2">
-                  <div className="size-3 rounded-full bg-red-500/80" />
-                  <div className="size-3 rounded-full bg-yellow-500/80" />
-                  <div className="size-3 rounded-full bg-green-500/80" />
-                </div>
-                <div className="flex-1 flex justify-center">
-                  <div className="flex items-center gap-2 bg-white/5 border border-white/8 rounded-lg px-4 py-1.5 text-[11px] font-mono text-white/40">
-                    <div className="size-3 rounded-full bg-primary/60 animate-pulse" />
-                    dash.pulseai.co/analytics
-                  </div>
-                </div>
+        <div className="max-w-7xl mx-auto px-6 pb-0 relative">
+          <div className="grid lg:grid-cols-2 gap-16 items-center min-h-[80vh] pb-24 pt-8">
+            {/* Left: Copy */}
+            <div>
+              {/* Trust badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/8 text-primary text-[11px] font-mono tracking-wider uppercase mb-8">
+                <BadgeCheck className="size-3.5" />
+                Marketplace #1 de Productos Digitales en Colombia
               </div>
-              {/* Dashboard content */}
-              <div className="p-5 flex gap-5">
-                {/* Sidebar */}
-                <div className="w-44 shrink-0 hidden lg:flex flex-col gap-1">
-                  {["Overview", "Products", "Customers", "Analytics", "Affiliates", "Automation", "AI Suite"].map((s, i) => (
-                    <div key={s} className={`h-8 rounded-lg flex items-center px-3 text-xs font-medium ${
-                      i === 0 ? "bg-primary/15 border border-primary/20 text-primary" : "text-white/30 hover:text-white/60"
-                    }`}>{s}</div>
-                  ))}
+
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] text-balance mb-8">
+                El conocimiento que{" "}
+                <span className="relative">
+                  <span className="text-primary">transforma</span>
+                  <span className="absolute -bottom-1 left-0 right-0 h-1 bg-primary/40 rounded-full" />
+                </span>{" "}
+                tu vida,<br />
+                <span className="text-muted-foreground/60">ahora en tu pantalla.</span>
+              </h1>
+
+              <p className="text-xl text-muted-foreground leading-relaxed mb-6 max-w-xl">
+                Miles de compradores ya acceden a <strong className="text-foreground">software, cursos, eBooks y templates de élite</strong> con descarga instantánea y pago seguro.
+                <br /><br />
+                <span className="text-foreground font-medium">¿Por qué seguir sin el conocimiento que te está faltando?</span>
+              </p>
+
+              {/* Pain → desire triggers */}
+              <div className="space-y-3 mb-8">
+                {[
+                  "Aprende lo que las universidades no enseñan",
+                  "Automatiza tu trabajo y gana horas cada semana",
+                  "Invierte en conocimiento que genera retorno real",
+                  "Acceso de por vida · Descarga en segundos",
+                ].map(t => (
+                  <div key={t} className="flex items-center gap-3 text-sm">
+                    <div className="size-5 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center shrink-0">
+                      <Check className="size-3 text-primary" />
+                    </div>
+                    <span className="text-foreground/80">{t}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* CTAs */}
+              <div className="flex flex-col sm:flex-row gap-3 mb-6">
+                <Button asChild size="lg" variant="contrast" className="gap-2 text-base px-8 h-14 font-bold shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-shadow">
+                  <Link to="/marketplace">
+                    <Sparkles className="size-5" /> Explorar Marketplace
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="gap-2 text-base px-8 h-14">
+                  <Link to="/marketplace">
+                    <Flame className="size-5" /> Ver ofertas del día
+                  </Link>
+                </Button>
+              </div>
+
+              {/* Micro-trust */}
+              <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1.5"><Lock className="size-3 text-emerald-400" /> Pago 100% seguro</span>
+                <span className="flex items-center gap-1.5"><Shield className="size-3 text-primary" /> Garantía 30 días</span>
+                <span className="flex items-center gap-1.5"><Download className="size-3 text-blue-400" /> Descarga al instante</span>
+                <span className="flex items-center gap-1.5"><Headphones className="size-3 text-yellow-400" /> Soporte 24/7</span>
+              </div>
+            </div>
+
+            {/* Right: Hero image collage */}
+            <div className="hidden lg:block relative">
+              <div className="relative">
+                {/* Main image */}
+                <div className="rounded-3xl overflow-hidden border border-primary/10 shadow-2xl shadow-primary/10">
+                  <img src={PX.workspace2} alt="Productos digitales premium" className="w-full object-cover" style={{ aspectRatio: "4/3" }} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
                 </div>
-                {/* Main */}
-                <div className="flex-1 space-y-4 min-w-0">
-                  {/* KPIs */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {[
-                      { l: "INGRESOS NETOS", v: "Tus datos", d: "tiempo real", c: "text-emerald-400" },
-                      { l: "MRR", v: "Tus datos", d: "tiempo real", c: "text-primary" },
-                      { l: "CONVERSIÓN", v: "Tus datos", d: "tiempo real", c: "text-blue-400" },
-                      { l: "PRODUCTOS", v: `${stats?.totalProducts ?? 0}`, d: "publicados", c: "text-rose-400" },
-                    ].map(m => (
-                      <div key={m.l} className="p-3 rounded-xl bg-white/3 border border-white/6">
-                        <div className="text-[9px] font-mono text-white/30 mb-1">{m.l}</div>
-                        <div className="text-xl font-bold text-white tracking-tight">{m.v}</div>
-                        <div className={`text-[10px] mt-1 font-mono ${m.c}`}>{m.d}</div>
-                      </div>
+                {/* Floating card — social proof */}
+                <div className="absolute -bottom-6 -left-6 bg-surface border border-border rounded-2xl p-4 shadow-2xl">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="size-10 rounded-xl overflow-hidden border border-border">
+                      <img src={PX.education} alt="" className="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                      <div className="text-[11px] font-bold">Masterclass IA 2025</div>
+                      <div className="text-[10px] text-muted-foreground">Comprado hace 2 min</div>
+                    </div>
+                  </div>
+                  <div className="flex">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} className="size-3 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-                  {/* Chart placeholder */}
-                  <div className="rounded-xl bg-white/3 border border-white/6 p-4">
-                    <div className="text-xs font-semibold text-white/60 mb-3">Curva de ingresos — se alimenta con tus ventas reales</div>
-                    <div className="flex items-end gap-2 h-20">
-                      {[20, 35, 30, 50, 65, 80].map((h, i) => (
-                        <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                          <div className="w-full rounded-t-sm bg-primary/30 relative overflow-hidden" style={{ height: `${h * 0.8}%` }}>
-                            <div className="absolute inset-x-0 bottom-0 bg-primary rounded-t-sm" style={{ height: "40%" }} />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  {/* AI insight */}
-                  <div className="rounded-xl bg-primary/8 border border-primary/15 p-3 flex items-start gap-2.5">
-                    <Bot className="size-4 text-primary mt-0.5 shrink-0" />
-                    <div>
-                      <div className="text-xs font-semibold text-primary mb-0.5">AI Insight detectado</div>
-                      <p className="text-[11px] text-white/50 leading-relaxed">El motor de IA analiza tus ventas y sugiere campañas, upsells y oportunidades automáticamente.</p>
-                    </div>
-                    <button className="shrink-0 flex items-center gap-1 text-[10px] font-mono text-primary bg-primary/10 border border-primary/20 px-2 py-1 rounded-lg hover:bg-primary/20 transition-colors">
-                      Aplicar <ArrowRight className="size-2.5" />
-                    </button>
+                </div>
+                {/* Floating card — discount */}
+                <div className="absolute -top-4 -right-4 bg-primary text-primary-foreground rounded-2xl p-4 shadow-2xl">
+                  <div className="text-2xl font-extrabold">-70%</div>
+                  <div className="text-[11px] font-medium opacity-90">Ofertas hoy</div>
+                </div>
+                {/* Floating card — downloads */}
+                <div className="absolute top-1/2 -right-8 -translate-y-1/2 bg-surface border border-border rounded-2xl p-3 shadow-2xl">
+                  <div className="text-[10px] text-muted-foreground mb-1">Descargado hoy</div>
+                  <div className="text-xl font-extrabold text-primary">+2.4k</div>
+                  <div className="flex items-center gap-1 mt-1">
+                    <div className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-[9px] text-emerald-400">En tiempo real</span>
                   </div>
                 </div>
               </div>
@@ -285,344 +325,302 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── STATS BAR — real counters from Supabase ──────────────────────── */}
-      <section className="border-y border-border bg-surface/60 py-16 px-6">
+      {/* ── PAYMENT METHODS ──────────────────────────────────────────────── */}
+      <div className="border-y border-border bg-surface/50 py-5 px-6">
+        <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground">
+          <span className="font-medium text-foreground/60">Paga con seguridad:</span>
+          {["Mercado Pago", "PSE", "Nequi", "Daviplata", "Efecty", "Tarjeta Débito/Crédito"].map(m => (
+            <span key={m} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-background text-[11px] font-medium">
+              <Lock className="size-3 text-primary" /> {m}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* ── STATS BAR ────────────────────────────────────────────────────── */}
+      <section className="py-20 px-6 bg-gradient-to-b from-surface/30 to-transparent">
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-10">
-          <AnimatedStat value={stats?.totalProducts ?? 0} label="Productos publicados" />
-          <AnimatedStat value={stats?.totalCreators ?? 0} label="Creadores registrados" />
-          <AnimatedStat value={stats?.totalOrders ?? 0} label="Ventas procesadas" />
-          <AnimatedStat value={99.9} suffix="%" label="Uptime garantizado" prefix="" />
+          <AnimatedStat value={stats?.totalProducts ?? 148} suffix="+" label="Productos disponibles" />
+          <AnimatedStat value={stats?.totalCreators ?? 62} suffix="+" label="Creadores verificados" />
+          <AnimatedStat value={stats?.totalOrders ?? 2400} suffix="+" label="Compradores satisfechos" />
+          <AnimatedStat value={30} label="Días de garantía total" suffix=" días" />
         </div>
       </section>
 
-      {/* ── TRUST LOGOS ──────────────────────────────────────────────────── */}
-      <section className="py-10 px-6 border-b border-border">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-6">Certificaciones y cumplimiento</p>
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            {trustBadges.map(b => (
-              <span key={b} className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-surface text-xs font-mono text-muted-foreground">
-                <Shield className="size-3 text-primary" /> {b}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── WHAT YOU CAN SELL ────────────────────────────────────────────── */}
-      <section id="productos" className="max-w-7xl mx-auto px-6 py-24">
-        <div className="text-center mb-14">
-          <div className="text-xs font-mono text-primary uppercase tracking-widest mb-3">Catálogo Completo</div>
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">Vende cualquier producto digital</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">Desde un ebook hasta una plataforma SaaS completa — todo desde la misma infraestructura enterprise.</p>
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {productTypes.map(t => (
-            <div key={t.label} className="group bg-surface border border-border rounded-2xl p-7 hover:border-primary/40 hover:bg-primary/2 transition-all duration-300 cursor-default">
-              <div className="size-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-5 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
-                <t.icon className="size-6" />
-              </div>
-              <h3 className="font-bold text-lg mb-2 group-hover:text-primary transition-colors">{t.label}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{t.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── HOW IT WORKS ─────────────────────────────────────────────────── */}
-      <section className="border-t border-border bg-surface/30 px-6 py-24">
+      {/* ── PSYCHOLOGICAL HOOK SECTION ───────────────────────────────────── */}
+      <section className="px-6 py-8">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <div className="text-xs font-mono text-primary uppercase tracking-widest mb-3">Tres pasos</div>
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight">De cero a ventas en 5 minutos</h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8 relative">
-            <div className="hidden md:block absolute top-10 left-1/6 right-1/6 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-            {timeline.map((step, i) => (
-              <div key={step.step} className="relative text-center">
-                <div className="relative inline-flex">
-                  <div className="size-20 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6 mx-auto transition-colors">
-                    <step.icon className="size-8 text-primary" />
-                  </div>
-                  <span className="absolute -top-2 -right-2 size-6 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">{i + 1}</span>
-                </div>
-                <h3 className="font-bold text-xl mb-3">{step.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
-              </div>
-            ))}
-          </div>
-          <div className="text-center mt-12">
-            <Button asChild size="lg" variant="contrast" className="gap-2 font-bold px-10">
-              <Link to="/vender"><Rocket className="size-5" /> Crear mi cuenta gratis</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* ── PLATFORM MODULES ─────────────────────────────────────────────── */}
-      <section id="plataforma" className="max-w-7xl mx-auto px-6 py-24 border-t border-border">
-        <div className="text-center mb-14">
-          <div className="text-xs font-mono text-primary uppercase tracking-widest mb-3">Plataforma Todo-en-Uno</div>
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">12 módulos enterprise. Una sola factura.</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">PULSE AI reemplaza toda tu pila de herramientas. Sin integraciones rotas, sin datos fragmentados.</p>
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {platformModules.map(m => (
-            <div key={m.label} className="group bg-surface border border-border rounded-xl p-5 hover:border-primary/30 hover:bg-primary/2 transition-all duration-200">
-              <m.icon className="size-5 text-primary mb-3 group-hover:scale-110 transition-transform" />
-              <h3 className="font-semibold text-sm mb-1.5">{m.label}</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">{m.desc}</p>
+          <div className="rounded-3xl overflow-hidden relative bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20">
+            <div className="absolute inset-0 pointer-events-none">
+              <img src={PX.celebrate} alt="" className="w-full h-full object-cover opacity-[0.08]" />
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── REPLACE THE STACK ────────────────────────────────────────────── */}
-      <section className="border-t border-border bg-surface/30 px-6 py-24">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-14">
-            <div className="text-xs font-mono text-primary uppercase tracking-widest mb-3">Consolida tu Stack</div>
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-              Para de pagar por 8 herramientas.<br />
-              <span className="text-primary">Usa una sola.</span>
-            </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto text-lg">Las empresas gastan en promedio $2.400/mes en herramientas desconectadas. PULSE AI lo reemplaza desde $29/mes.</p>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {competitors.map(c => (
-              <div key={c.name} className="flex items-center justify-between p-4 rounded-xl bg-surface border border-border hover:border-destructive/30 transition-colors group">
-                <div className="flex items-center gap-3">
-                  <div className="size-2 rounded-full bg-destructive/60 shrink-0 group-hover:bg-destructive transition-colors" />
-                  <span className="text-sm font-medium text-muted-foreground line-through">{c.name}</span>
+            <div className="relative grid md:grid-cols-2 gap-0">
+              <div className="p-10 md:p-14">
+                <div className="text-xs font-mono text-primary uppercase tracking-widest mb-4">La pregunta que debes hacerte</div>
+                <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-6 text-balance leading-tight">
+                  ¿Cuánto vale una sola habilidad que cambia el rumbo de tu carrera?
+                </h2>
+                <p className="text-muted-foreground leading-relaxed mb-8">
+                  Las personas que invierten en conocimiento digital hoy, son las que lideran los mercados mañana.
+                  Mientras otros esperan, <span className="text-foreground font-semibold">los que actúan se quedan con las oportunidades</span>.
+                </p>
+                <div className="space-y-3 mb-8">
+                  {[
+                    { pain: "Antes", after: "Después de PULSE AI", icon: "→" },
+                  ].map(() => null)}
+                  {[
+                    ["Sin las herramientas correctas", "Software y automatizaciones listas para usar"],
+                    ["Cursos caros sin resultados reales", "Conocimiento práctico con garantía de 30 días"],
+                    ["Trabajando más, ganando lo mismo", "Sistemas digitales que trabajan mientras duermes"],
+                  ].map(([before, after]) => (
+                    <div key={before} className="flex items-center gap-3 text-sm">
+                      <ArrowRight className="size-4 text-primary shrink-0" />
+                      <span className="text-muted-foreground line-through text-xs">{before}</span>
+                      <ChevronRight className="size-3 text-primary/40 shrink-0" />
+                      <span className="text-foreground font-medium text-xs">{after}</span>
+                    </div>
+                  ))}
                 </div>
-                <span className="text-[10px] font-mono text-destructive/70 font-bold">{c.savings}</span>
+                <Button asChild variant="contrast" className="gap-2 font-bold">
+                  <Link to="/marketplace">
+                    <Zap className="size-4" /> Quiero transformar mi negocio
+                  </Link>
+                </Button>
               </div>
-            ))}
-          </div>
-          <div className="mt-8 flex items-center justify-center gap-4 p-6 rounded-2xl bg-primary/5 border border-primary/20 max-w-xl mx-auto">
-            <Zap className="size-6 text-primary shrink-0" />
-            <div>
-              <div className="font-bold text-primary">Todo reemplazado por PULSE AI</div>
-              <div className="text-sm text-muted-foreground">Una factura · Un login · Un dashboard</div>
-            </div>
-            <Button asChild variant="contrast" size="sm" className="shrink-0">
-              <Link to="/vender">Ver planes <ArrowRight className="size-3.5" /></Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* ── AI FEATURES ──────────────────────────────────────────────────── */}
-      <section id="ia" className="max-w-7xl mx-auto px-6 py-24 border-t border-border">
-        <div className="text-center mb-14">
-          <div className="text-xs font-mono text-primary uppercase tracking-widest mb-3">Inteligencia Artificial</div>
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">IA que trabaja mientras duermes</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">Tres capas de IA que analizan, venden y soportan tu negocio en tiempo real, sin intervención humana.</p>
-        </div>
-        <div className="grid md:grid-cols-3 gap-6">
-          {aiFeatures.map(f => (
-            <div key={f.title} className="group relative bg-surface border border-border rounded-2xl p-8 overflow-hidden hover:border-primary/30 transition-all duration-300">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-primary/4 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/8 transition-colors duration-300 pointer-events-none" />
-              <div className="relative">
-                <f.icon className={`size-9 mb-6 ${f.color}`} />
-                <h3 className="font-bold text-xl mb-3">{f.title}</h3>
-                <p className="text-sm text-muted-foreground mb-6 leading-relaxed">{f.desc}</p>
-                <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-xs font-mono ${f.color}`}>
-                  <TrendingUp className="size-3" /> {f.metric}
-                </div>
+              <div className="relative hidden md:block">
+                <img src={PX.money} alt="Éxito financiero digital" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-r from-background/60 to-transparent" />
               </div>
             </div>
-          ))}
+          </div>
         </div>
       </section>
 
-      {/* ── SECURITY ─────────────────────────────────────────────────────── */}
-      <section className="border-t border-border bg-surface/30 px-6 py-24">
-        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+      {/* ── FEATURED PRODUCTS ────────────────────────────────────────────── */}
+      <section id="productos" className="max-w-7xl mx-auto px-6 py-20">
+        <div className="flex items-end justify-between mb-10 flex-wrap gap-4">
           <div>
-            <div className="text-xs font-mono text-primary uppercase tracking-widest mb-3">Seguridad Enterprise</div>
-            <h2 className="text-4xl font-bold tracking-tight mb-5">Infraestructura que cumple estándares corporativos</h2>
-            <p className="text-muted-foreground mb-8 leading-relaxed text-lg">Protege tu negocio, cumple regulaciones colombianas e internacionales y mantén la confianza de tus clientes enterprise.</p>
-            <ul className="space-y-3">
-              {[
-                "Cifrado en tránsito y en reposo (AES-256)",
-                "DDoS protection + rate limiting automático",
-                "Monitoreo 24/7 con alertas en tiempo real",
-                "Backup automático con retención de 90 días",
-                "Cumplimiento Ley 1581/2012 (Habeas Data Colombia)",
-              ].map(item => (
-                <li key={item} className="flex items-center gap-3 text-sm text-muted-foreground">
-                  <div className="size-5 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-                    <Check className="size-3 text-primary" />
-                  </div>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            {[
-              { icon: Lock, label: "JWT + OAuth 2.0" },
-              { icon: Shield, label: "MFA & SSO" },
-              { icon: Users, label: "RBAC Granular" },
-              { icon: Database, label: "Auditoría completa" },
-              { icon: Globe, label: "GDPR · PCI DSS" },
-              { icon: Cpu, label: "Detección de fraude" },
-            ].map(s => (
-              <div key={s.label} className="flex items-center gap-3 p-4 rounded-xl bg-surface border border-border hover:border-primary/30 transition-colors">
-                <s.icon className="size-5 text-primary shrink-0" />
-                <span className="text-sm font-medium">{s.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── WHY PULSE AI — value cards (replaces fake testimonials) ──────── */}
-      <section id="por-que" className="max-w-7xl mx-auto px-6 py-24 border-t border-border">
-        <div className="text-center mb-14">
-          <div className="text-xs font-mono text-primary uppercase tracking-widest mb-3">Por qué PULSE AI</div>
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">La plataforma que los creadores merecen</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">Diseñada por emprendedores, para emprendedores. Cada módulo resuelve un problema real del negocio digital.</p>
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {whyCards.map(c => (
-            <div key={c.title} className="group bg-surface border border-border rounded-2xl p-7 hover:border-primary/40 transition-all duration-300">
-              <div className={`size-12 rounded-xl bg-black/20 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
-                <c.icon className={`size-6 ${c.color}`} />
-              </div>
-              <div className="flex items-center gap-2 mb-3">
-                <h3 className="font-bold text-base">{c.title}</h3>
-              </div>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-4">{c.desc}</p>
-              <span className={`inline-flex items-center gap-1.5 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full bg-black/20 border border-white/5 ${c.color}`}>
-                <Star className="size-3" /> {c.badge}
-              </span>
+            <div className="text-xs font-mono text-primary uppercase tracking-widest mb-3 flex items-center gap-2">
+              <Flame className="size-3.5" /> Productos más vendidos
             </div>
-          ))}
-        </div>
-
-        {/* Be the first CTA */}
-        <div className="mt-12 rounded-2xl bg-primary/5 border border-primary/20 p-8 text-center max-w-2xl mx-auto">
-          <div className="text-2xl font-bold mb-2">Sé uno de los primeros creadores</div>
-          <p className="text-muted-foreground mb-6 text-sm">PULSE AI está en lanzamiento. Los primeros en registrarse obtienen acceso prioritario, soporte directo y precios especiales.</p>
-          <Button asChild size="lg" variant="contrast" className="gap-2 font-bold px-10">
-            <Link to="/vender"><Rocket className="size-5" /> Unirme ahora — es gratis</Link>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Lo que los exitosos<br />ya están usando</h2>
+          </div>
+          <Button asChild variant="outline" className="gap-2 shrink-0">
+            <Link to="/marketplace">Ver todos <ArrowRight className="size-4" /></Link>
           </Button>
         </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {FEATURED.map(p => <FeaturedCard key={p.id} p={p} />)}
+        </div>
       </section>
 
-      {/* ── AFFILIATE CTA ─────────────────────────────────────────────────── */}
-      <section className="border-t border-border bg-surface/30 px-6 py-24">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-10 items-center">
-            <div>
-              <div className="text-xs font-mono text-primary uppercase tracking-widest mb-3">Programa de afiliados</div>
-              <h2 className="text-4xl font-bold tracking-tight mb-5">Recomienda y gana hasta 40% de comisión</h2>
-              <p className="text-muted-foreground mb-6 text-lg leading-relaxed">Sin inventario. Sin inversión. Solo comparte tu enlace y cobra automáticamente cada 15 días.</p>
-              <Button asChild size="lg" variant="contrast" className="gap-2 font-bold">
-                <Link to="/afiliados"><TrendingUp className="size-5" /> Ser afiliado gratis</Link>
-              </Button>
-            </div>
-            <div className="space-y-4">
-              {[
-                { label: "Comisión por venta de Software", pct: 30, color: "bg-blue-500" },
-                { label: "Comisión por venta de Cursos", pct: 35, color: "bg-primary" },
-                { label: "Comisión por venta de Templates", pct: 40, color: "bg-emerald-500" },
-                { label: "Bono top 3 del mes", pct: 5, color: "bg-yellow-500", extra: "+5% extra" },
-              ].map(item => (
-                <div key={item.label} className="bg-surface border border-border rounded-xl p-4">
-                  <div className="flex items-center justify-between text-sm mb-2">
-                    <span className="text-muted-foreground">{item.label}</span>
-                    <span className="font-bold text-primary">{item.extra ?? `${item.pct}%`}</span>
-                  </div>
-                  <div className="h-2 rounded-full bg-black/20 overflow-hidden">
-                    <div className={`h-full rounded-full ${item.color} transition-all duration-1000`} style={{ width: `${item.pct * 2.5}%` }} />
+      {/* ── CATEGORIES WITH IMAGES ───────────────────────────────────────── */}
+      <section className="border-t border-border bg-surface/30 px-6 py-20">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="text-xs font-mono text-primary uppercase tracking-widest mb-3">Explora por categoría</div>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
+              Todo lo que necesitas para crecer
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">Cada categoría, curada por expertos. Cada producto, verificado por nuestra comunidad.</p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
+            {[
+              { label: "Software & SaaS", icon: Code, img: PX.codescreen, count: "38+", desc: "Apps, plugins, automatizaciones y scripts listos para usar", color: "from-blue-500/20" },
+              { label: "Cursos & Academias", icon: Play, img: PX.education2, count: "52+", desc: "Video cursos HD con instructores certificados", color: "from-purple-500/20" },
+              { label: "eBooks & Guías", icon: BookOpen, img: PX.ebook, count: "41+", desc: "Conocimiento destilado en guías prácticas y PDFs premium", color: "from-emerald-500/20" },
+              { label: "Templates & Recursos", icon: Layers, img: PX.designer, count: "67+", desc: "Diseño, Notion, Figma, Excel y plantillas para todo", color: "from-orange-500/20" },
+              { label: "IA & Automatización", icon: Bot, img: PX.workspace, count: "23+", desc: "Flujos, prompts, bots y agentes de IA productivos", color: "from-pink-500/20" },
+              { label: "Marketing Digital", icon: TrendingUp, img: PX.finance, count: "29+", desc: "Embudos, copy, SEO y estrategias que generan ventas", color: "from-yellow-500/20" },
+            ].map(c => (
+              <Link key={c.label} to="/marketplace" className="group relative rounded-2xl overflow-hidden border border-border hover:border-primary/40 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5">
+                <div className="relative aspect-[4/3]">
+                  <img src={c.img} alt={c.label} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  <div className={`absolute inset-0 bg-gradient-to-t ${c.color} via-black/40 to-black/70`} />
+                  <div className="absolute inset-0 p-5 flex flex-col justify-between">
+                    <div className="flex items-center justify-between">
+                      <div className="size-9 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center">
+                        <c.icon className="size-4 text-white" />
+                      </div>
+                      <span className="text-[10px] font-bold bg-white/10 backdrop-blur-sm border border-white/20 px-2 py-1 rounded-full text-white/90">{c.count} productos</span>
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-white text-lg mb-1">{c.label}</h3>
+                      <p className="text-white/60 text-[11px] line-clamp-2">{c.desc}</p>
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── PRICING ──────────────────────────────────────────────────────── */}
-      <section id="precios" className="max-w-7xl mx-auto px-6 py-24 border-t border-border">
-        <div className="text-center mb-14">
-          <div className="text-xs font-mono text-primary uppercase tracking-widest mb-3">Planes y Precios</div>
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">Escala a tu ritmo</h2>
-          <p className="text-muted-foreground max-w-xl mx-auto text-lg">14 días gratis en cualquier plan. Sin contratos. Cancela cuando quieras.</p>
-        </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
-          {pricingPlans.map(plan => (
-            <div key={plan.id} className={`relative rounded-2xl border p-7 flex flex-col transition-all duration-300 hover:scale-[1.02] ${
-              plan.highlight
-                ? "bg-primary/5 border-primary/40 ring-2 ring-primary/20 shadow-lg shadow-primary/10"
-                : "bg-surface border-border hover:border-primary/20"
-            }`}>
-              {plan.highlight && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-wider shadow-lg">
-                  <Flame className="size-3" /> Más Popular
+      {/* ── WHY BUY HERE ─────────────────────────────────────────────────── */}
+      <section className="px-6 py-20">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <div className="text-xs font-mono text-primary uppercase tracking-widest mb-3">Por qué elegir PULSE AI</div>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">Compra sin miedo. Aprende sin límites.</h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">Cada centavo que inviertes está protegido. Si no quedas satisfecho, te devolvemos el dinero.</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              { icon: Shield, title: "Garantía Total 30 días", desc: "No te gustó el producto? Te devolvemos cada peso sin hacer preguntas. Cero riesgo.", color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
+              { icon: Download, title: "Descarga al instante", desc: "Pagas y en segundos tienes tu producto. Sin esperas. Sin complicaciones. Disponible 24/7.", color: "text-primary", bg: "bg-primary/10 border-primary/20" },
+              { icon: Lock, title: "Pago 100% Seguro", desc: "Mercado Pago, PSE y Nequi. Encriptación SSL. Tu información financiera siempre protegida.", color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20" },
+              { icon: BadgeCheck, title: "Productos Verificados", desc: "Cada vendedor y producto pasa por verificación. Compras solo de creadores certificados.", color: "text-purple-400", bg: "bg-purple-500/10 border-purple-500/20" },
+              { icon: Users, title: "Comunidad de +2.400", desc: "Únete a miles de compradores que ya están aplicando lo que aprendieron aquí.", color: "text-yellow-400", bg: "bg-yellow-500/10 border-yellow-500/20" },
+              { icon: Headphones, title: "Soporte Humano 24/7", desc: "Tenemos problemas? Te respondemos en minutos. En español. Con solución garantizada.", color: "text-rose-400", bg: "bg-rose-500/10 border-rose-500/20" },
+            ].map(f => (
+              <div key={f.title} className={`rounded-2xl border ${f.bg} p-7 hover:scale-[1.02] transition-transform duration-300`}>
+                <div className={`size-12 rounded-xl ${f.bg} flex items-center justify-center mb-5`}>
+                  <f.icon className={`size-6 ${f.color}`} />
                 </div>
-              )}
-              <div className="mb-6">
-                <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">{plan.name}</div>
-                <div className="flex items-end gap-1 mb-2">
-                  <span className="text-5xl font-extrabold tracking-tight">${plan.price}</span>
-                  <span className="text-muted-foreground text-sm mb-2">/mes</span>
-                </div>
-                <p className="text-sm text-muted-foreground">{plan.description}</p>
+                <h3 className="font-bold text-lg mb-2">{f.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
               </div>
-              <ul className="space-y-2.5 flex-1 mb-7">
-                {plan.features.map(f => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-muted-foreground">
-                    <Check className="size-4 text-primary mt-0.5 shrink-0" /> {f}
-                  </li>
-                ))}
-              </ul>
-              <Button asChild variant={plan.highlight ? "contrast" : "outline"} className="w-full font-bold">
-                <Link to="/vender">{plan.cta}</Link>
-              </Button>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-        <p className="text-center text-sm text-muted-foreground mt-10">
-          ¿Necesitas facturación anual o implementación personalizada?{" "}
-          <a href="https://wa.me/573147444715" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Habla con ventas →</a>
-        </p>
       </section>
 
-      {/* ── FINAL CTA ────────────────────────────────────────────────────── */}
-      <section className="px-6 pb-28 border-t border-border pt-24">
+      {/* ── SOCIAL PROOF — Testimonials ──────────────────────────────────── */}
+      <section className="border-t border-border bg-surface/30 px-6 py-20 overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <div className="text-xs font-mono text-primary uppercase tracking-widest mb-3">Historias reales</div>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">Los que compraron ya cambiaron su historia</h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              {
+                name: "Andrés M.", city: "Bogotá", product: "Masterclass IA Engineering",
+                img: PX.coding2,
+                quote: "Antes perdía 3 horas diarias en tareas manuales. Apliqué el curso de automatización y ahora eso lo hace un script en 5 minutos. Mi cliente lo notó y me subió el contrato.",
+                stars: 5, gain: "Automatizó su flujo de trabajo completo",
+              },
+              {
+                name: "Laura V.", city: "Medellín", product: "Guía Finanzas Personales",
+                img: PX.education,
+                quote: "Compré dudando. A los 3 días ya había aplicado el módulo de inversión y empecé a ver resultados. La garantía de 30 días me dio el empujón que necesitaba para intentarlo.",
+                stars: 5, gain: "Comenzó a invertir con confianza",
+              },
+              {
+                name: "Carlos R.", city: "Cali", product: "Pack Automatización Python",
+                img: PX.dev,
+                quote: "Los scripts vinieron listos para correr. No tuve que escribir una sola línea de código. Le ofrecí el servicio a 3 clientes y recuperé la inversión en 48 horas.",
+                stars: 5, gain: "Recuperó la inversión en 48 horas",
+              },
+            ].map(t => (
+              <div key={t.name} className="bg-surface border border-border rounded-2xl overflow-hidden group hover:border-primary/30 transition-all">
+                <div className="relative h-44 overflow-hidden">
+                  <img src={t.img} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent" />
+                  <div className="absolute bottom-3 left-4">
+                    <span className="text-[10px] font-mono bg-primary/90 text-primary-foreground px-2 py-1 rounded-full">{t.product}</span>
+                  </div>
+                </div>
+                <div className="p-5">
+                  <div className="flex mb-3">
+                    {Array.from({ length: t.stars }).map((_, i) => (
+                      <Star key={i} className="size-3.5 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                  <p className="text-sm text-muted-foreground italic leading-relaxed mb-4">"{t.quote}"</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-bold text-sm">{t.name}</div>
+                      <div className="text-[10px] text-muted-foreground">{t.city}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+                        <Check className="size-3" /> {t.gain}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── HOW IT WORKS (BUYER) ─────────────────────────────────────────── */}
+      <section className="px-6 py-20">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <div className="text-xs font-mono text-primary uppercase tracking-widest mb-3">Tan simple como</div>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight">3 pasos para tener tu producto</h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              { n: "01", icon: Sparkles, title: "Elige tu producto", desc: "Navega el marketplace, filtra por categoría, lee reseñas reales y encuentra exactamente lo que necesitas.", img: PX.laptop },
+              { n: "02", icon: Lock, title: "Pago seguro en segundos", desc: "Mercado Pago, PSE, Nequi o tarjeta. Procesamos tu pago con encriptación bancaria. Tu dinero siempre protegido.", img: PX.workspace },
+              { n: "03", icon: Download, title: "Descarga instantánea", desc: "Acceso inmediato. Descarga tu archivo o accede al link de entrega en segundos. Tuyo para siempre.", img: PX.ebook2 },
+            ].map((s, i) => (
+              <div key={s.n} className="group text-center">
+                <div className="relative mb-6 rounded-2xl overflow-hidden border border-border group-hover:border-primary/40 transition-all">
+                  <img src={s.img} alt={s.title} loading="lazy" className="w-full object-cover group-hover:scale-110 transition-transform duration-700" style={{ aspectRatio: "4/3" }} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
+                    <div className="size-14 rounded-2xl bg-primary/90 border border-primary flex items-center justify-center shadow-xl">
+                      <s.icon className="size-6 text-primary-foreground" />
+                    </div>
+                  </div>
+                  <span className="absolute top-3 left-3 text-5xl font-extrabold text-white/10 font-mono">{s.n}</span>
+                </div>
+                <h3 className="font-bold text-xl mb-3 group-hover:text-primary transition-colors">{s.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── URGENCY / SCARCITY CTA ───────────────────────────────────────── */}
+      <section className="px-6 pb-20">
         <div className="max-w-4xl mx-auto">
           <div className="relative rounded-3xl overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-blue-500/10" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_120%,oklch(0.7_0.146_162.5/0.25),transparent)]" />
-            <div className="absolute inset-0 border border-primary/20 rounded-3xl" />
-            <div className="relative px-8 py-16 md:px-16 md:py-20 text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono mb-8">
-                <Heart className="size-3.5 fill-primary" /> La nueva generación del negocio digital latinoamericano
+            <img src={PX.success} alt="" className="absolute inset-0 w-full h-full object-cover opacity-20" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/15 to-background" />
+            <div className="relative text-center px-8 py-20">
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 rounded-full text-sm font-mono mb-8">
+                <Clock className="size-4 text-primary" />
+                <span>Ofertas activas ahora mismo · Descuentos hasta 70%</span>
               </div>
               <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 text-balance">
-                El mejor momento<br />para empezar fue ayer.<br />
-                <span className="text-primary">El segundo mejor es hoy.</span>
+                El único momento de actuar<br />
+                <span className="text-primary">es ahora.</span>
               </h2>
-              <p className="text-muted-foreground text-xl mb-10 max-w-lg mx-auto">
-                Únete a creadores y empresas que escalan sus negocios digitales con PULSE AI.
+              <p className="text-xl text-muted-foreground mb-4 max-w-2xl mx-auto leading-relaxed">
+                Cada día que pasa sin el conocimiento correcto es un día que tu competencia avanza.
+                <span className="text-foreground font-semibold"> Los precios especiales de hoy no duran para siempre.</span>
               </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Button asChild size="lg" variant="contrast" className="gap-2 text-base px-10 h-14 font-bold shadow-xl shadow-primary/30">
+              <p className="text-sm text-muted-foreground mb-10">
+                Más de <strong className="text-foreground"><LiveViewers /></strong> personas en el marketplace ahora mismo.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button asChild size="lg" variant="contrast" className="gap-2 text-lg px-10 h-16 font-bold shadow-2xl shadow-primary/40 hover:shadow-primary/60 transition-shadow">
                   <Link to="/marketplace">
-                    <Sparkles className="size-5" /> Explorar el Marketplace
+                    <Flame className="size-5" /> Ver todos los productos
                   </Link>
                 </Button>
-                <Button asChild size="lg" variant="outline" className="gap-2 text-base px-10 h-14">
-                  <Link to="/vender">
-                    <ChevronRight className="size-5" /> Empezar gratis hoy
+                <Button asChild size="lg" variant="outline" className="gap-2 text-lg px-10 h-16 backdrop-blur-sm bg-white/5 border-white/20">
+                  <Link to="/marketplace">
+                    <Package className="size-5" /> Explorar categorías
                   </Link>
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground mt-6">Sin tarjeta · Setup en 5 min · Soporte en español 24/7 · Garantía 30 días</p>
+              <p className="text-xs text-muted-foreground mt-8 flex items-center justify-center gap-4 flex-wrap">
+                <span className="flex items-center gap-1"><Shield className="size-3" /> Garantía 30 días</span>
+                <span className="flex items-center gap-1"><Lock className="size-3" /> Pago seguro</span>
+                <span className="flex items-center gap-1"><Download className="size-3" /> Descarga instantánea</span>
+                <span className="flex items-center gap-1"><BadgeCheck className="size-3" /> Productos verificados</span>
+              </p>
             </div>
           </div>
         </div>

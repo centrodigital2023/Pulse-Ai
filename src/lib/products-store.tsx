@@ -3,6 +3,25 @@ import type { MarketplaceListing } from "@/lib/mock-data";
 
 const STORE_KEY = "pulse_products_v1";
 
+const PEXELS_FALLBACKS = [
+  "https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  "https://images.pexels.com/photos/3861951/pexels-photo-3861951.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  "https://images.pexels.com/photos/1714202/pexels-photo-1714202.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  "https://images.pexels.com/photos/5905716/pexels-photo-5905716.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  "https://images.pexels.com/photos/8546475/pexels-photo-8546475.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  "https://images.pexels.com/photos/15977087/pexels-photo-15977087.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  "https://images.pexels.com/photos/5717755/pexels-photo-5717755.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  "https://images.pexels.com/photos/10352379/pexels-photo-10352379.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  "https://images.pexels.com/photos/19059657/pexels-photo-19059657.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+  "https://images.pexels.com/photos/5899215/pexels-photo-5899215.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+];
+
+function pexelsFallback(id: string): string {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+  return PEXELS_FALLBACKS[hash % PEXELS_FALLBACKS.length];
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface VendorProduct {
@@ -124,7 +143,7 @@ function toMarketplaceListing(p: VendorProduct): MarketplaceListing {
     viewers: p.viewers,
     badge: p.badge ?? "new",
     tagline: p.tagline,
-    image: (p.images?.[0]) || p.coverImage || `https://picsum.photos/seed/${p.id}/600/400`,
+    image: (p.images?.[0]) || p.coverImage || pexelsFallback(p.id),
     images: p.images && p.images.length > 0 ? p.images : undefined,
     tags: p.tags.length > 0 ? p.tags : ["Digital", "Descarga"],
   };
