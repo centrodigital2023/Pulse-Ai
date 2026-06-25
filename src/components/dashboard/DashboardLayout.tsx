@@ -4,7 +4,7 @@ import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, Package, Users, KeyRound, Webhook, Mail,
   Library, BarChart3, TrendingUp, Zap, BookOpen, Store, Bot,
-  Settings, ChevronRight, Bell, Search, Lock, Menu, LogOut, User as UserIcon, Shield,
+  Settings, ChevronRight, Bell, Search, Lock, Menu, LogOut, User as UserIcon, Shield, Landmark,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
