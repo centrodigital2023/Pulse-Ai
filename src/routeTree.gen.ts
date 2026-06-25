@@ -28,6 +28,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardWebhooksRouteImport } from './routes/dashboard.webhooks'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
+import { Route as DashboardPseTestRouteImport } from './routes/dashboard.pse-test'
 import { Route as DashboardProductsRouteImport } from './routes/dashboard.products'
 import { Route as DashboardMarketplaceRouteImport } from './routes/dashboard.marketplace'
 import { Route as DashboardLicensesRouteImport } from './routes/dashboard.licenses'
@@ -138,6 +139,11 @@ const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
   path: '/dashboard/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardPseTestRoute = DashboardPseTestRouteImport.update({
+  id: '/dashboard/pse-test',
+  path: '/dashboard/pse-test',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardProductsRoute = DashboardProductsRouteImport.update({
   id: '/dashboard/products',
   path: '/dashboard/products',
@@ -238,6 +244,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/licenses': typeof DashboardLicensesRoute
   '/dashboard/marketplace': typeof DashboardMarketplaceRoute
   '/dashboard/products': typeof DashboardProductsRouteWithChildren
+  '/dashboard/pse-test': typeof DashboardPseTestRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -273,6 +280,7 @@ export interface FileRoutesByTo {
   '/dashboard/licenses': typeof DashboardLicensesRoute
   '/dashboard/marketplace': typeof DashboardMarketplaceRoute
   '/dashboard/products': typeof DashboardProductsRouteWithChildren
+  '/dashboard/pse-test': typeof DashboardPseTestRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -309,6 +317,7 @@ export interface FileRoutesById {
   '/dashboard/licenses': typeof DashboardLicensesRoute
   '/dashboard/marketplace': typeof DashboardMarketplaceRoute
   '/dashboard/products': typeof DashboardProductsRouteWithChildren
+  '/dashboard/pse-test': typeof DashboardPseTestRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -346,6 +355,7 @@ export interface FileRouteTypes {
     | '/dashboard/licenses'
     | '/dashboard/marketplace'
     | '/dashboard/products'
+    | '/dashboard/pse-test'
     | '/dashboard/settings'
     | '/dashboard/webhooks'
     | '/dashboard/'
@@ -381,6 +391,7 @@ export interface FileRouteTypes {
     | '/dashboard/licenses'
     | '/dashboard/marketplace'
     | '/dashboard/products'
+    | '/dashboard/pse-test'
     | '/dashboard/settings'
     | '/dashboard/webhooks'
     | '/dashboard'
@@ -416,6 +427,7 @@ export interface FileRouteTypes {
     | '/dashboard/licenses'
     | '/dashboard/marketplace'
     | '/dashboard/products'
+    | '/dashboard/pse-test'
     | '/dashboard/settings'
     | '/dashboard/webhooks'
     | '/dashboard/'
@@ -452,6 +464,7 @@ export interface RootRouteChildren {
   DashboardLicensesRoute: typeof DashboardLicensesRoute
   DashboardMarketplaceRoute: typeof DashboardMarketplaceRoute
   DashboardProductsRoute: typeof DashboardProductsRouteWithChildren
+  DashboardPseTestRoute: typeof DashboardPseTestRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardWebhooksRoute: typeof DashboardWebhooksRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
@@ -591,6 +604,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard/settings'
       fullPath: '/dashboard/settings'
       preLoaderRoute: typeof DashboardSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/pse-test': {
+      id: '/dashboard/pse-test'
+      path: '/dashboard/pse-test'
+      fullPath: '/dashboard/pse-test'
+      preLoaderRoute: typeof DashboardPseTestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/products': {
@@ -734,6 +754,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardLicensesRoute: DashboardLicensesRoute,
   DashboardMarketplaceRoute: DashboardMarketplaceRoute,
   DashboardProductsRoute: DashboardProductsRouteWithChildren,
+  DashboardPseTestRoute: DashboardPseTestRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardWebhooksRoute: DashboardWebhooksRoute,
   DashboardIndexRoute: DashboardIndexRoute,
