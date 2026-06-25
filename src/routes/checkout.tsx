@@ -862,6 +862,12 @@ function Checkout() {
             </div>
 
             {/* Pay button */}
+            <div className="rounded-xl bg-emerald-500/8 border border-emerald-500/20 p-3 flex items-start gap-2.5">
+              <Check className="size-4 text-emerald-400 shrink-0 mt-0.5" />
+              <p className="text-xs text-emerald-300 leading-relaxed">
+                <strong>No necesitas crear una cuenta en Mercado Pago.</strong> Paga como invitado con tarjeta, PSE, Nequi, Daviplata o Efecty de forma segura.
+              </p>
+            </div>
             <button
               onClick={handlePay}
               disabled={loading}
