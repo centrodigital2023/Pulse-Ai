@@ -31,6 +31,7 @@ const navGroups = [
       { title: "Cursos", url: "/dashboard/courses", icon: BookOpen },
       { title: "Marketplace", url: "/dashboard/marketplace", icon: Store },
       { title: "Checkout", url: "/dashboard/checkout", icon: KeyRound },
+      { title: "Verificación PSE", url: "/dashboard/pse-test", icon: Landmark },
     ],
   },
   {
