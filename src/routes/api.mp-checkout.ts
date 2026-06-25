@@ -111,8 +111,14 @@ export const Route = createFileRoute("/api/mp-checkout")({
               },
               auto_return: "approved",
               payment_methods: {
+                // No restrictions: offer every method MP enables for the
+                // account (cards, PSE, Bancolombia transfer, Nequi, Efecty…).
+                excluded_payment_methods: [],
+                excluded_payment_types: [],
                 installments: order.installments ?? 12,
+                default_installments: 1,
               },
+              statement_descriptor: "PULSE AI",
               notification_url: `${origin}/api/public/mp-webhook`,
             },
           });
