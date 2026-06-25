@@ -66,10 +66,12 @@ export const Route = createFileRoute("/api/mp-checkout")({
             status: "pending",
           }));
 
+          // Non-blocking: if the order can't be persisted (e.g. missing
+          // service role key) the buyer can still pay. The webhook reconciles
+          // the order on confirmation via external_reference / group_ref.
           const { error: insertError } = await supabaseAdmin.from("orders").insert(rows);
           if (insertError) {
-            console.error("[MP Checkout] order insert failed", insertError);
-            return Response.json({ error: "No se pudo registrar la orden" }, { status: 500 });
+            console.error("[MP Checkout] order insert failed (continuing)", insertError);
           }
 
           if (!accessToken) {
