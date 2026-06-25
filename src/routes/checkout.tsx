@@ -322,12 +322,14 @@ function CardForm({
 function PSEForm() {
   const [bank, setBank] = useState("");
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const filtered = PSE_BANKS.filter(b => b.toLowerCase().includes(query.trim().toLowerCase()));
   return (
     <div className="space-y-4">
       <div className="rounded-xl bg-blue-500/8 border border-blue-500/20 p-3 flex items-start gap-2.5">
         <AlertCircle className="size-4 text-blue-400 shrink-0 mt-0.5" />
         <p className="text-xs text-blue-300 leading-relaxed">
-          Serás redirigido a tu banco para autorizar el débito. El acceso se activa de inmediato al confirmar.
+          Paga directamente desde tu banco con PSE. <strong>No necesitas registrarte en Mercado Pago.</strong> Serás redirigido a tu banco para autorizar el débito y el acceso se activa de inmediato.
         </p>
       </div>
       <div className="space-y-1.5">
@@ -340,18 +342,33 @@ function PSEForm() {
             <ChevronDown className={`size-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
           </button>
           {open && (
-            <div className="absolute top-full mt-1 left-0 right-0 bg-surface border border-border rounded-xl shadow-2xl z-20 overflow-hidden max-h-52 overflow-y-auto">
-              {PSE_BANKS.map(b => (
-                <button key={b} type="button" onClick={() => { setBank(b); setOpen(false); }}
-                  className={`w-full text-left px-4 py-2.5 text-sm hover:bg-white/5 transition-colors flex items-center gap-2 ${b === bank ? "text-primary font-semibold" : ""}`}
-                >
-                  <div className="size-6 rounded bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">{b[0]}</div>
-                  {b}
-                </button>
-              ))}
+            <div className="absolute top-full mt-1 left-0 right-0 bg-surface border border-border rounded-xl shadow-2xl z-20 overflow-hidden">
+              <div className="p-2 border-b border-border sticky top-0 bg-surface">
+                <Input
+                  autoFocus
+                  value={query}
+                  onChange={e => setQuery(e.target.value)}
+                  placeholder="Buscar banco..."
+                  className="h-9 bg-black/20 text-sm"
+                />
+              </div>
+              <div className="max-h-52 overflow-y-auto">
+                {filtered.length === 0 && (
+                  <div className="px-4 py-3 text-xs text-muted-foreground">Sin resultados para "{query}"</div>
+                )}
+                {filtered.map(b => (
+                  <button key={b} type="button" onClick={() => { setBank(b); setOpen(false); setQuery(""); }}
+                    className={`w-full text-left px-4 py-2.5 text-sm hover:bg-white/5 transition-colors flex items-center gap-2 ${b === bank ? "text-primary font-semibold" : ""}`}
+                  >
+                    <div className="size-6 rounded bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary shrink-0">{b[0]}</div>
+                    {b}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </div>
+        <p className="text-[10px] text-muted-foreground">{PSE_BANKS.length} bancos disponibles vía PSE</p>
       </div>
       <div className="grid grid-cols-[1fr_auto] gap-3">
         <div className="space-y-1.5">
