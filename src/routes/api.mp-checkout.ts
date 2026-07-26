@@ -93,6 +93,13 @@ export const Route = createFileRoute("/api/mp-checkout")({
           const client = new MercadoPagoConfig({ accessToken });
           const preferenceClient = new Preference(client);
 
+          // NOTE sobre "pago como invitado":
+          // Mercado Pago fuerza login cuando el `payer.email` enviado
+          // coincide con una cuenta MP existente. Para maximizar el guest
+          // checkout (tarjeta / PSE / Nequi / Efecty sin registrarse),
+          // NO enviamos `payer.email` en la preferencia. Guardamos el
+          // email del comprador en nuestra orden para el recibo.
+          const isHttps = origin.startsWith("https://");
           const response = await preferenceClient.create({
             body: {
               items: lineItems.map((it, i) => ({
@@ -102,17 +109,15 @@ export const Route = createFileRoute("/api/mp-checkout")({
                 unit_price: Math.round(it.price),
                 currency_id: "COP",
               })),
-              payer: order.userEmail ? { email: order.userEmail } : undefined,
               external_reference: groupRef,
               back_urls: {
                 success: `${origin}/pago-exitoso`,
                 failure: `${origin}/pago-fallido`,
                 pending: `${origin}/pago-exitoso?status=pending`,
               },
-              auto_return: "approved",
+              // auto_return solo es válido con back_urls HTTPS públicas.
+              ...(isHttps ? { auto_return: "approved" as const } : {}),
               payment_methods: {
-                // No restrictions: offer every method MP enables for the
-                // account (cards, PSE, Bancolombia transfer, Nequi, Efecty…).
                 excluded_payment_methods: [],
                 excluded_payment_types: [],
                 installments: order.installments ?? 12,
@@ -120,8 +125,11 @@ export const Route = createFileRoute("/api/mp-checkout")({
               },
               statement_descriptor: "PULSE AI",
               notification_url: `${origin}/api/public/mp-webhook`,
+              binary_mode: false,
+              expires: false,
             },
           });
+
 
           // Persist the preference id against this checkout group.
           await supabaseAdmin
